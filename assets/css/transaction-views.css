@@ -14,7 +14,7 @@
   html body #money #transactionToolbar-expense{display:flex!important;align-items:center!important;justify-content:flex-start!important;flex:0 0 auto!important;flex-wrap:nowrap!important;gap:6px!important;width:auto!important;min-width:0!important;min-height:34px!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
   html body #money #transactionToolbar-expense>*{box-sizing:border-box!important;flex:0 0 auto!important;min-width:0!important;margin:0!important}
   html body #money #transactionToolbar-expense .transaction-view-group{box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;gap:2px!important;height:34px!important;padding:2px!important;border:1px solid var(--line)!important;border-radius:var(--talaan-control-radius)!important;background:var(--surface)!important}
-  html body #money #transactionToolbar-expense .transaction-view-group .button{height:28px!important;min-height:28px!important;padding:0 10px!important;border-color:transparent!important;border-radius:calc(var(--talaan-control-radius) - 2px)!important;background:transparent!important;box-shadow:none!important}
+  html body #money #transactionToolbar-expense .transaction-view-group .button{height:28px!important;min-height:28px!important;padding:0 10px!important;border-color:transparent!important;border-radius:var(--talaan-control-radius)!important;background:transparent!important;box-shadow:none!important}
   html body #money #transactionToolbar-expense .transaction-view-group .button[aria-pressed="true"]{border-color:color-mix(in srgb,var(--primary) 22%,var(--line))!important;background:var(--surface)!important;color:var(--primary)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--primary) 18%,transparent)!important}
   html body #money #transactionToolbar-expense>label{display:block!important;flex:0 0 auto!important;margin:0!important}
   html body #money #transactionToolbar-expense>label:first-of-type [data-transaction-saved-view]{width:142px!important}
@@ -53,7 +53,7 @@
 #paid-expenses #transactionToolbar-paid>.transaction-view-group{display:inline-flex;align-items:center;gap:2px;padding:2px;border:1px solid var(--line);border-radius:var(--talaan-control-radius);background:var(--surface)}
 #paid-expenses #transactionToolbar-paid :is(.button,.select){box-sizing:border-box;height:34px;min-height:34px;border-radius:var(--talaan-control-radius);font-size:.78rem}
 #paid-expenses #transactionToolbar-paid>.transaction-view-group{height:34px;border-radius:var(--talaan-control-radius)}
-#paid-expenses #transactionToolbar-paid>.transaction-view-group .button{height:28px;min-height:28px;padding:0 10px;border-color:transparent;border-radius:calc(var(--talaan-control-radius) - 2px);background:transparent;box-shadow:none}
+#paid-expenses #transactionToolbar-paid>.transaction-view-group .button{height:28px;min-height:28px;padding:0 10px;border-color:transparent;border-radius:var(--talaan-control-radius);background:transparent;box-shadow:none}
 #paid-expenses #transactionToolbar-paid>.transaction-view-group .button[aria-pressed="true"]{border-color:color-mix(in srgb,var(--primary) 25%,var(--line));background:color-mix(in srgb,var(--surface) 90%,var(--primary) 7%);color:var(--primary);box-shadow:0 0 0 1px color-mix(in srgb,var(--primary) 14%,transparent)}
 #paid-expenses #transactionToolbar-paid>label{display:block;margin:0}
 #paid-expenses #transactionToolbar-paid [data-transaction-saved-view]{width:132px}

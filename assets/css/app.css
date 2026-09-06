@@ -1720,7 +1720,7 @@
       display: inline-block;
       margin-top: 5px;
       padding: 2px 5px;
-      border-radius: 4px;
+      border-radius: var(--talaan-control-radius);
       background: var(--surface-soft);
       color: var(--text);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;

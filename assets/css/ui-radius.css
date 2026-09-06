@@ -31,7 +31,6 @@ html body :where(
   .dashboard-week-marquee,
   .finance-week-marquee,
   .work-week-marquee,
-  .dashboard-week-day,
   .nav-icon,
   .legend-item,
   .summary-item,
@@ -172,6 +171,10 @@ html body :is(#dashboard .dashboard-view-tabs,#money .money-workspace-switcher) 
   border-radius: var(--talaan-control-radius) !important;
 }
 html body :is(#dashboard .dashboard-view-tabs > .workspace-switcher-button,#money .money-workspace-switcher > .workspace-switcher-button) {
+  border-radius: var(--talaan-control-radius) !important;
+}
+/* Marquee shells are cards; their short, repeated day tiles are compact controls. */
+html body :is(.dashboard-week-marquee,.finance-week-marquee,.work-week-marquee) .dashboard-week-day {
   border-radius: var(--talaan-control-radius) !important;
 }
 html body #dashboard :is(.button,.input,.select,.textarea,button[class$="-button"],button[class*="-button "]) {

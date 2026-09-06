@@ -1089,7 +1089,7 @@
       get("profileInviteResult").innerHTML = `
         <div style="padding:12px; background:var(--v12-surface-subtle, rgba(0,0,0,0.03)); border:1px solid var(--v12-border, rgba(0,0,0,0.1)); border-radius:var(--talaan-card-radius); margin-top:8px;">
           <div style="font-weight:600; color:var(--text); margin-bottom:4px;">Invitation code generated (copied to clipboard)</div>
-          <code style="display:inline-block; font-size:1.05em; padding:4px 8px; background:var(--v12-bg, #fff); border:1px dashed var(--v12-border); border-radius:4px; letter-spacing:0.5px; word-break:break-all;">${escape(result.code)}</code>
+          <code style="display:inline-block; font-size:1.05em; padding:4px 8px; background:var(--v12-bg, #fff); border:1px dashed var(--v12-border); border-radius:var(--talaan-control-radius, 8px); letter-spacing:0.5px; word-break:break-all;">${escape(result.code)}</code>
           <p style="margin:8px 0 0 0; font-size:0.85em; opacity:0.9; line-height:1.4;">
             <strong>To complete household access:</strong> Give the invited member this <strong>Invitation code</strong> along with your profile's <strong>Encryption passphrase</strong> (the passphrase you set under Profile encryption when creating this profile). They will enter both under <em>Join a shared profile</em>.
           </p>

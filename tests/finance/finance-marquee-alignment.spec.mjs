@@ -18,7 +18,9 @@ test("all Finance pages use the same tabs-left marquee-right desktop row", async
       return {
         childClasses:[...node.children].map(child => child.className),
         switcherHeight:switcher ? getComputedStyle(switcher).height : null,
-        marqueeHeight:marquee ? getComputedStyle(marquee).height : null
+        marqueeHeight:marquee ? getComputedStyle(marquee).height : null,
+        marqueeRadius:marquee ? getComputedStyle(marquee).borderRadius : null,
+        dayRadius:marquee && marquee.querySelector(".dashboard-week-day") ? getComputedStyle(marquee.querySelector(".dashboard-week-day")).borderRadius : null
       };
     });
 
@@ -26,6 +28,8 @@ test("all Finance pages use the same tabs-left marquee-right desktop row", async
     expect(contract.childClasses[1]).toContain("finance-week-marquee");
     expect(contract.switcherHeight).toBe("43px");
     expect(contract.marqueeHeight).toBe("43px");
+    expect(contract.marqueeRadius).toBe("12px");
+    expect(contract.dayRadius).toBe("8px");
   }
 });
 
