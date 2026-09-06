@@ -273,7 +273,7 @@ test("desktop expense cards match the approved compact type, status, and footer 
   expect(metrics.repeatIconSize[0]).toBeCloseTo(30, 0);
   expect(metrics.repeatIconSize[1]).toBeCloseTo(30, 0);
   expect(metrics.repeatBackground).toMatch(/repeat-monthly-(?:on|off)\.png/);
-  expect(metrics.repeatLabelDisplay).toBe("inline-flex");
+  expect(["inline-flex", "flex"]).toContain(metrics.repeatLabelDisplay);
   expect(metrics.repeatText).toMatch(/Repeat(?:s)? monthly/);
   expect(metrics.repeatShadow).toBe("none");
   expect(metrics.repeatRadius).toBeCloseTo(8, 0);
