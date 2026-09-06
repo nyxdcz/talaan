@@ -71,7 +71,7 @@ test("collapsed Monthly Budget Plan stays compact and readable at narrow phone w
   }
 });
 
-test("phone controls use the approved 35px compact rhythm", async ({ page }) => {
+test("phone controls and content cards keep the approved compact rhythm", async ({ page }) => {
   for (const width of [320, 360, 390, 430]) {
     await openApp(page, width);
     const metrics = await page.evaluate(() => {
@@ -92,14 +92,26 @@ test("phone controls use the approved 35px compact rhythm", async ({ page }) => 
             height:box.height
           };
         });
-      const controls = sizes('button, input[type="button"], input[type="submit"], input[type="reset"], summary, [role="button"]');
+      const controls = sizes('button:not(.settings-status-card), input[type="button"], input[type="submit"], input[type="reset"], summary, [role="button"]:not(.settings-status-card)');
       const collapse = sizes('#money .collapse-toggle, #availableMoneySection [data-collapse-toggle], .budget-planner-toggle, .budget-panel-collapse');
-      const headers = sizes('#money .period-header, #availableMoneySection .card-header, #money .legend-item, #money .summary-item');
+      const collapseIcons = sizes('#money .collapse-icon svg, #availableMoneySection .collapse-icon svg');
+      const headers = sizes('#money .period-header, #availableMoneySection .card-header');
+      const contentCards = sizes('#money .legend-item, #money .summary-item');
+      const values = [...document.querySelectorAll('#money .legend-total, #money .summary-card-value, #moneyAvailableTotal')]
+        .filter(visible)
+        .map(element => ({
+          id:element.id || "",
+          text:(element.textContent || "").trim(),
+          clipped:element.scrollWidth > element.clientWidth + 1
+        }));
       return {
         controls,
         oversized:controls.filter(size => size.height > 35.5),
         collapse,
+        collapseIcons,
         headers,
+        contentCards,
+        values,
         overflow:Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) > innerWidth + 1
       };
     });
@@ -112,8 +124,59 @@ test("phone controls use the approved 35px compact rhythm", async ({ page }) => 
       expect(size.height).toBeGreaterThanOrEqual(34.5);
       expect(size.height).toBeLessThanOrEqual(35.5);
     });
+    expect(metrics.collapseIcons.length).toBeGreaterThan(0);
+    metrics.collapseIcons.forEach(size => {
+      expect(size.width).toBeGreaterThanOrEqual(19.5);
+      expect(size.width).toBeLessThanOrEqual(20.5);
+      expect(size.height).toBeGreaterThanOrEqual(19.5);
+      expect(size.height).toBeLessThanOrEqual(20.5);
+    });
     expect(metrics.headers.every(size => size.height <= 35.5)).toBe(true);
+    expect(metrics.contentCards.length).toBeGreaterThanOrEqual(8);
+    metrics.contentCards.forEach(size => {
+      expect(size.height).toBeGreaterThanOrEqual(55.5);
+      expect(size.height).toBeLessThanOrEqual(62.5);
+    });
+    expect(metrics.values.length).toBeGreaterThan(0);
+    expect(metrics.values.every(value => value.text && !value.clipped)).toBe(true);
     expect(metrics.overflow).toBe(false);
+  }
+});
+
+test("phone Settings status cards remain readable content cards", async ({ page }) => {
+  for (const width of [320, 360, 390, 430]) {
+    await openApp(page, width);
+    await page.evaluate(() => document.querySelector(".settings-nav-button")?.click());
+    await expect(page.locator("#settings")).toHaveClass(/active/);
+    const cards = await page.evaluate(() => [...document.querySelectorAll("#settings .settings-status-card")]
+      .filter(card => {
+        const box = card.getBoundingClientRect();
+        const style = getComputedStyle(card);
+        return box.width > 0 && box.height > 0 && style.visibility !== "hidden" && style.display !== "none";
+      })
+      .map(card => {
+        const box = card.getBoundingClientRect();
+        const copy = card.querySelector(".settings-status-copy");
+        const status = card.querySelector(".settings-status-copy strong");
+        const statusBox = status?.getBoundingClientRect();
+        return {
+          height:box.height,
+          inside:box.left >= -1 && box.right <= innerWidth + 1,
+          copyVisible:Boolean(copy && copy.getBoundingClientRect().width > 0),
+          statusText:(status?.textContent || "").trim(),
+          statusInside:Boolean(statusBox && statusBox.left >= -1 && statusBox.right <= innerWidth + 1),
+          statusOverflowX:Boolean(status && status.scrollWidth > status.clientWidth + 1)
+        };
+      }));
+    expect(cards.length).toBe(6);
+    cards.forEach(card => {
+      expect(card.height).toBeGreaterThanOrEqual(70);
+      expect(card.inside).toBe(true);
+      expect(card.copyVisible).toBe(true);
+      expect(card.statusText).not.toBe("");
+      expect(card.statusInside).toBe(true);
+      expect(card.statusOverflowX).toBe(false);
+    });
   }
 });
 
