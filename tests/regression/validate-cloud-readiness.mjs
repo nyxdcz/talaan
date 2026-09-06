@@ -13,6 +13,7 @@ for (const file of accountIntegritySources) { accountIntegrityHash.update(`${fil
 const accountIntegrityQuery = `2.5.0-account-${accountIntegrityHash.digest("hex").slice(0, 12)}`;
 
 assert.match(source, /let clientPromise = null;/);
+assert.match(source, /let authHydrationComplete = false;/);
 assert.match(source, /if \(clientPromise\) return clientPromise;/);
 assert.match(source, /const nextClient = createClient[\s\S]*nextClient\.auth\.onAuthStateChange/);
 assert.match(source, /if \(cloudUser\) ensureSignedInReady\(\)/);
@@ -22,7 +23,10 @@ assert.match(source, /Signed in\. Unlocking Talaan while sync continues in the b
 assert.match(source, /return \{session,user:cloudUser\};/);
 assert.match(source, /continueSignedInInBackground\(\);/);
 assert.match(source, /if \(cloudUser\) await ensureSignedInReady\(\);[\s\S]*else onSignedOut\(\);/);
-assert.match(source, /if \(cloudUser\) ensureSignedInReady\(\)\.catch\([\s\S]*\); else if \(event !== "INITIAL_SESSION"\) onSignedOut\(\);/);
+assert.match(source, /if \(cloudUser\) ensureSignedInReady\(\)\.catch\([\s\S]*\); else if \(authHydrationComplete && event !== "INITIAL_SESSION"\) onSignedOut\(\);/);
+assert.match(source, /authHydrationComplete = false;[\s\S]*if \(!configStatus\(\)\.ok\) \{ authHydrationComplete = true; return; \}/);
+assert.match(source, /else onSignedOut\(\);\s*authHydrationComplete = true;\s*return;/);
+assert.match(source, /authHydrationComplete = true;[\s\S]*setStatus\("Cloud sync unavailable"/);
 assert.match(source, /AUTH_RESTORE_ATTEMPTS/);
 assert.match(source, /transientAuthError\(error\)/);
 assert.match(source, /signedInReadyUserId === userId/);
