@@ -2881,3 +2881,26 @@ html body :is(
     display: none !important;
   }
 }
+
+/* V15.2.26 · Final repeat-label visibility fallback. */
+html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label,
+html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: inherit !important;
+  font-size: .65rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-indent: 0 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
