@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.use({ serviceWorkers:"block" });
 
-test("paid expenses desktop repeat control uses PNG artwork, hides redundant text, and keeps accessible labels", async ({ page }) => {
+test("paid expenses repeat controls keep readable labels, flat styling, and accessible states", async ({ page }) => {
   await page.setViewportSize({ width:1280, height:800 });
   await page.goto("http://127.0.0.1:3000/offline.html", { waitUntil:"networkidle" });
 
@@ -34,7 +34,11 @@ test("paid expenses desktop repeat control uses PNG artwork, hides redundant tex
   await expect(desktopButton).toHaveCSS("height", "30px");
   await expect(icon).toHaveCSS("background-image", /repeat-monthly-off\.png/);
   await expect(star).toHaveCSS("opacity", "0");
-  await expect(desktopButton.locator(".monthly-repeat-label")).toHaveCSS("display", "none");
+  await expect(desktopButton.locator(".monthly-repeat-label")).toHaveCSS("display", "inline-flex");
+  await expect(desktopButton.locator(".monthly-repeat-label")).toHaveText("Repeat monthly");
+  await expect(desktopButton).toHaveCSS("box-shadow", "none");
+  await expect(desktopButton).toHaveCSS("border-radius", "8px");
+  expect(await desktopButton.evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThan(110);
   await expect(desktopButton).toHaveAttribute("aria-label", "Repeat this expense monthly");
   await expect(desktopButton).toHaveAttribute("title", "Does not repeat monthly");
 
@@ -49,4 +53,11 @@ test("paid expenses desktop repeat control uses PNG artwork, hides redundant tex
   await expect(page.locator("#paidExpenseList .mobile-record-actions [data-toggle-saved]")).toHaveText("Repeat monthly");
   await expect(page.locator("#paidExpenseList [data-undo-paid]")).toHaveText("Move to unpaid");
   await expect(page.locator("#paidExpenseList [data-edit-expense]")).toHaveText("Edit");
+
+  await page.setViewportSize({ width:390, height:800 });
+  const mobileRepeat = page.locator("#paidExpenseList .mobile-record-actions [data-toggle-saved]");
+  await expect(mobileRepeat).toHaveText("Repeat monthly");
+  await expect(mobileRepeat).toHaveCSS("height", "35px");
+  await expect(mobileRepeat).toHaveCSS("box-shadow", "none");
+  await expect(mobileRepeat).toHaveCSS("border-radius", "8px");
 });
