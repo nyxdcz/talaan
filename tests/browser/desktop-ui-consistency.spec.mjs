@@ -67,7 +67,7 @@ for (const width of widths) {
       cardPadding:"13px",
       buttonMin:"38px",
       compactHeight:"35px",
-      workspaceRadius:"8px",
+      workspaceRadius:"12px",
       workspaceButton:"35px",
       financeStickyTop:"64px",
       reportTab:"35px",
