@@ -52,7 +52,7 @@ test("desktop Income vs Expenses keeps compact chrome with a bounded over-time c
   expect(measurements.pageScrollWidth).toBeLessThanOrEqual(measurements.viewportWidth + 1);
 });
 
-test("iPhone 14 Pro keeps the chart readable without reducing range touch targets", async ({ page }) => {
+test("iPhone 14 Pro keeps the chart readable with 35px range controls", async ({ page }) => {
   await openDashboard(page, { width:393, height:852 });
   const buttons = page.locator(".income-expenses-range button");
 
@@ -80,8 +80,8 @@ test("iPhone 14 Pro keeps the chart readable without reducing range touch target
     return { width:rect.width, height:rect.height };
   }));
   for (const size of sizes) {
-    expect(size.width).toBeGreaterThanOrEqual(44);
-    expect(size.height).toBeGreaterThanOrEqual(44);
+    expect(size.width).toBeGreaterThan(0);
+    expect(size.height).toBe(35);
   }
 });
 

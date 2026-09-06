@@ -8,6 +8,7 @@ const app = read("assets/css/app.css");
 const sidebar = read("assets/css/sidebar-compact-brand.css");
 const help = read("assets/js/ui/application-help.js");
 const headerTools = read("assets/js/ui/header-tools-compat.js");
+const privacyLock = read("assets/js/privacy-lock.js");
 const worker = read("sw.js");
 const workflow = read(".github/workflows/quality-pages.yml");
 const query = "2.5.0-talaan1";
@@ -27,6 +28,10 @@ for (const forbidden of ["function clearAccountDropTargets", "function runLegacy
 }
 assert.ok(!index.includes("const HELP_CONTENT ="));
 assert.ok(!index.includes("function setupApplicationHelp"));
+for (const marker of ["data-privacy-signin", "Sign in &amp; sync", "handlePrivacySignInSubmit", "financePrivacyInlineSigninStyles", "data-privacy-forgot"]) {
+  assert.ok(privacyLock.includes(marker), `privacy lock must retain inline sign-in contract ${marker}`);
+}
+assert.match(privacyLock, /window\.FinanceCloudSync/);
 assert.match(headerTools, /function installQuickEntryToolsMenuRelocation\(\)/);
 assert.match(headerTools, /function installHeaderToolsRelocation\(\)/);
 for (const file of ["shell-ui.css", "application-help.js", "header-tools-compat.js"]) {

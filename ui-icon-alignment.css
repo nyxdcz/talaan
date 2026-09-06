@@ -818,3 +818,23 @@ html body #topbarToolsPanel #productivityCenterButton .toolbar-icon > svg {
     min-height:42px !important;
   }
 }
+
+
+/* V15.2.25 · Phone month and summary geometry final specificity. */
+@media (max-width: 700px) {
+  html body .topbar-actions .month-picker-popover .month-picker-grid > .month-picker-option {
+    box-sizing: border-box !important;
+    height: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    align-self: start !important;
+  }
+
+  /* Content cards keep their readable 56–60px heights; this is the actual header control. */
+  html body #availableMoneySection > .card-header {
+    box-sizing: border-box !important;
+    height: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+  }
+}

@@ -19,8 +19,8 @@ test("phone Finance uses static compact record layout and icon-only Add account"
     labelDisplay:getComputedStyle(button.querySelector(".phone-only-action-label")).display,
     iconDisplay:getComputedStyle(button.querySelector(".phone-only-action-icon")).display
   }));
-  expect(mobileState.width).toBe("44px");
-  expect(mobileState.height).toBe("44px");
+  expect(mobileState.width).toBe("35px");
+  expect(mobileState.height).toBe("35px");
   expect(mobileState.labelDisplay).toBe("none");
   expect(mobileState.iconDisplay).toBe("grid");
 
@@ -49,8 +49,8 @@ test("dynamically rendered Schedule event becomes icon-only only at phone width"
     labelDisplay:getComputedStyle(button.querySelector(".phone-only-action-label")).display,
     iconDisplay:getComputedStyle(button.querySelector(".phone-only-action-icon")).display
   }));
-  expect(phonePresentation.width).toBe("44px");
-  expect(phonePresentation.height).toBe("44px");
+  expect(phonePresentation.width).toBe("35px");
+  expect(phonePresentation.height).toBe("35px");
   expect(phonePresentation.labelDisplay).toBe("none");
   expect(phonePresentation.iconDisplay).toBe("grid");
 

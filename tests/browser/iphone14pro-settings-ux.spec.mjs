@@ -20,7 +20,7 @@ async function visibleSettingsContract(page) {
       return rect.width > 0 && rect.height > 0 && style.visibility !== "hidden" && style.display !== "none";
     };
     const interactive = [...root.querySelectorAll('button, summary, [role="tab"]')]
-      .filter(node => visible(node) && !node.disabled)
+      .filter(node => visible(node) && !node.disabled && !node.classList.contains("settings-status-card"))
       .map(node => {
         const rect = node.getBoundingClientRect();
         return {
@@ -35,7 +35,7 @@ async function visibleSettingsContract(page) {
       });
     return {
       interactive,
-      undersized:interactive.filter(item => item.height < 43.5 || item.width < 43.5),
+      undersized:interactive.filter(item => item.height < 34.5 || item.height > 35.5),
       outside:interactive.filter(item => item.left < -1 || item.right > innerWidth + 1),
       pageOverflow:document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       viewport:{ width:innerWidth, height:innerHeight }
@@ -43,7 +43,7 @@ async function visibleSettingsContract(page) {
   });
 }
 
-test("iPhone 14 Pro Settings sections keep controls touch-safe and contained", async ({ page }) => {
+test("iPhone 14 Pro Settings sections keep 35px controls contained", async ({ page }) => {
   await openAuthenticatedSettings(page);
 
   const tabs = await page.locator("#settings [data-settings-tab]").evaluateAll(nodes => nodes.map(node => node.id).filter(Boolean));

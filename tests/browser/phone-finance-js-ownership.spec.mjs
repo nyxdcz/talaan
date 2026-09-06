@@ -25,8 +25,8 @@ for (const width of widths) {
       script:[...document.scripts].some(script => String(script.src || "").includes("phone-finance-compat.js?v=2.5.0-talaan1"))
     }));
 
-    expect(state.width).toBe("44px");
-    expect(state.height).toBe("44px");
+    expect(state.width).toBe("35px");
+    expect(state.height).toBe("35px");
     expect(state.labelDisplay).toBe("none");
     expect(state.iconDisplay).toBe("grid");
     expect(state.bound).toBe("true");

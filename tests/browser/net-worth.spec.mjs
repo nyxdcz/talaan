@@ -51,13 +51,13 @@ test("manual assets and liabilities never mutate accounts or Account Ledger", as
   expect(after.store.items.find(item => item.name === "USD fund").valuations[0].amountPhp).toBe(58250);
 });
 
-test("net worth remains touch-safe and contained on a phone", async ({ page }) => {
+test("net worth remains compact and contained on a phone", async ({ page }) => {
   await openNetWorth(page, { width:390, height:844 });
   const geometry = await page.evaluate(() => ({
     overflow:document.documentElement.scrollWidth - document.documentElement.clientWidth,
     short:[...document.querySelectorAll("#netWorthWorkspace button, #netWorthWorkspace .button")].filter(node => {
       const rect = node.getBoundingClientRect();
-      return rect.width > 0 && rect.height > 0 && (rect.width < 44 || rect.height < 44);
+      return rect.width > 0 && rect.height > 0 && (rect.height < 34.5 || rect.height > 35.5);
     }).map(node => ({ text:node.textContent.trim(), width:node.getBoundingClientRect().width, height:node.getBoundingClientRect().height }))
   }));
   expect(geometry.overflow).toBeLessThanOrEqual(1);

@@ -57,12 +57,12 @@ test("Finance tools creates a payee and previews a recoverable rule apply", asyn
   expect(rent.accountDeducted).toBe(false);
 });
 
-test("Finance tools remains touch-safe without phone overflow", async ({ page }) => {
+test("Finance tools remains compact without phone overflow", async ({ page }) => {
   await openTools(page, { width:390, height:844 });
   const geometry = await page.evaluate(() => ({
     overflow:document.documentElement.scrollWidth - document.documentElement.clientWidth,
     short:[...document.querySelectorAll("#settings-panel-finance-tools button, #settings-panel-finance-tools .button")].filter(node => {
-      const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 && (rect.width < 44 || rect.height < 44);
+      const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 && (rect.height < 34.5 || rect.height > 35.5);
     }).map(node => ({ text:node.textContent.trim(), width:node.getBoundingClientRect().width, height:node.getBoundingClientRect().height }))
   }));
   expect(geometry.overflow).toBeLessThanOrEqual(1);

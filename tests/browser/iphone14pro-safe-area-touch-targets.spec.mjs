@@ -49,7 +49,7 @@ async function loadFixture(page, viewport) {
   </body></html>`, { waitUntil:"networkidle" });
 }
 
-test("iPhone 14 Pro safe areas and compact controls stay finger-safe", async ({ page }) => {
+test("iPhone 14 Pro safe areas and 35px compact controls stay contained", async ({ page }) => {
   await loadFixture(page, IPHONE_14_PRO);
 
   const state = await page.evaluate(() => {
@@ -72,11 +72,18 @@ test("iPhone 14 Pro safe areas and compact controls stay finger-safe", async ({ 
     };
   });
 
+  const iconControlIds = new Set([
+    "yearPrevious", "syncClose", "helpClose", "settingsClear", "emojiOption",
+    "emojiCustom", "gymRemove", "kanbanMenu", "toastDismiss"
+  ]);
   Object.entries(state.controls).forEach(([id, rect]) => {
-    expect(rect.height, `${id} height`).toBeGreaterThanOrEqual(44);
-    expect(rect.width, `${id} width`).toBeGreaterThanOrEqual(44);
+    expect(rect.height, id + " height").toBe(35);
+    expect(rect.width, id + " width").toBeGreaterThan(0);
+    if (iconControlIds.has(id)) {
+      expect(rect.width, id + " width").toBe(35);
+    }
   });
-  expect(state.monthOptionHeight).toBeGreaterThanOrEqual(44);
+  expect(state.monthOptionHeight).toBe(35);
   expect(state.monthPicker.left).toBeGreaterThanOrEqual(0);
   expect(state.monthPicker.right).toBeLessThanOrEqual(IPHONE_14_PRO.width);
   expect(state.emojiPanel.left).toBeGreaterThanOrEqual(0);

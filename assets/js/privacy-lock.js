@@ -14,7 +14,7 @@
     "#previousMonthButton", "#nextMonthButton", "#monthDisplayButton", "#currentMonthButton",
     "#monthPicker", "#monthPickerPreviousYear", "#monthPickerNextYear", "#monthPickerGrid button",
     "#topbarToolsTrigger", "#themeToggleButton", ".finance-privacy-signin",
-    "[data-help-key]", "[data-section-help]", "[data-close='sectionHelpDialog']", "[data-close='pwaInstallGuideDialog']",
+    "[data-help-key]", "[data-section-help]", "[data-privacy-signin]", "[data-privacy-signin]", "[data-close='sectionHelpDialog']", "[data-close='pwaInstallGuideDialog']",
     "[data-settings-tab='sync']", "[data-settings-tab='app']", "#settingsBackButton", "[data-settings-open='sync']", "[data-settings-open='app']",
     "#settingsSearchButton", "#settingsSearchInput", "#settingsSearchClear", "[data-settings-search-result]",
     "#cloudConfigUrl", "#cloudConfigKey", "#saveCloudConfig", "#clearCloudConfig",
@@ -384,31 +384,149 @@
     return String(heading?.textContent || page.id || "Finance records").trim();
   }
 
-  function ensurePrivacyViews(){
-    document.querySelectorAll(".page:not(#settings)").forEach(page => {
-      let view=page.querySelector(":scope > .finance-privacy-lock-view");
-      if(!view){
-        view=document.createElement("section");
-        view.className="finance-privacy-lock-view";
-        view.setAttribute("aria-live","polite");
-        view.innerHTML=`
-          <div class="finance-privacy-lock-card">
-            <div class="finance-privacy-lock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
-            <div class="finance-privacy-lock-copy"><span class="finance-privacy-eyebrow">Signed-out privacy</span><h3>Sign in to view ${pageLabel(page)}</h3><p>No accounts, expenses, projects, payments, calendar events, reports, or search suggestions are shown while signed out.</p></div>
-            <div class="finance-privacy-zero-grid" aria-label="Signed-out finance totals">
-              <div><span>Available money</span><strong>₱0.00</strong></div>
-              <div><span>Income</span><strong>₱0.00</strong></div>
-              <div><span>Expenses</span><strong>₱0.00</strong></div>
-              <div><span>Projects</span><strong>0</strong></div>
-            </div>
-            <button class="button button-primary finance-privacy-signin" type="button">Sign in to view records</button>
-            <small>Your local records stay stored on this device. Signing out hides them; it does not delete them.</small>
-          </div>`;
-        page.appendChild(view);
-      }
-    });
+  function ensurePrivacyStyles(){
+    if(document.getElementById("financePrivacyInlineSigninStyles")) return;
+    const style=document.createElement("style");
+    style.id="financePrivacyInlineSigninStyles";
+    style.textContent=`
+      .finance-privacy-signin-form{display:grid;gap:10px;padding:12px;border:1px solid var(--line);border-radius:var(--talaan-card-radius,16px);background:var(--surface-soft);text-align:left}
+      .finance-privacy-signin-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+      .finance-privacy-signin-fields label{display:grid;gap:5px;color:var(--muted);font-size:.72rem;font-weight:750}
+      .finance-privacy-signin-fields input{width:100%;min-height:42px}
+      .finance-privacy-signin-password{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
+      .finance-privacy-signin-password button{min-height:42px;padding-inline:10px;border:1px solid var(--line);border-radius:var(--talaan-control-radius,10px);background:var(--surface);color:var(--text);cursor:pointer}
+      .finance-privacy-signin-actions{display:flex;gap:8px;flex-wrap:wrap}
+      .finance-privacy-signin-actions .button{flex:1 1 170px}
+      .finance-privacy-signin-links{display:flex;justify-content:flex-end}
+      .finance-privacy-signin-links button{border:0;background:transparent;color:var(--primary);font-size:.72rem;font-weight:750;padding:2px;cursor:pointer}
+      .finance-privacy-signin-message{margin:0;color:var(--muted);font-size:.72rem;line-height:1.4}
+      .finance-privacy-signin-message[data-tone="success"]{color:var(--green)}
+      .finance-privacy-signin-message[data-tone="danger"]{color:var(--red)}
+      .finance-privacy-signin-message[data-tone="warning"]{color:var(--orange)}
+      @media(max-width:700px){.finance-privacy-signin-fields{grid-template-columns:1fr}.finance-privacy-signin-actions{display:grid}.finance-privacy-signin-actions .button{width:100%}}
+    `;
+    document.head.appendChild(style);
   }
-  function removeTopbarSignIn(){
+
+  function setPrivacyFormMessage(form,message,tone="info"){
+    const node=form?.querySelector?.("[data-privacy-auth-message]");
+    if(!node) return;
+    node.textContent=String(message||"");
+    node.dataset.tone=tone;
+  }
+
+  function setPrivacyFormBusy(form,busy,label="Signing in…"){
+    if(!form) return;
+    form.dataset.busy=busy?"true":"false";
+    form.querySelectorAll("input,button").forEach(control=>{ control.disabled=busy; });
+    const submit=form.querySelector("[data-privacy-submit]");
+    if(!submit) return;
+    if(!submit.dataset.defaultLabel) submit.dataset.defaultLabel=submit.textContent;
+    submit.textContent=busy?label:submit.dataset.defaultLabel;
+  }
+
+  function privacyFormCredentials(form){
+    return {
+      email:String(form?.querySelector?.("[name=\"email\"]")?.value||"").trim().toLowerCase(),
+      password:String(form?.querySelector?.("[name=\"password\"]")?.value||"")
+    };
+  }
+
+  function validPrivacyEmail(value){ return /^\S+@\S+\.\S+$/.test(String(value||"")); }
+
+  async function handlePrivacySignInSubmit(form){
+    if(!form || form.dataset.busy==="true") return;
+    const {email,password}=privacyFormCredentials(form);
+    if(!validPrivacyEmail(email)){ setPrivacyFormMessage(form,"Enter a valid email address.","warning"); form.querySelector("[name=\"email\"]")?.focus(); return; }
+    if(password.length<6){ setPrivacyFormMessage(form,"Enter your password (at least 6 characters).","warning"); form.querySelector("[name=\"password\"]")?.focus(); return; }
+    const api=window.FinanceCloudSync;
+    if(typeof api?.signIn!=="function"){ setPrivacyFormMessage(form,"Cloud sign-in is still loading. Please try again in a moment.","warning"); return; }
+    setPrivacyFormBusy(form,true,"Signing in…");
+    setPrivacyFormMessage(form,"Signing in and preparing sync…","info");
+    try {
+      await api.signIn(email,password);
+      setPrivacyFormMessage(form,"Signed in. Your records are available while sync continues in the background.","success");
+    } catch(error) {
+      setPrivacyFormMessage(form,error?.message||"Could not sign in. Check your details and try again.","danger");
+    } finally {
+      setPrivacyFormBusy(form,false);
+    }
+  }
+
+  async function handlePrivacyCreateAccount(form){
+    if(!form || form.dataset.busy==="true") return;
+    const {email,password}=privacyFormCredentials(form);
+    if(!validPrivacyEmail(email)){ setPrivacyFormMessage(form,"Enter a valid email address.","warning"); form.querySelector("[name=\"email\"]")?.focus(); return; }
+    if(password.length<6){ setPrivacyFormMessage(form,"Use a password with at least 6 characters.","warning"); form.querySelector("[name=\"password\"]")?.focus(); return; }
+    const api=window.FinanceCloudSync;
+    if(typeof api?.createAccount!=="function"){ setPrivacyFormMessage(form,"Cloud sign-in is still loading. Please try again in a moment.","warning"); return; }
+    setPrivacyFormBusy(form,true,"Creating…");
+    setPrivacyFormMessage(form,"Creating your private account…","info");
+    try {
+      const result=await api.createAccount(email,password);
+      const message=result?.confirmed===false ? "Account created. Check your email to confirm it, then sign in here." : "Account created. Your records are available while sync continues in the background.";
+      setPrivacyFormMessage(form,message,result?.confirmed===false?"warning":"success");
+    } catch(error) {
+      setPrivacyFormMessage(form,error?.message||"Could not create the account. Try again.","danger");
+    } finally {
+      setPrivacyFormBusy(form,false);
+    }
+  }
+
+  function handlePrivacyPasswordToggle(button){
+    const form=button?.closest?.("[data-privacy-signin]");
+    const input=form?.querySelector?.("[name=\"password\"]");
+    if(!input) return;
+    const visible=input.type==="password";
+    input.type=visible?"text":"password";
+    button.textContent=visible?"Hide":"Show";
+    button.setAttribute("aria-pressed",String(visible));
+    button.setAttribute("aria-label",`${visible?"Hide":"Show"} password`);
+  }
+
+  function handlePrivacyForgotPassword(form){
+    const email=privacyFormCredentials(form).email;
+    try { if(typeof goToPage==="function") goToPage("settings",{historyMode:"none",smooth:false}); } catch(error) {}
+    try { if(typeof activateSettingsPanel==="function") activateSettingsPanel("sync",false); } catch(error) {}
+    setTimeout(()=>{
+      const input=document.getElementById("cloudAuthEmail");
+      if(input){ input.value=email; input.focus(); }
+      document.getElementById("cloudForgotPassword")?.scrollIntoView?.({block:"center",behavior:"smooth"});
+    },30);
+  }
+
+  function ensurePrivacyViews(){
+    ensurePrivacyStyles();
+    document.querySelectorAll(".page:not(#settings)").forEach(page=>{
+      let view=page.querySelector(":scope > .finance-privacy-lock-view");
+      if(view) return;
+      view=document.createElement("section");
+      view.className="finance-privacy-lock-view";
+      view.setAttribute("aria-live","polite");
+      view.innerHTML=`
+        <div class="finance-privacy-lock-card">
+          <div class="finance-privacy-lock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+          <div class="finance-privacy-lock-copy"><span class="finance-privacy-eyebrow">Signed-out privacy</span><h3>Sign in to view ${pageLabel(page)}</h3><p>No accounts, expenses, projects, payments, calendar events, reports, or search suggestions are shown while signed out.</p></div>
+          <div class="finance-privacy-zero-grid" aria-label="Signed-out finance totals">
+            <div><span>Available money</span><strong>₱0.00</strong></div>
+            <div><span>Income</span><strong>₱0.00</strong></div>
+            <div><span>Expenses</span><strong>₱0.00</strong></div>
+            <div><span>Projects</span><strong>0</strong></div>
+          </div>
+          <form class="finance-privacy-signin-form" data-privacy-signin novalidate>
+            <div class="finance-privacy-signin-fields">
+              <label>Email<input name="email" type="email" autocomplete="username" inputmode="email" placeholder="you@example.com"></label>
+              <label>Password<div class="finance-privacy-signin-password"><input name="password" type="password" autocomplete="current-password" minlength="6" placeholder="At least 6 characters"><button type="button" data-privacy-password-toggle="true" aria-pressed="false" aria-label="Show password">Show</button></div></label>
+            </div>
+            <div class="finance-privacy-signin-actions"><button class="button button-primary" type="submit" data-privacy-submit>Sign in &amp; sync</button><button class="button button-secondary" type="button" data-privacy-create="true">Create account</button></div>
+            <div class="finance-privacy-signin-links"><button type="button" data-privacy-forgot="true">Forgot password?</button></div>
+            <p class="finance-privacy-signin-message" data-privacy-auth-message role="status" aria-live="polite">Sign in once to unlock your records. Sync will continue automatically.</p>
+          </form>
+          <small>Your local records stay stored on this device. Signing out hides them; it does not delete them.</small>
+        </div>`;
+      page.appendChild(view);
+    });
+  }  function removeTopbarSignIn(){
     document.getElementById("privacySignInButton")?.remove();
   }
 
@@ -558,17 +676,24 @@
   document.addEventListener("click",event=>{
     if(runRecoveryImportAction(event)) return;
     if(runCloudFirstSyncRecovery(event)) return;
+    const toggle=event.target.closest?.("[data-privacy-password-toggle]");
+    if(toggle){ event.preventDefault(); handlePrivacyPasswordToggle(toggle); return; }
+    const create=event.target.closest?.("[data-privacy-create]");
+    if(create){ event.preventDefault(); handlePrivacyCreateAccount(create.closest("[data-privacy-signin]")); return; }
+    const forgot=event.target.closest?.("[data-privacy-forgot]");
+    if(forgot){ event.preventDefault(); handlePrivacyForgotPassword(forgot.closest("[data-privacy-signin]")); return; }
     const closeImport=event.target.closest?.("#closeSyncReviewButton, #cancelSyncImportButton");
     if(closeImport) setTimeout(clearImportReviewCapture,0);
     const signin=event.target.closest?.(".finance-privacy-signin");
     if(signin){ event.preventDefault(); openSignIn(); return; }
     blockLockedInteraction(event);
   },true);
-  document.addEventListener("submit",blockLockedInteraction,true);
-  document.addEventListener("change",event=>{
-    if(document.body.classList.contains("finance-signed-out") && !isAllowed(event.target)) blockLockedInteraction(event);
+  document.addEventListener("submit",event=>{
+    const form=event.target.closest?.("[data-privacy-signin]");
+    if(form){ event.preventDefault(); handlePrivacySignInSubmit(form); return; }
+    blockLockedInteraction(event);
   },true);
-  window.addEventListener("finance:page-changed",updateSettingsForSignedOut);
+    window.addEventListener("finance:page-changed",updateSettingsForSignedOut);
   window.addEventListener("pageshow",apply);
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",apply,{once:true}); else apply();
 

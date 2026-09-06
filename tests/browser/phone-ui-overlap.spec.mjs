@@ -43,12 +43,12 @@ test("phone Add Expense stays in the toolbar grid instead of covering the title"
   });
 
   expect(contract.position).toBe("static");
-  expect(contract.width).toBe(44);
-  expect(contract.height).toBe(44);
+  expect(contract.width).toBe(35);
+  expect(contract.height).toBe(35);
   expect(contract.overlapsTitle).toBe(false);
 });
 
-test("phone Add account and Schedule event are true 44px icon-only controls", async ({ page }) => {
+test("phone Add account and Schedule event are true 35px icon-only controls", async ({ page }) => {
   await openPhone(page);
 
   const targets = [
@@ -77,8 +77,8 @@ test("phone Add account and Schedule event are true 44px icon-only controls", as
         ariaLabel:node.getAttribute("aria-label")
       };
     });
-    expect(contract.width).toBe("44px");
-    expect(contract.height).toBe("44px");
+    expect(contract.width).toBe("35px");
+    expect(contract.height).toBe("35px");
     expect(["none", "normal", "\"\""]).toContain(contract.beforeContent);
     expect(["none", "normal", "\"\""]).toContain(contract.afterContent);
     expect(contract.labelDisplay).toBe("none");
@@ -87,7 +87,7 @@ test("phone Add account and Schedule event are true 44px icon-only controls", as
   }
 });
 
-test("phone Finance tabs are static and expense actions stay on one 44px row", async ({ page }) => {
+test("phone Finance tabs are static and expense actions stay on one 35px row", async ({ page }) => {
   await openPhone(page);
   await exposePage(page, "money");
 
@@ -102,7 +102,7 @@ test("phone Finance tabs are static and expense actions stay on one 44px row", a
   });
   expect(switcherContract.rowPosition).toBe("static");
   expect(switcherContract.switcherPosition).toBe("static");
-  expect(switcherContract.switcherHeight).toBe("44px");
+  expect(switcherContract.switcherHeight).toBe("35px");
   expect(switcherContract.marqueeDisplay).toBe("none");
 
   await page.evaluate(() => {
@@ -128,8 +128,8 @@ test("phone Finance tabs are static and expense actions stay on one 44px row", a
       sameRow:Math.abs(markPaid.top - more.top) < 1
     };
   });
-  expect(actions.height).toBe(44);
-  expect(actions.moreWidth).toBe(44);
-  expect(actions.moreHeight).toBe(44);
+  expect(actions.height).toBe(35);
+  expect(actions.moreWidth).toBe(35);
+  expect(actions.moreHeight).toBe(35);
   expect(actions.sameRow).toBe(true);
 });

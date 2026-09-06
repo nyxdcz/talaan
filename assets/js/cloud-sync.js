@@ -890,8 +890,53 @@
   async function requestPasswordReset(email) { const value = String(email || "").trim(); if (!value || !/^\S+@\S+\.\S+$/.test(value)) throw new Error("Enter the email address used for your cloud account."); const sdk = await loadClient(); const redirectTo = passwordRecoveryRedirect(); if (!redirectTo) throw new Error("Open the hosted HTTPS app to reset a cloud password. Local file copies cannot receive the secure reset link."); const result = await sdk.auth.resetPasswordForEmail(value, { redirectTo }); if (result.error) throw result.error; return true; }
   async function completePasswordReset(password, confirmPassword) { const next = String(password || ""); if (next.length < 6) throw new Error("Use a password with at least 6 characters."); if (next !== String(confirmPassword || "")) throw new Error("The new passwords do not match."); const sdk = await loadClient(); const result = await sdk.auth.updateUser({ password:next }); if (result.error) throw result.error; passwordRecoveryActive = false; passwordRecoveryRouteActive = false; passwordRecoveryError = null; cleanPasswordRecoveryUrl({ keepRoute:false }); session = result.data?.session || session; cloudUser = result.data?.user || session?.user || cloudUser; return result.data?.user || cloudUser; }
   async function restoreSession() { if (!configStatus().ok) return; try { const sdk = await loadClient(); const result = await sdk.auth.getSession(); if (result.error) throw result.error; session = result.data?.session || null; cloudUser = session?.user || null; if (cloudUser) await ensureSignedInReady(); else onSignedOut(); } catch (error) { setStatus("Cloud sync unavailable", error.message || "Could not load cloud sync.", "danger"); } }
-  async function signIn(email,password) { const normalizedEmail = String(email || "").trim().toLowerCase(); const sdk = await loadClient(); setStatus("Signing in", "Checking your cloud account…", "info"); setAuthMessage("Checking your email and password…", "info"); const result = await sdk.auth.signInWithPassword({ email: normalizedEmail, password }); if (result.error) throw result.error; session = result.data?.session || null; cloudUser = result.data?.user || session?.user || null; setCloudConnectionStatus("Cloud reached", "success"); setAuthMessage("Signed in successfully. Preparing cloud sync…", "success"); if (typeof showToast === "function") showToast("Signed in successfully!", "success"); if (cloudUser) await ensureSignedInReady(); }
-  async function createAccount(email,password) { const normalizedEmail = String(email || "").trim().toLowerCase(); const sdk = await loadClient(); setStatus("Creating account", "Creating your private cloud account…", "info"); setAuthMessage("Creating your private cloud account…", "info"); const result = await sdk.auth.signUp({ email: normalizedEmail, password }); if (result.error) throw result.error; setCloudConnectionStatus("Cloud reached", "success"); if (!result.data?.session) { setAuthMessage("Account created. Check your email and confirm it, then return here to sign in.", "warning"); if (typeof showToast === "function") showToast("Account created! Check your email to confirm.", "info"); return setStatus("Check your email", "Confirm the sign-up email, then return and sign in.", "warning"); } session = result.data.session; cloudUser = result.data.user; setAuthMessage("Account created and signed in.", "success"); if (typeof showToast === "function") showToast("Account created and signed in!", "success"); await ensureSignedInReady(); }
+  function continueSignedInInBackground(){
+    if(!cloudUser) return;
+    Promise.resolve().then(()=>ensureSignedInReady()).catch(error=>{
+      const message=friendlyAuthError(error,"sync");
+      setStatus("Sync needs attention",message,"warning");
+      setAuthMessage(message,"warning");
+      if(typeof showToast==="function") showToast(message,"warning");
+    });
+  }
+
+  async function signIn(email,password){
+    const normalizedEmail=String(email||"").trim().toLowerCase();
+    const sdk=await loadClient();
+    setStatus("Signing in","Checking your cloud account…","info");
+    setAuthMessage("Checking your email and password…","info");
+    const result=await sdk.auth.signInWithPassword({email:normalizedEmail,password});
+    if(result.error) throw result.error;
+    session=result.data?.session||null;
+    cloudUser=result.data?.user||session?.user||null;
+    setCloudConnectionStatus("Cloud reached","success");
+    setAuthMessage("Signed in. Unlocking Talaan while sync continues in the background…","success");
+    if(typeof showToast==="function") showToast("Signed in successfully!","success");
+    continueSignedInInBackground();
+    return {session,user:cloudUser};
+  }
+
+  async function createAccount(email,password){
+    const normalizedEmail=String(email||"").trim().toLowerCase();
+    const sdk=await loadClient();
+    setStatus("Creating account","Creating your private cloud account…","info");
+    setAuthMessage("Creating your private cloud account…","info");
+    const result=await sdk.auth.signUp({email:normalizedEmail,password});
+    if(result.error) throw result.error;
+    setCloudConnectionStatus("Cloud reached","success");
+    if(!result.data?.session){
+      setAuthMessage("Account created. Check your email and confirm it, then sign in here.","warning");
+      if(typeof showToast==="function") showToast("Account created! Check your email to confirm.","info");
+      setStatus("Check your email","Confirm the sign-up email, then return and sign in.","warning");
+      return {confirmed:false,user:result.data?.user||null};
+    }
+    session=result.data.session;
+    cloudUser=result.data.user;
+    setAuthMessage("Account created. Unlocking Talaan while sync continues in the background…","success");
+    if(typeof showToast==="function") showToast("Account created and signed in!","success");
+    continueSignedInInBackground();
+    return {confirmed:true,session,user:cloudUser};
+  }
   async function signOut() { if (client) { const result = await client.auth.signOut({ scope:"local" }); if (result?.error) throw result.error; } onSignedOut(); }
   function onSignedOut() { session = null; cloudUser = null; signedInInitialization = null; signedInInitializationScope = ""; signedInReadyUserId = ""; profileSetupPromise = null; profileSetupScope = ""; profileSetupState = "idle"; profileSetupDetail = ""; setPrivacyAuthentication(false); passwordRecoveryActive = false; clearForegroundPoll(); clearRealtimeRetry({resetAttempts:true}); if (realtimeChannel && client) client.removeChannel(realtimeChannel).catch(() => {}); realtimeChannel = null; setStatus("Not connected", "Local finance records remain on this device until Cloud Sync is connected again.", "info"); }
 
@@ -1362,7 +1407,7 @@
     renderCloudStats(); if (passwordRecoveryError) setRecoveryHelpMessage(recoveryErrorMessage(passwordRecoveryError), "danger"); const status=configStatus(); if(!status.ok){setStatus("Cloud sync not configured",status.message,"warning");return;} await restoreSession(); setInterval(()=>{if(cloudReadiness().ready&&state.autoSync!==false&&navigator.onLine&&!document.hidden)syncNow({reason:"periodic"}).catch(()=>{});},5*60*1000); scheduleForegroundPoll(); scheduleRetry();
   }
 
-  window.FinanceCloudSync={ initialize,syncNow,replaceCloudWithThisDevice, buildRecordMap:()=>toRecordMap(data), get status(){const readiness=cloudReadiness();return{...state,pendingCount:pendingCount(),conflictCount:conflictCount(),signedIn:Boolean(cloudUser),email:cloudUser?.email||"",readiness:readiness.key,ready:readiness.ready};} };
+  window.FinanceCloudSync={ initialize,signIn,createAccount,syncNow,replaceCloudWithThisDevice, buildRecordMap:()=>toRecordMap(data), get status(){const readiness=cloudReadiness();return{...state,pendingCount:pendingCount(),conflictCount:conflictCount(),signedIn:Boolean(cloudUser),email:cloudUser?.email||"",readiness:readiness.key,ready:readiness.ready};} };
   window.FinanceCloudSyncInternals={loadClient,ensureSignedInReady,autoEnsureCloudProfile,cloudReadiness,stable,checksum,deepMerge,threeWayMerge,toRecordMap,fromRecordStore,changesBetween,recordKey,keyToken,keyFromToken,retryDelay,detectFinancialOperations,encryptRecordPayload,decryptRecordPayload,toRpcChange,decryptRow,sanitizeRecordPayload,reconcileDerivedSettingsState,reconcileUnqueuedLocalChanges,seedBaseFromSnapshot,applyRemoteEvent,resolveConflict,persist,handlePersistedData,requestLifecycleSync,scheduleForegroundPoll,scheduleRealtimeRecovery,ensureRealtime,friendlyAuthError,passwordRecoveryRedirect,parsePasswordRecoveryUrl,recoveryErrorMessage,cleanPasswordRecoveryUrl,testCloudConnection,requestPasswordReset,verifyRecoveryCode,completePasswordReset,setPasswordVisibility,recoverStoredConflicts,reconcilePendingWithRemote,replaceCloudWithThisDevice};
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>initialize().catch(error=>setStatus("Cloud sync unavailable",error.message,"danger")),{once:true});

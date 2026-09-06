@@ -4,6 +4,7 @@
 - Adds read-only financial integrity detection and guarded recovery for historical, imported, restored, and cloud-reconstructed finance data, with deterministic safe repairs only and automatic rollback on failed imports/restores.
 
 **Current production release:** V2.5.0
+- Standardized phone controls, compact headers, summary cards, and utility actions at a maximum 35px height while preserving Finance Schema 12, Cloud Schema V3, and desktop/tablet behavior.
 
 ### Household expense splits
 

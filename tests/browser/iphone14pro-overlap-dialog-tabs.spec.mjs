@@ -105,7 +105,7 @@ test("iPhone account balance correction updates the card and persisted finance d
   expect(result.reconciliationDifference).toBe(result.expectedDifference);
 });
 
-test("iPhone transaction totals remain in flow after the planner moves to Income & Planning", async ({ page }) => {
+test("iPhone transaction totals remain in flow with 35px workspace controls", async ({ page }) => {
   await openAuthenticated(page, "money");
   await page.waitForFunction(() => Boolean(document.getElementById("monthlyBudgetPlannerCard") && document.getElementById("transactionTotals-expense")));
 
@@ -130,13 +130,13 @@ test("iPhone transaction totals remain in flow after the planner moves to Income
   expect(contract.plannerParent).toBe("income");
   expect(contract.plannerBeforeIncomeSummary).toBe(true);
   expect(contract.plannerInMoney).toBe(false);
-  expect(contract.tabShellHeight).toBe(44);
-  expect(contract.tabHeight).toBe(44);
+  expect(contract.tabShellHeight).toBe(35);
+  expect(contract.tabHeight).toBe(35);
   expect(contract.tabShellShadow).toBe("none");
   expect(contract.pageOverflow).toBe(false);
 });
 
-test("iPhone Project Agenda actions reflow and Kanban stays inside its horizontal rail", async ({ page }) => {
+test("iPhone Project Agenda actions stay compact inside their horizontal rail", async ({ page }) => {
   await openAuthenticated(page, "projects");
   await page.waitForFunction(() => Boolean(document.querySelector(".project-calendar-v13020 .pc-header-actions")));
 
@@ -164,12 +164,12 @@ test("iPhone Project Agenda actions reflow and Kanban stays inside its horizonta
     };
   });
 
-  expect(contract.tabShellHeight).toBe(44);
+  expect(contract.tabShellHeight).toBe(35);
   expect(contract.viewWidth).toBeGreaterThanOrEqual(100);
-  expect(contract.viewHeight).toBeGreaterThanOrEqual(44);
+  expect(contract.viewHeight).toBe(35);
   expect(contract.columnWidth).toBeGreaterThanOrEqual(100);
-  expect(contract.columnHeight).toBeGreaterThanOrEqual(44);
-  expect(contract.addSize).toEqual([44, 44]);
+  expect(contract.columnHeight).toBe(35);
+  expect(contract.addSize).toEqual([35, 35]);
   expect(contract.actionRowAligned).toBe(true);
   expect(contract.columnTextFits).toBe(true);
   expect(contract.agendaContainsBoard).toBe(true);
