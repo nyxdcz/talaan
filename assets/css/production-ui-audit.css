@@ -1277,20 +1277,6 @@
   --dashboard-card-padding: 14px;
 }
 
-html body :is(
-  #dashboard .dashboard-view-tabs,
-  #money .money-workspace-switcher
-) {
-  border-radius: var(--talaan-control-radius) !important;
-}
-
-html body :is(
-  #dashboard .dashboard-view-tabs,
-  #money .money-workspace-switcher
-) > .workspace-switcher-button {
-  border-radius: var(--talaan-control-radius) !important;
-}
-
 #dashboard .dashboard-view-tabs {
   position: static;
   top: auto;

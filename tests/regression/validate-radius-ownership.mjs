@@ -6,6 +6,7 @@ const radius = read("assets/css/ui-radius.css");
 const app = read("assets/css/app.css");
 const blackCanvas = read("assets/css/black-canvas.css");
 const production = read("assets/css/production-ui-audit.css");
+const productionRuntime = read("production-ui-audit.css");
 const transactions = read("assets/css/transaction-views.css");
 const budget = read("assets/css/budget-planning.css");
 const sidebar = read("assets/css/sidebar-compact-brand.css");
@@ -40,6 +41,10 @@ assert.match(radius, /:is\(\.dashboard-week-marquee,\.finance-week-marquee,\.wor
 assert.match(radius, /:is\(\.dashboard-week-marquee,\.finance-week-marquee,\.work-week-marquee\) \.dashboard-week-day \{\s*border-radius: var\(--talaan-card-radius\) !important/s);
 const cardRadiusSelectorBlock = radius.split("/* Structural surfaces", 1)[0];
 assert.doesNotMatch(cardRadiusSelectorBlock, /\.dashboard-week-marquee,\s*\.finance-week-marquee,\s*\.work-week-marquee,\s*\.dashboard-week-day,/s);
+for (const [name, stylesheet] of [["source", production], ["runtime", productionRuntime]]) {
+  const dashboardAuthority = stylesheet.split("/* Talaan · authoritative Dashboard view and bento system */", 2)[1]?.split("#dashboard .dashboard-view-tabs", 1)[0] || "";
+  assert.doesNotMatch(dashboardAuthority, /border-radius:\s*var\(--talaan-control-radius\)/, `${name} workspace radius must remain owned by ui-radius.css`);
+}
 assert.match(production, /#money \.record-row\[data-expense-row\] > \.desktop-record-actions \{[\s\S]*border-top: 0 !important/);
 assert.match(production, /#money \.period-card \{[\s\S]*border-radius: var\(--talaan-card-radius\) !important/);
 assert.match(production, /#money \.record-row\[data-expense-row\] > \.desktop-record-actions > \.button \{[\s\S]*border-radius: var\(--talaan-control-radius\)/);
