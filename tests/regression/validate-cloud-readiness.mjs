@@ -24,7 +24,7 @@ assert.match(source, /return \{session,user:cloudUser\};/);
 assert.match(source, /continueSignedInInBackground\(\);/);
 assert.match(source, /if \(cloudUser\) await ensureSignedInReady\(\);[\s\S]*else onSignedOut\(\);/);
 assert.match(source, /function handleAuthStateChange\(event, nextSession\)/);
-assert.match(source, /if \(event === "INITIAL_SESSION" && activeAuthSession\(\)\) return;/);
+assert.match(source, /if \(!authHydrationComplete\) return;/);\nassert.match(source, /if \(event === "INITIAL_SESSION" && activeAuthSession\(\)\) return;/);
 assert.match(source, /setTimeout\(\(\) => confirmEmptyAuthEvent\(event\), 0\)/);
 assert.match(source, /const verifiedSession=await confirmSignedInSession\(sdk\);/);
 assert.match(source, /setPrivacyAuthentication\(true, \{ email:cloudUser\?\.email \|\| normalizedEmail \}\);/);
