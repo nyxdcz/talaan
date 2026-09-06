@@ -96,6 +96,7 @@ test("cloud startup keeps the privacy gate open while a saved session hydrates",
             onAuthStateChange(callback) {
               window.__cloudTest.listener = callback;
               callback("INITIAL_SESSION", null);
+              callback("SIGNED_OUT", null);
             },
             getSession:async () => {
               window.__cloudTest.sessionReads += 1;
