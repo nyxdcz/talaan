@@ -35,7 +35,7 @@ for (const contract of [{ width:1440, size:30 }, { width:390, size:35 }]) {
     for (const metric of metrics) {
       expect(metric.width).toBeCloseTo(contract.size, 0);
       expect(metric.height).toBeCloseTo(contract.size, 0);
-      expect(metric.radius).toBe(8);
+      expect(metric.radius).toBe(12);
       expect(metric.iconWidth).toBeCloseTo(20, 0);
       expect(metric.iconHeight).toBeCloseTo(20, 0);
       expect(metric.path).toBe("m6 15 6-6 6 6");
