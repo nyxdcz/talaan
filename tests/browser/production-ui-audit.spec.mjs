@@ -113,7 +113,7 @@ for (const contract of [{ width:1440, size:30 }, { width:390, size:35 }]) {
       for (const metric of metrics) {
         expect(metric.width).toBeCloseTo(contract.size, 0);
         expect(metric.height).toBeCloseTo(contract.size, 0);
-        expect(metric.radius).toBe(8);
+        expect(metric.radius).toBe(12);
         expect(metric.iconWidth).toBeCloseTo(20, 0);
         expect(metric.iconHeight).toBeCloseTo(20, 0);
         expect(metric.path).toBe("m6 15 6-6 6 6");
@@ -276,21 +276,21 @@ test("desktop expense cards match the approved compact type, status, and footer 
   expect(["inline-flex", "flex"]).toContain(metrics.repeatLabelDisplay);
   expect(metrics.repeatText).toMatch(/Repeat(?:s)? monthly/);
   expect(metrics.repeatShadow).toBe("none");
-  expect(metrics.repeatRadius).toBeCloseTo(8, 0);
+  expect(metrics.repeatRadius).toBeCloseTo(12, 0);
   expect(metrics.markPaidSize[0]).toBeCloseTo(74, 0);
   expect(metrics.markPaidSize[1]).toBeCloseTo(30, 0);
   expect(metrics.markPaidFont.size).toBeCloseTo(11, 0);
   expect(metrics.markPaidFont.weight).toBe(600);
   expect(metrics.markPaidBackground).toBe("rgb(53, 111, 209)");
   expect(metrics.markPaidShadow).toBe("none");
-  expect(metrics.markPaidRadius).toBeCloseTo(8, 0);
+  expect(metrics.markPaidRadius).toBeCloseTo(12, 0);
   expect(metrics.editSize[0]).toBeCloseTo(48, 0);
   expect(metrics.editSize[1]).toBeCloseTo(30, 0);
   expect(metrics.editFont.size).toBeCloseTo(11, 0);
   expect(metrics.editFont.weight).toBe(600);
   expect(metrics.editBorder).toBe("rgb(213, 220, 229)");
   expect(metrics.editShadow).toBe("none");
-  expect(metrics.editRadius).toBeCloseTo(8, 0);
+  expect(metrics.editRadius).toBeCloseTo(12, 0);
   expect(metrics.repeatToPaidGap).toBeCloseTo(5, 0);
   expect(metrics.paidToEditGap).toBeCloseTo(5, 0);
   expect(metrics.actionCount).toBeGreaterThanOrEqual(3);
