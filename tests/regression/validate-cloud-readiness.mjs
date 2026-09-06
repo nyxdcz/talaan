@@ -23,7 +23,11 @@ assert.match(source, /Signed in\. Unlocking Talaan while sync continues in the b
 assert.match(source, /return \{session,user:cloudUser\};/);
 assert.match(source, /continueSignedInInBackground\(\);/);
 assert.match(source, /if \(cloudUser\) await ensureSignedInReady\(\);[\s\S]*else onSignedOut\(\);/);
-assert.match(source, /if \(cloudUser\) ensureSignedInReady\(\)\.catch\([\s\S]*\); else if \(authHydrationComplete && event !== "INITIAL_SESSION"\) onSignedOut\(\);/);
+assert.match(source, /function handleAuthStateChange\(event, nextSession\)/);
+assert.match(source, /if \(event === "INITIAL_SESSION" && activeAuthSession\(\)\) return;/);
+assert.match(source, /setTimeout\(\(\) => confirmEmptyAuthEvent\(event\), 0\)/);
+assert.match(source, /const verifiedSession=await confirmSignedInSession\(sdk\);/);
+assert.match(source, /setPrivacyAuthentication\(true, \{ email:cloudUser\?\.email \|\| normalizedEmail \}\);/);
 assert.match(source, /authHydrationComplete = false;[\s\S]*if \(!configStatus\(\)\.ok\) \{ authHydrationComplete = true; return; \}/);
 assert.match(source, /else onSignedOut\(\);\s*authHydrationComplete = true;\s*return;/);
 assert.match(source, /authHydrationComplete = true;[\s\S]*setStatus\("Cloud sync unavailable"/);
