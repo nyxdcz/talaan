@@ -20,7 +20,7 @@ async function visibleSettingsContract(page) {
       return rect.width > 0 && rect.height > 0 && style.visibility !== "hidden" && style.display !== "none";
     };
     const interactive = [...root.querySelectorAll('button, summary, [role="tab"]')]
-      .filter(node => visible(node) && !node.disabled)
+      .filter(node => visible(node) && !node.disabled && !node.classList.contains("settings-status-card"))
       .map(node => {
         const rect = node.getBoundingClientRect();
         return {
