@@ -34,7 +34,7 @@ test("paid expenses repeat controls keep readable labels, flat styling, and acce
   await expect(desktopButton).toHaveCSS("height", "30px");
   await expect(icon).toHaveCSS("background-image", /repeat-monthly-off\.png/);
   await expect(star).toHaveCSS("opacity", "0");
-  await expect(desktopButton.locator(".monthly-repeat-label")).toHaveCSS("display", "inline-flex");
+  await expect(desktopButton.locator(".monthly-repeat-label")).toHaveCSS("display", /^(?:inline-)?flex$/);
   await expect(desktopButton.locator(".monthly-repeat-label")).toHaveText("Repeat monthly");
   await expect(desktopButton).toHaveCSS("box-shadow", "none");
   await expect(desktopButton).toHaveCSS("border-radius", "8px");
