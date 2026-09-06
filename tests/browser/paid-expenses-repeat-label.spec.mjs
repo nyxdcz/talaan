@@ -38,7 +38,7 @@ test("paid expenses repeat controls keep readable labels, flat styling, and acce
   await expect(desktopButton.locator(".monthly-repeat-label")).toHaveCSS("display", /^(?:inline-)?flex$/);
   await expect(desktopButton.locator(".monthly-repeat-label")).toHaveText("Repeat monthly");
   await expect(desktopButton).toHaveCSS("box-shadow", "none");
-  await expect(desktopButton).toHaveCSS("border-radius", "8px");
+  await expect(desktopButton).toHaveCSS("border-radius", "12px");
   expect(await desktopButton.evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThan(110);
   await expect(desktopButton).toHaveAttribute("aria-label", "Repeat this expense monthly");
   await expect(desktopButton).toHaveAttribute("title", "Does not repeat monthly");
@@ -60,5 +60,5 @@ test("paid expenses repeat controls keep readable labels, flat styling, and acce
   await expect(mobileRepeat).toHaveText("Repeat monthly");
   await expect(mobileRepeat).toHaveCSS("height", "35px");
   await expect(mobileRepeat).toHaveCSS("box-shadow", "none");
-  await expect(mobileRepeat).toHaveCSS("border-radius", "8px");
+  await expect(mobileRepeat).toHaveCSS("border-radius", "12px");
 });
