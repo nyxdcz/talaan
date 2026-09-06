@@ -103,6 +103,77 @@
   }
 }`;
     document.head.appendChild(style);
+    const readableStyle = document.createElement("style");
+    readableStyle.id = `${PAID_REPEAT_STYLE_ID}-readable`;
+    readableStyle.textContent = `
+@media (min-width: 851px) {
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved],
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved]:hover,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved]:focus-visible,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved]:active,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved].active,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved].active:hover {
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+    width: max-content !important;
+    min-width: 112px !important;
+    max-width: 100% !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding: 0 7px !important;
+    gap: 5px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 8px !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+  }
+
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-icon-container {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 30px !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 30px 30px !important;
+  }
+
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label {
+    display: flex !important;
+    align-items: center !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: inherit !important;
+    font-size: .65rem !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+  }
+}
+`;
+    document.head.appendChild(readableStyle);
     return true;
   }
 
