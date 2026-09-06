@@ -381,7 +381,7 @@ html[data-theme-preference="dark"] body #themeToggleText::after {
     min-width:38px !important;
     max-width:38px !important;
     padding:0 !important;
-    border-radius:0 8px 8px 0 !important;
+    border-radius:0 var(--talaan-control-radius) var(--talaan-control-radius) 0 !important;
   }
 
   html body .topbar-actions .month-navigator .month-display-button {
