@@ -42,7 +42,7 @@ for (const width of widths) {
     expect(metrics.helpOpacity).toBe("0.28");
     expect(metrics.nearBackground).toBe("rgb(255, 255, 255)");
     expect(metrics.overdueBackground).not.toBe(metrics.nearBackground);
-    expect(metrics.projectFilterRadius).toBe("8px");
+    expect(metrics.projectFilterRadius).toBe("12px");
     expect(metrics.hasHorizontalOverflow).toBe(false);
   });
 }
