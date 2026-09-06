@@ -73,7 +73,7 @@ test("desktop sidebar stays flat white in light mode and flat #080B10 in dark mo
   await expect(normalLabel).toHaveCSS("color", "rgb(24, 34, 48)");
 
   await expect(active).toHaveCSS("background-color", "rgba(53, 111, 209, 0.12)");
-  await expect(active).toHaveCSS("border-radius", "8px");
+  await expect(active).toHaveCSS("border-radius", "12px");
   await expect(activeLabel).toHaveCSS("color", "rgb(24, 34, 48)");
   await expect(activeIcon).toHaveCSS("background-color", "rgb(53, 111, 209)");
   await expect(activeIconImage).toHaveCSS("filter", "brightness(0) invert(1)");
