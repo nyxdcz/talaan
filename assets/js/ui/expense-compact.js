@@ -128,7 +128,7 @@
     padding: 0 7px !important;
     gap: 5px !important;
     border: 1px solid var(--line) !important;
-    border-radius: 8px !important;
+    border-radius: 12px !important;
     background: var(--surface) !important;
     color: var(--text) !important;
     box-shadow: none !important;

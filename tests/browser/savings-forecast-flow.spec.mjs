@@ -102,9 +102,9 @@ for (const contract of [{ width:1440, touch:false }, { width:390, touch:true }])
       };
     });
     expect(metrics.panel).toBe(16);
-    expect(metrics.target).toBe(8);
-    expect(metrics.button).toBe(8);
-    expect(metrics.checkbox).toBe(8);
+    expect(metrics.target).toBe(12);
+    expect(metrics.button).toBe(12);
+    expect(metrics.checkbox).toBe(12);
     expect(metrics.confirmation).toBe(12);
     expect(metrics.row).toBe(12);
     expect(metrics.overflow).toBe(false);

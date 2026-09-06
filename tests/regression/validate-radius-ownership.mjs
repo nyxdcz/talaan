@@ -21,7 +21,7 @@ const projects = read("assets/css/projects-calendar.css");
 const cloudSync = read("assets/js/cloud-sync.js");
 
 for (const token of [
-  "--talaan-control-radius: 8px",
+  "--talaan-control-radius: 12px",
   "--talaan-card-radius: 12px",
   "--talaan-section-radius: 16px",
   "--talaan-dialog-radius: 20px",

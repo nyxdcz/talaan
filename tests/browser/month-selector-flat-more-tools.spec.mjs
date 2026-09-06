@@ -62,18 +62,18 @@ test("desktop month selector uses compact standalone controls and a centered 4x3
   await expect(previous).toHaveCSS("width", "30px");
   await expect(previous).toHaveCSS("height", "30px");
   await expect(previous).toHaveCSS("border-right-width", "1px");
-  await expect(previous).toHaveCSS("border-radius", "8px");
+  await expect(previous).toHaveCSS("border-radius", "12px");
   await expect(previous).toHaveCSS("box-shadow", "none");
   await expect(next).toHaveCSS("width", "30px");
   await expect(next).toHaveCSS("height", "30px");
   await expect(next).toHaveCSS("border-left-width", "1px");
-  await expect(next).toHaveCSS("border-radius", "8px");
+  await expect(next).toHaveCSS("border-radius", "12px");
   await expect(next).toHaveCSS("box-shadow", "none");
 
   await expect(control).toHaveCSS("height", "30px");
   await expect(control).toHaveCSS("width", "175px");
   await expect(control).toHaveCSS("border-right-width", "1px");
-  await expect(control).toHaveCSS("border-radius", "8px");
+  await expect(control).toHaveCSS("border-radius", "12px");
   await expect(control).toHaveCSS("box-shadow", "none");
   await expect(control).toHaveCSS("backdrop-filter", "none");
   await expect(label).toHaveCSS("display", "none");
@@ -126,6 +126,6 @@ test("desktop month selector uses compact standalone controls and a centered 4x3
   await expect(grid.locator(".month-picker-option").nth(7)).toHaveCSS("background-color", "rgb(53, 111, 209)");
   await expect(current).toHaveCSS("margin-left", "0px");
   await expect(current).toHaveCSS("height", "30px");
-  await expect(current).toHaveCSS("border-radius", "8px");
+  await expect(current).toHaveCSS("border-radius", "12px");
   await expect(current).toHaveCSS("box-shadow", "none");
 });

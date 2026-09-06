@@ -43,7 +43,7 @@ test("UI surfaces use the platform-aligned radius hierarchy while structural and
     await expect(page.locator(selector)).toHaveCSS("border-radius", "12px");
   }
   for (const selector of ["#button", "#monthButton", "#monthControl", "#input", "#select", "#textarea"]) {
-    await expect(page.locator(selector)).toHaveCSS("border-radius", "8px");
+    await expect(page.locator(selector)).toHaveCSS("border-radius", "12px");
   }
   await expect(page.locator("#contextMenu")).toHaveCSS("border-radius", "12px");
   await expect(page.locator("#panel")).toHaveCSS("border-radius", "16px");
@@ -59,7 +59,7 @@ test("UI surfaces use the platform-aligned radius hierarchy while structural and
 
 test("runtime summary layer imports the canonical radius stylesheet", () => {
   expect(source("summary-mascots.css")).toContain('@import url("./ui-radius.css?v=2.5.0-talaan4")');
-  expect(source("ui-radius.css")).toContain("--talaan-control-radius: 8px");
+  expect(source("ui-radius.css")).toContain("--talaan-control-radius: 12px");
   expect(source("ui-radius.css")).toContain("--talaan-card-radius: 12px");
   expect(source("ui-radius.css")).toContain("--talaan-section-radius: 16px");
   expect(source("ui-radius.css")).toContain("--talaan-dialog-radius: 20px");

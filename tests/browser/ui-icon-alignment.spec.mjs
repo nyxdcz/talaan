@@ -82,7 +82,7 @@ test("V15.2.18 desktop topbar keeps persistent controls at the compact 30px heig
       const computed = getComputedStyle(element);
       return { borderRadius:computed.borderRadius, width:element.getBoundingClientRect().width };
     });
-    expect(style.borderRadius, `${selector} should use the shared control radius`).toBe("8px");
+    expect(style.borderRadius, `${selector} should use the shared control radius`).toBe("12px");
     if (selector === "#topbarToolsTrigger") expect(style.width).toBe(30);
   }
 
@@ -133,7 +133,7 @@ test("V15.2.18 desktop month navigation uses compact standalone controls", async
     });
     expect(style.height, `${selector} should stay at the compact toolbar height`).toBe(30);
     expect(style.borderWidth, `${selector} should use the standalone outline`).toBe("1px");
-    expect(style.borderRadius, `${selector} should use the shared control radius`).toBe("8px");
+    expect(style.borderRadius, `${selector} should use the shared control radius`).toBe("12px");
     expect(style.shadow, `${selector} should stay shadow-free`).toBe("none");
     expect(style.backdrop, `${selector} should not use glass blur`).toBe("none");
   }
@@ -146,6 +146,6 @@ test("V15.2.18 desktop month navigation uses compact standalone controls", async
   });
   expect(currentStyle.height).toBe(30);
   expect(currentStyle.marginLeft).toBe("0px");
-  expect(currentStyle.borderRadius).toBe("8px");
+  expect(currentStyle.borderRadius).toBe("12px");
   expect(currentStyle.shadow).toBe("none");
 });

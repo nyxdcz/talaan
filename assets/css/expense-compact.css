@@ -1086,7 +1086,7 @@
   html body #money .record-row[data-expense-row] > .desktop-record-actions > .button,
   html body #paidExpenseList .desktop-record-actions > .button {
     box-shadow: none !important;
-    border-radius: 8px !important;
+    border-radius: 12px !important;
     text-shadow: none !important;
   }
 
@@ -1116,7 +1116,7 @@
     padding: 0 7px !important;
     gap: 5px !important;
     border: 1px solid var(--line) !important;
-    border-radius: 8px !important;
+    border-radius: 12px !important;
     background: var(--surface) !important;
     color: var(--text) !important;
     box-shadow: none !important;
@@ -1202,7 +1202,7 @@
   html body #paidExpenseList .mobile-record-actions .record-more-panel [role="menuitem"],
   html body #paidExpenseList .mobile-record-actions [data-toggle-saved] {
     box-shadow: none !important;
-    border-radius: 8px !important;
+    border-radius: 12px !important;
     text-shadow: none !important;
   }
 
@@ -1226,7 +1226,7 @@
     max-height: 35px !important;
     padding: 0 10px !important;
     border: 1px solid var(--line) !important;
-    border-radius: 8px !important;
+    border-radius: 12px !important;
     background: var(--surface) !important;
     color: var(--text) !important;
     font-size: .75rem !important;
@@ -1283,7 +1283,7 @@ html body #paidExpenseList .desktop-record-actions {
 html body #money .record-row[data-expense-row] > .desktop-record-actions > .button,
 html body #paidExpenseList .desktop-record-actions > .button {
   box-shadow: none !important;
-  border-radius: 8px !important;
+  border-radius: 12px !important;
   text-shadow: none !important;
 }
 
@@ -1303,7 +1303,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] {
   padding: 0 7px !important;
   gap: 5px !important;
   border: 1px solid var(--line) !important;
-  border-radius: 8px !important;
+  border-radius: 12px !important;
   background: var(--surface) !important;
   color: var(--text) !important;
   box-shadow: none !important;
