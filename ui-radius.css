@@ -322,6 +322,36 @@ html body :is(
   box-shadow: var(--shadow-level-2) !important;
 }
 
+/* Toasts stay flat and readable on every viewport and theme.  The surface
+   layer is intentionally opaque so semantic messages cannot inherit a white
+   foreground from the legacy dark toast palette. */
+html body :is(#toast, #structuredDragToast, .toast, .snackbar) {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--line) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html body :is(#toast, #structuredDragToast, .toast, .snackbar) :is(.toast-message, .snackbar-message) {
+  color: inherit !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+html body :is(#toast, #structuredDragToast, .toast, .snackbar) .toast-icon {
+  color: var(--text) !important;
+  background: var(--surface-soft) !important;
+}
+
+html body .toast.toast-success { border-inline-start: 3px solid var(--green) !important; }
+html body .toast.toast-info { border-inline-start: 3px solid var(--blue) !important; }
+html body .toast.toast-warning { border-inline-start: 3px solid var(--orange) !important; }
+html body .toast.toast-error { border-inline-start: 3px solid var(--red) !important; }
+
 html body #sidebar.sidebar:not(.desktop-open):not(.sidebar-pinned) .nav-button::after,
 html body #cloudSyncStatusButton[data-mobile-sync-feedback]::after {
   box-shadow: var(--shadow-level-2) !important;
