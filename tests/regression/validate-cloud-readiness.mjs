@@ -16,7 +16,7 @@ assert.match(source, /let clientPromise = null;/);
 assert.match(source, /let authHydrationComplete = false;/);
 assert.match(source, /if \(clientPromise\) return clientPromise;/);
 assert.match(source, /const nextClient = createClient[\s\S]*nextClient\.auth\.onAuthStateChange/);
-assert.match(source, /if \(cloudUser\) ensureSignedInReady\(\)/);
+assert.match(source, /ensureSignedInReady\(\)\.catch\(error => setStatus/);
 assert.match(source, /function continueSignedInInBackground\(\)/);
 assert.match(source, /window\.FinanceCloudSync=\{ initialize,signIn,createAccount,syncNow/);
 assert.match(source, /Signed in\. Unlocking Talaan while sync continues in the background/);
