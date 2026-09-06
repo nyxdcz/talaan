@@ -2674,3 +2674,13 @@ html body :is(
     display: none !important;
   }
 }
+
+
+/* Keep compact summary cards single-height on narrow phones.  The label and
+   numeric value remain visible; explanatory copy is available in the card's
+   accessible text and section help. */
+@media (max-width: 700px) {
+  html body #money :is(.legend-text small, .summary-card-copy small) {
+    display: none !important;
+  }
+}
