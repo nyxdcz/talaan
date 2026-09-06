@@ -68,7 +68,7 @@ test("cloud startup keeps the privacy gate open while a saved session hydrates",
   await page.evaluate(() => {
     window.data = {};
     window.FINANCE_SYNC_CONFIG = {};
-    window.__cloudTest = { attempts:0, sessionReads:0, privacy:[] };
+    window.__cloudTest = { attempts:0, sessionReads:0, privacy:[], currentSession:null };
     window.FinancePrivacyLock = {
       setAuthenticated(value) { window.__cloudTest.privacy.push(Boolean(value)); }
     };
@@ -101,7 +101,9 @@ test("cloud startup keeps the privacy gate open while a saved session hydrates",
             getSession:async () => {
               window.__cloudTest.sessionReads += 1;
               if (window.__cloudTest.sessionReads === 1) throw new Error("Network request failed");
-              return { data:{ session:{ user:{ id:"user-1", email:"person@example.com" } } }, error:null };
+              const session = { user:{ id:"user-1", email:"person@example.com" } };
+              window.__cloudTest.currentSession = session;
+              return { data:{ session }, error:null };
             }
           }
         })
@@ -126,6 +128,60 @@ test("cloud startup keeps the privacy gate open while a saved session hydrates",
   await page.evaluate(() => window.__cloudTest.listener("INITIAL_SESSION", null));
   expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true]);
   await page.evaluate(() => window.__cloudTest.listener("SIGNED_OUT", null));
+  await page.waitForTimeout(30);
+  expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true]);
+  await page.evaluate(() => {
+    window.__cloudTest.currentSession = null;
+    window.__cloudTest.listener("SIGNED_OUT", null);
+  });
+  await page.waitForTimeout(30);
   expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true, false]);
   expect(consoleNoise).toEqual([]);
+});
+
+
+test("sign-in confirms the saved session before unlocking privacy", async ({ page }) => {
+  await page.setContent("<!doctype html><html><body></body></html>");
+  await page.evaluate(() => {
+    window.data = {};
+    window.FINANCE_SYNC_CONFIG = {};
+    window.__cloudTest = { privacy:[], session:null, sessionReads:0 };
+    window.FinancePrivacyLock = {
+      setAuthenticated(value) { window.__cloudTest.privacy.push(Boolean(value)); }
+    };
+    window.FinanceCloudSyncLifecycle = {
+      create:() => ({
+        clearForegroundPoll() {}, scheduleForegroundPoll() {}, clearRealtimeRetry() {},
+        scheduleRealtimeRecovery() {}, noteRealtimeSubscribed() {}
+      })
+    };
+    window.financeLoadSupabase = async () => ({
+      createClient:() => ({
+        auth:{
+          onAuthStateChange() {},
+          signInWithPassword:async () => {
+            const next = { access_token:"token", user:{ id:"user-1", email:"person@example.com" } };
+            window.__cloudTest.session = next;
+            return { data:{ session:next, user:next.user }, error:null };
+          },
+          getSession:async () => {
+            window.__cloudTest.sessionReads += 1;
+            return { data:{ session:window.__cloudTest.session }, error:null };
+          }
+        }
+      })
+    });
+  });
+
+  await page.addScriptTag({ path:"assets/js/cloud-sync.js" });
+  await page.evaluate(() => {
+    window.FINANCE_SYNC_CONFIG = {
+      supabaseUrl:"https://example.supabase.co",
+      supabasePublishableKey:"sb_publishable_abcdefghijklmnopqrstuvwxyz"
+    };
+  });
+  const result = await page.evaluate(() => window.FinanceCloudSync.signIn("person@example.com", "password"));
+  expect(result.user.id).toBe("user-1");
+  expect(await page.evaluate(() => window.__cloudTest.sessionReads)).toBe(1);
+  expect(await page.evaluate(() => window.__cloudTest.privacy.at(-1))).toBe(true);
 });
