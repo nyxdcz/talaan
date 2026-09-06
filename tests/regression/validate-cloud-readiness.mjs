@@ -20,7 +20,7 @@ assert.match(source, /ensureSignedInReady\(\)\.catch\(error => setStatus/);
 assert.match(source, /function continueSignedInInBackground\(\)/);
 assert.match(source, /window\.FinanceCloudSync=\{ initialize,signIn,createAccount,syncNow/);
 assert.match(source, /Signed in\. Unlocking Talaan while sync continues in the background/);
-assert.match(source, /return \{session,user:cloudUser\};/);
+assert.match(source, /return \{session:verifiedSession,user:cloudUser\};/);
 assert.match(source, /continueSignedInInBackground\(\);/);
 assert.match(source, /if \(cloudUser\) await ensureSignedInReady\(\);[\s\S]*else onSignedOut\(\);/);
 assert.match(source, /function handleAuthStateChange\(event, nextSession\)/);
