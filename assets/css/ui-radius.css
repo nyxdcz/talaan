@@ -162,20 +162,22 @@ html body :is(.finance-privacy-lock-card,.finance-device-lock-card) {
   }
 }
 
-/* Dashboard bento cards use the card tier; controls inside them keep the control
-   tier. */
+/* Dashboard and Finance workspace navigation share the card tier. The tab group,
+   tab buttons, marquee shell, and repeated day tiles are one visual family. */
 html body #dashboard {
   --dashboard-card-radius: var(--talaan-card-radius);
 }
-html body :is(#dashboard .dashboard-view-tabs,#money .money-workspace-switcher) {
-  border-radius: var(--talaan-control-radius) !important;
+html body :is(#dashboard .dashboard-view-tabs,#money .money-workspace-switcher,#income .money-workspace-switcher,#paid-expenses .money-workspace-switcher) {
+  border-radius: var(--talaan-card-radius) !important;
 }
-html body :is(#dashboard .dashboard-view-tabs > .workspace-switcher-button,#money .money-workspace-switcher > .workspace-switcher-button) {
-  border-radius: var(--talaan-control-radius) !important;
+html body :is(#dashboard .dashboard-view-tabs > .workspace-switcher-button,#money .money-workspace-switcher > .workspace-switcher-button,#income .money-workspace-switcher > .workspace-switcher-button,#paid-expenses .money-workspace-switcher > .workspace-switcher-button) {
+  border-radius: var(--talaan-card-radius) !important;
 }
-/* Marquee shells are cards; their short, repeated day tiles are compact controls. */
+html body :is(.dashboard-week-marquee,.finance-week-marquee,.work-week-marquee) {
+  border-radius: var(--talaan-card-radius) !important;
+}
 html body :is(.dashboard-week-marquee,.finance-week-marquee,.work-week-marquee) .dashboard-week-day {
-  border-radius: var(--talaan-control-radius) !important;
+  border-radius: var(--talaan-card-radius) !important;
 }
 html body #dashboard :is(.button,.input,.select,.textarea,button[class$="-button"],button[class*="-button "]) {
   border-radius: var(--talaan-control-radius) !important;
