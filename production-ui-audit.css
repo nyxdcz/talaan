@@ -2706,3 +2706,178 @@ html body :is(
     text-overflow: ellipsis !important;
   }
 }
+
+/* V15.2.26 · Repeat-action readability and flat controls. */
+@media (min-width: 851px) {
+  html body #money .record-row[data-expense-row] > .desktop-record-actions,
+  html body #paidExpenseList .desktop-record-actions {
+    box-shadow: none !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > .button,
+  html body #paidExpenseList .desktop-record-actions > .button {
+    box-shadow: none !important;
+    border-radius: 8px !important;
+    text-shadow: none !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved],
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved]:hover,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved]:focus-visible,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved]:active,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved].active,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved].active:hover,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved],
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved]:hover,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved]:focus-visible,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved]:active,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved].active,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved].active:hover {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+    width: max-content !important;
+    min-width: 112px !important;
+    max-width: 100% !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding: 0 7px !important;
+    gap: 5px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 8px !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-icon-container,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-icon-container {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 30px !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 30px 30px !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-icon,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-icon {
+    opacity: 0 !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-button-text,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-button-text {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex: 0 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: inherit !important;
+    font-size: .65rem !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-indent: 0 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-button-text::before,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-button-text::after,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-button-text::before,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-button-text::after {
+    content: none !important;
+    display: none !important;
+  }
+}
+
+@media (max-width: 700px) {
+  html body #money .record-row[data-expense-row] > .mobile-record-actions,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions,
+  html body #paidExpenseList .mobile-record-actions {
+    box-shadow: none !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .mobile-record-actions > .button,
+  html body #money .record-row[data-expense-row] > .mobile-record-actions .record-more-panel,
+  html body #money .record-row[data-expense-row] > .mobile-record-actions .record-more-panel [role="menuitem"],
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions > .button,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions .record-more-panel,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions .record-more-panel [role="menuitem"],
+  html body #paidExpenseList .mobile-record-actions > .button,
+  html body #paidExpenseList .mobile-record-actions .record-more-panel,
+  html body #paidExpenseList .mobile-record-actions .record-more-panel [role="menuitem"],
+  html body #paidExpenseList .mobile-record-actions [data-toggle-saved] {
+    box-shadow: none !important;
+    border-radius: 8px !important;
+    text-shadow: none !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .mobile-record-actions .record-more-panel,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions .record-more-panel,
+  html body #paidExpenseList .mobile-record-actions .record-more-panel {
+    overflow: visible !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .mobile-record-actions .record-more-panel [data-toggle-saved],
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions .record-more-panel [data-toggle-saved],
+  html body #paidExpenseList .mobile-record-actions [data-toggle-saved] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    padding: 0 10px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 8px !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    font-size: .75rem !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-indent: 0 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .mobile-record-actions .record-more-panel [data-toggle-saved]::before,
+  html body #money .record-row[data-expense-row] > .mobile-record-actions .record-more-panel [data-toggle-saved]::after,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions .record-more-panel [data-toggle-saved]::before,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions .record-more-panel [data-toggle-saved]::after,
+  html body #paidExpenseList .mobile-record-actions [data-toggle-saved]::before,
+  html body #paidExpenseList .mobile-record-actions [data-toggle-saved]::after {
+    content: none !important;
+    display: none !important;
+  }
+}
