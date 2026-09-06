@@ -33,7 +33,7 @@ test("paid expenses repeat controls keep readable labels, flat styling, and acce
   await expect(desktopButton).toHaveCSS("height", "30px");
   await expect(icon).toHaveCSS("width", "30px");
   await expect(icon).toHaveCSS("height", "30px");
-  await expect(icon).toHaveCSS("background-image", /repeat-monthly-off\\.png/);
+  await expect(icon).toHaveCSS("background-image", /repeat-monthly-off\.png/);
   await expect(star).toHaveCSS("opacity", "0");
   await expect(desktopButton.locator(".monthly-repeat-label")).toHaveCSS("display", /^(?:inline-)?flex$/);
   await expect(desktopButton.locator(".monthly-repeat-label")).toHaveText("Repeat monthly");
@@ -44,7 +44,7 @@ test("paid expenses repeat controls keep readable labels, flat styling, and acce
   await expect(desktopButton).toHaveAttribute("title", "Does not repeat monthly");
 
   await desktopButton.evaluate(element => element.classList.add("active"));
-  await expect(icon).toHaveCSS("background-image", /repeat-monthly-on\\.png/);
+  await expect(icon).toHaveCSS("background-image", /repeat-monthly-on\.png/);
 
   await page.emulateMedia({ reducedMotion:"no-preference" });
   await desktopButton.click();
