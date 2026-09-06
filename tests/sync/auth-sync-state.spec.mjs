@@ -122,19 +122,19 @@ test("cloud startup keeps the privacy gate open while a saved session hydrates",
   const result = await page.evaluate(() => ({ ...window.__cloudTest, status:window.FinanceCloudSync.status }));
   expect(result.attempts).toBe(2);
   expect(result.sessionReads).toBe(2);
-  expect(result.privacy).toEqual([false, true]);
+  expect(result.privacy).toEqual([false, true, true]);
   expect(result.status.signedIn).toBe(true);
   await page.evaluate(() => window.__cloudTest.listener("INITIAL_SESSION", null));
-  expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true]);
+  expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true, true]);
   await page.evaluate(() => window.__cloudTest.listener("SIGNED_OUT", null));
   await page.waitForTimeout(30);
-  expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true]);
+  expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true, true]);
   await page.evaluate(() => {
     window.__cloudTest.currentSession = null;
     window.__cloudTest.listener("SIGNED_OUT", null);
   });
   await page.waitForTimeout(30);
-  expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true, false]);
+  expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true, true, false]);
   expect(consoleNoise).toEqual([]);
 });
 
@@ -183,4 +183,54 @@ test("sign-in confirms the saved session before unlocking privacy", async ({ pag
   expect(result.user.id).toBe("user-1");
   expect(await page.evaluate(() => window.__cloudTest.sessionReads)).toBe(1);
   expect(await page.evaluate(() => window.__cloudTest.privacy.at(-1))).toBe(true);
+});
+
+
+test("real Supabase SDK restores its persisted session after reload without another login", async ({ page }) => {
+  let logins = 0;
+  const origin = "http://127.0.0.1:3000";
+  await page.route(origin + "/auth-persistence-test", route => route.fulfill({
+    contentType:"text/html", body:'<!doctype html><html><body><p data-privacy-auth-message></p></body></html>'
+  }));
+  const user = { id:"00000000-0000-0000-0000-000000000001", email:"test@example.com", aud:"authenticated", role:"authenticated" };
+  const expires = Math.floor(Date.now() / 1000) + 3600;
+  const encode = value => Buffer.from(JSON.stringify(value)).toString("base64url");
+  const token = encode({ alg:"HS256", typ:"JWT" }) + "." + encode({ sub:user.id, exp:expires, aud:"authenticated", role:"authenticated" }) + ".test-signature";
+  await page.route("https://session-test.supabase.co/**", route => {
+    if (route.request().method() === "OPTIONS") return route.fulfill({ status:204, headers:{ "access-control-allow-origin":"*", "access-control-allow-headers":"*", "access-control-allow-methods":"*" } });
+    if (route.request().url().includes("/auth/v1/token")) logins += 1;
+    return route.fulfill({ contentType:"application/json", headers:{ "access-control-allow-origin":"*" }, body:JSON.stringify({
+      access_token:token, refresh_token:"synthetic-refresh-token", expires_in:3600, expires_at:expires, token_type:"bearer", user
+    }) });
+  });
+  await page.addInitScript(() => {
+    window.data = {};
+    window.FINANCE_SYNC_CONFIG = { supabaseUrl:"https://session-test.supabase.co", supabasePublishableKey:"sb_publishable_abcdefghijklmnopqrstuvwxyz" };
+    window.FinancePrivacyLock = { setAuthenticated(value) { document.documentElement.dataset.testAuth = String(value); } };
+    window.FinanceCloudSyncLifecycle = { create:() => ({
+      clearForegroundPoll() {}, scheduleForegroundPoll() {}, clearRealtimeRetry() {},
+      scheduleRealtimeRecovery() {}, noteRealtimeSubscribed() {}
+    }) };
+    window.FinanceProfileArchitecture = {
+      activeProfileId:() => "profile-personal", cloudProfileId:() => "", isCloudUnlocked:() => false,
+      listCloudProfiles:async () => ({ profiles:[{ profile_id:"locked-profile" }] }),
+      connectCloudProfile:async () => { throw new Error("Incorrect passphrase"); }
+    };
+    window.financeLoadSupabase = () => import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.0/+esm");
+  });
+  await page.goto(origin + "/auth-persistence-test");
+  await page.addScriptTag({ path:"assets/js/cloud-sync.js" });
+  await expect.poll(() => page.evaluate(() => window.FinanceCloudSync.authDiagnostics.phase)).toBe("missing");
+  await page.evaluate(() => window.FinanceCloudSync.signIn("test@example.com", "synthetic-password"));
+  expect(logins).toBe(1);
+  expect(await page.evaluate(() => Boolean(localStorage.getItem("sb-session-test-auth-token")))).toBe(true);
+  await page.reload();
+  await page.addScriptTag({ path:"assets/js/cloud-sync.js" });
+  await expect.poll(() => page.evaluate(() => window.FinanceCloudSync.authDiagnostics.phase)).toBe("restored");
+  expect(await page.evaluate(() => window.FinanceCloudSync.status.signedIn)).toBe(true);
+  expect(logins).toBe(1);
+  const diagnostic = await page.evaluate(() => window.FinanceCloudSync.authDiagnostics);
+  expect(diagnostic.storage).toBe("present");
+  expect(JSON.stringify(diagnostic)).not.toContain("synthetic");
+  expect(JSON.stringify(diagnostic)).not.toContain(user.email);
 });
