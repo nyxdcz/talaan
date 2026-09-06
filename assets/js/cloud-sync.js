@@ -42,6 +42,8 @@
   let client = null;
   let clientPromise = null;
   let authHydrationComplete = false;
+  let authRevision = 0;
+  const authDiagnostics = { phase:"starting", storage:"unchecked", lastEvent:"none" };
   let session = null;
   let cloudUser = null;
   let signedInInitialization = null;
@@ -562,6 +564,7 @@
 
   function cloudReadiness() {
     if (!configStatus().ok) return { key:"cloud-off", label:"Cloud off", detail:"Cloud sync is not configured on this device.", ready:false };
+    if (!cloudUser && authDiagnostics.phase === "restoring") return { key:"restoring", label:"Restoring session…", detail:"Checking saved authentication.", ready:false };
     if (!cloudUser) return { key:"signed-out", label:"Sign in", detail:"Sign in to connect encrypted Cloud Sync.", ready:false };
     if (profileSetupState === "checking") return { key:"connecting", label:"Connecting…", detail:"Checking the encrypted cloud profile for this account.", ready:false };
     if (profileSetupState === "profile-error") return { key:"profile-error", label:"Profile issue", detail:profileSetupDetail || "The cloud profile could not be checked. Open Profile & Security to try again.", ready:false };
@@ -862,15 +865,51 @@
   function setPrivacyAuthentication(authenticated, detail = {}) { try { window.FinancePrivacyLock?.setAuthenticated?.(Boolean(authenticated), { email:String(detail.email || cloudUser?.email || "") }); } catch (error) {} }
   function transientAuthError(error) { return /failed to fetch|network|load failed|networkerror|timeout|timed out|abort|cdn|supabase loader/i.test(String(error?.message || error || "")); }
   function waitForAuthRetry(attempt) { return new Promise(resolve => setTimeout(resolve, AUTH_RESTORE_RETRY_MS * (attempt + 1))); }
+  function reportAuthPhase(phase) {
+    authDiagnostics.phase = phase;
+    try {
+      const project = new URL(getStoredConfig().supabaseUrl).hostname.split(".")[0];
+      authDiagnostics.storage = localStorage.getItem(`sb-${project}-auth-token`) ? "present" : "absent";
+    } catch (error) { authDiagnostics.storage = "unavailable"; }
+    const messages = {
+      restoring:"Restoring session… Your records remain hidden while authentication is checked.",
+      restored:"Session restored.",
+      missing:"No saved session was found. Sign in to continue.",
+      timeout:"Session restoration timed out. Reload to retry; do not clear site data.",
+      failed:"Session restoration failed. Check your connection and reload; do not clear site data."
+    };
+    const message = messages[phase] || "";
+    document.querySelectorAll("[data-privacy-auth-message]").forEach(node => {
+      node.textContent = `${message} [Auth: ${phase}; saved session: ${authDiagnostics.storage}]`;
+    });
+  }
+  async function readAuthSession(sdk) {
+    let timer;
+    try {
+      return await Promise.race([
+        sdk.auth.getSession(),
+        new Promise((resolve, reject) => {
+          timer = setTimeout(() => {
+            const error = new Error("Session restoration timed out.");
+            error.code = "auth_restore_timeout";
+            reject(error);
+          }, 10000);
+        })
+      ]);
+    } finally { clearTimeout(timer); }
+  }
   function applyAuthSession(nextSession) {
+    authRevision += 1;
     session = nextSession || null;
     cloudUser = nextSession?.user || null;
   }
   function activeAuthSession() { return Boolean(session?.user?.id || cloudUser?.id || session?.access_token); }
   async function confirmEmptyAuthEvent(event) {
+    const revision = authRevision;
     try {
       const sdk = await loadClient();
-      const result = await sdk.auth.getSession();
+      const result = await readAuthSession(sdk);
+      if (revision !== authRevision) return;
       if (result.error) throw result.error;
       const nextSession = result.data?.session || null;
       if (nextSession?.user) {
@@ -887,6 +926,7 @@
     onSignedOut();
   }
   function handleAuthStateChange(event, nextSession) {
+    authDiagnostics.lastEvent = ["INITIAL_SESSION","SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED","PASSWORD_RECOVERY","USER_UPDATED","MFA_CHALLENGE_VERIFIED"].includes(event) ? event : "other";
     if (nextSession?.user) {
       applyAuthSession(nextSession);
       if (event === "PASSWORD_RECOVERY") {
@@ -901,7 +941,11 @@
         setStatus("Reset password", "Choose a new password before continuing cloud sync.", "warning");
         return;
       }
-      ensureSignedInReady().catch(error => setStatus("Sync needs attention", friendlyAuthError(error, "sync"), "danger"));
+      const revision = authRevision;
+      setTimeout(() => {
+        if (revision !== authRevision || passwordRecoveryActive) return;
+        continueSignedInInBackground();
+      }, 0);
       return;
     }
     if (!authHydrationComplete) return;
@@ -909,7 +953,7 @@
     setTimeout(() => confirmEmptyAuthEvent(event), 0);
   }
   async function confirmSignedInSession(sdk) {
-    const result = await sdk.auth.getSession();
+    const result = await readAuthSession(sdk);
     if (result.error) throw result.error;
     const nextSession = result.data?.session || null;
     if (!nextSession?.user) throw new Error("Cloud sign-in completed, but the session could not be restored. Try signing in again.");
@@ -950,17 +994,24 @@
   async function completePasswordReset(password, confirmPassword) { const next = String(password || ""); if (next.length < 6) throw new Error("Use a password with at least 6 characters."); if (next !== String(confirmPassword || "")) throw new Error("The new passwords do not match."); const sdk = await loadClient(); const result = await sdk.auth.updateUser({ password:next }); if (result.error) throw result.error; passwordRecoveryActive = false; passwordRecoveryRouteActive = false; passwordRecoveryError = null; cleanPasswordRecoveryUrl({ keepRoute:false }); session = result.data?.session || session; cloudUser = result.data?.user || session?.user || cloudUser; return result.data?.user || cloudUser; }
   async function restoreSession() {
     authHydrationComplete = false;
+    reportAuthPhase("restoring");
     if (!configStatus().ok) { authHydrationComplete = true; return; }
     let lastError = null;
     for (let attempt = 0; attempt < AUTH_RESTORE_ATTEMPTS; attempt += 1) {
       try {
         const sdk = await loadClient();
-        const result = await sdk.auth.getSession();
+        const result = await readAuthSession(sdk);
         if (result.error) throw result.error;
         session = result.data?.session || null;
         cloudUser = session?.user || null;
-        if (cloudUser) await ensureSignedInReady();
-        else onSignedOut();
+        if (cloudUser) {
+          setPrivacyAuthentication(!passwordRecoveryActive);
+          reportAuthPhase("restored");
+          if (!passwordRecoveryActive) continueSignedInInBackground();
+        } else {
+          onSignedOut();
+          reportAuthPhase("missing");
+        }
         authHydrationComplete = true;
         return;
       } catch (error) {
@@ -971,6 +1022,7 @@
       }
     }
     authHydrationComplete = true;
+    reportAuthPhase(lastError?.code === "auth_restore_timeout" ? "timeout" : "failed");
     setStatus("Cloud sync unavailable", lastError?.message || "Could not load cloud sync.", "danger");
   }
   function continueSignedInInBackground(){
@@ -1022,7 +1074,7 @@
     return {confirmed:true,session:verifiedSession,user:cloudUser};
   }
   async function signOut() { if (client) { const result = await client.auth.signOut({ scope:"local" }); if (result?.error) throw result.error; } onSignedOut(); }
-  function onSignedOut() { session = null; cloudUser = null; signedInInitialization = null; signedInInitializationScope = ""; signedInReadyUserId = ""; profileSetupPromise = null; profileSetupScope = ""; profileSetupState = "idle"; profileSetupDetail = ""; setPrivacyAuthentication(false); passwordRecoveryActive = false; clearForegroundPoll(); clearRealtimeRetry({resetAttempts:true}); if (realtimeChannel && client) client.removeChannel(realtimeChannel).catch(() => {}); realtimeChannel = null; setStatus("Not connected", "Local finance records remain on this device until Cloud Sync is connected again.", "info"); }
+  function onSignedOut() { authRevision += 1; session = null; cloudUser = null; signedInInitialization = null; signedInInitializationScope = ""; signedInReadyUserId = ""; profileSetupPromise = null; profileSetupScope = ""; profileSetupState = "idle"; profileSetupDetail = ""; setPrivacyAuthentication(false); passwordRecoveryActive = false; clearForegroundPoll(); clearRealtimeRetry({resetAttempts:true}); if (realtimeChannel && client) client.removeChannel(realtimeChannel).catch(() => {}); realtimeChannel = null; setStatus("Not connected", "Local finance records remain on this device until Cloud Sync is connected again.", "info"); }
 
   async function registerDevice() { const profileId = requireCloudProfile(); const result = await rpc("finance_v3_register_device", { p_profile_id:profileId, p_device_id:currentDeviceId(), p_device_name:currentDeviceName(), p_platform:navigator.userAgent || navigator.platform || "Browser", p_app_version:appVersion(), p_app_version_code:APP_VERSION_CODE, p_last_pull_audit_id:Number(state.lastAuditId || 0) }); if (result.status === "revoked") { await handleRevoked(result); return false; } state.profileRole = result.role || profileRole(); return true; }
   async function handleRevoked(result = {}) { state.enabled = false; state.lastError = "This device was signed out remotely."; persist(); try { await client?.auth?.signOut?.({ scope:"local" }); } catch (error) {} session = null; cloudUser = null; setPrivacyAuthentication(false); setStatus("Signed out remotely", `This installation was revoked${result.revoked_at ? ` on ${formatDateTime(result.revoked_at)}` : ""}. Local records remain available.`, "danger"); }
@@ -1491,7 +1543,7 @@
     renderCloudStats(); if (passwordRecoveryError) setRecoveryHelpMessage(recoveryErrorMessage(passwordRecoveryError), "danger"); const status=configStatus(); if(!status.ok){setStatus("Cloud sync not configured",status.message,"warning");return;} await restoreSession(); setInterval(()=>{if(cloudReadiness().ready&&state.autoSync!==false&&navigator.onLine&&!document.hidden)syncNow({reason:"periodic"}).catch(()=>{});},5*60*1000); scheduleForegroundPoll(); scheduleRetry();
   }
 
-  window.FinanceCloudSync={ initialize,signIn,createAccount,syncNow,replaceCloudWithThisDevice, buildRecordMap:()=>toRecordMap(data), get status(){const readiness=cloudReadiness();return{...state,pendingCount:pendingCount(),conflictCount:conflictCount(),signedIn:Boolean(cloudUser),email:cloudUser?.email||"",readiness:readiness.key,ready:readiness.ready};} };
+  window.FinanceCloudSync={ initialize,signIn,createAccount,syncNow, get authDiagnostics(){ return {...authDiagnostics}; },replaceCloudWithThisDevice, buildRecordMap:()=>toRecordMap(data), get status(){const readiness=cloudReadiness();return{...state,pendingCount:pendingCount(),conflictCount:conflictCount(),signedIn:Boolean(cloudUser),email:cloudUser?.email||"",readiness:readiness.key,ready:readiness.ready};} };
   window.FinanceCloudSyncInternals={loadClient,restoreSession,ensureSignedInReady,autoEnsureCloudProfile,cloudReadiness,stable,checksum,deepMerge,threeWayMerge,toRecordMap,fromRecordStore,changesBetween,recordKey,keyToken,keyFromToken,retryDelay,detectFinancialOperations,encryptRecordPayload,decryptRecordPayload,toRpcChange,decryptRow,sanitizeRecordPayload,reconcileDerivedSettingsState,reconcileUnqueuedLocalChanges,seedBaseFromSnapshot,applyRemoteEvent,resolveConflict,persist,handlePersistedData,requestLifecycleSync,scheduleForegroundPoll,scheduleRealtimeRecovery,ensureRealtime,friendlyAuthError,passwordRecoveryRedirect,parsePasswordRecoveryUrl,recoveryErrorMessage,cleanPasswordRecoveryUrl,testCloudConnection,requestPasswordReset,verifyRecoveryCode,completePasswordReset,setPasswordVisibility,recoverStoredConflicts,reconcilePendingWithRemote,replaceCloudWithThisDevice};
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>initialize().catch(error=>setStatus("Cloud sync unavailable",error.message,"danger")),{once:true});
