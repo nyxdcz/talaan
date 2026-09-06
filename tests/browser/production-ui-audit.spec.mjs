@@ -206,6 +206,11 @@ test("desktop expense cards match the approved compact type, status, and footer 
       repeatIconSize:[rect(repeatIcon).width, rect(repeatIcon).height],
       repeatBackground:repeatIcon ? style(repeatIcon).backgroundImage : "",
       repeatLabelDisplay:repeatText ? style(repeatText).display : "",
+      repeatText:repeatText?.textContent?.trim() || "",
+      repeatShadow:repeat ? style(repeat).boxShadow : "",
+      repeatRadius:repeat ? parseFloat(style(repeat).borderRadius) : 0,
+      markPaidShadow:markPaid ? style(markPaid).boxShadow : "",
+      editShadow:edit ? style(edit).boxShadow : "",
       markPaidSize:[paidRect.width, paidRect.height],
       markPaidFont:font(markPaid),
       markPaidBackground:markPaid ? style(markPaid).backgroundColor : "",
@@ -263,23 +268,28 @@ test("desktop expense cards match the approved compact type, status, and footer 
   expect(metrics.amount.weight).toBe(700);
 
   expect(metrics.actionGap).toBeCloseTo(5, 0);
-  expect(metrics.repeatSize[0]).toBeCloseTo(30, 0);
+  expect(metrics.repeatSize[0]).toBeGreaterThan(110);
   expect(metrics.repeatSize[1]).toBeCloseTo(30, 0);
   expect(metrics.repeatIconSize[0]).toBeCloseTo(30, 0);
   expect(metrics.repeatIconSize[1]).toBeCloseTo(30, 0);
   expect(metrics.repeatBackground).toMatch(/repeat-monthly-(?:on|off)\.png/);
-  expect(metrics.repeatLabelDisplay).toBe("none");
+  expect(metrics.repeatLabelDisplay).toBe("inline-flex");
+  expect(metrics.repeatText).toMatch(/Repeat(?:s)? monthly/);
+  expect(metrics.repeatShadow).toBe("none");
+  expect(metrics.repeatRadius).toBeCloseTo(8, 0);
   expect(metrics.markPaidSize[0]).toBeCloseTo(74, 0);
   expect(metrics.markPaidSize[1]).toBeCloseTo(30, 0);
   expect(metrics.markPaidFont.size).toBeCloseTo(11, 0);
   expect(metrics.markPaidFont.weight).toBe(600);
   expect(metrics.markPaidBackground).toBe("rgb(53, 111, 209)");
+  expect(metrics.markPaidShadow).toBe("none");
   expect(metrics.markPaidRadius).toBeCloseTo(8, 0);
   expect(metrics.editSize[0]).toBeCloseTo(48, 0);
   expect(metrics.editSize[1]).toBeCloseTo(30, 0);
   expect(metrics.editFont.size).toBeCloseTo(11, 0);
   expect(metrics.editFont.weight).toBe(600);
   expect(metrics.editBorder).toBe("rgb(213, 220, 229)");
+  expect(metrics.editShadow).toBe("none");
   expect(metrics.editRadius).toBeCloseTo(8, 0);
   expect(metrics.repeatToPaidGap).toBeCloseTo(5, 0);
   expect(metrics.paidToEditGap).toBeCloseTo(5, 0);
