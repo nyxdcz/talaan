@@ -21,7 +21,8 @@ assert.match(source, /window\.FinanceCloudSync=\{ initialize,signIn,createAccoun
 assert.match(source, /Signed in\. Unlocking Talaan while sync continues in the background/);
 assert.match(source, /return \{session,user:cloudUser\};/);
 assert.match(source, /continueSignedInInBackground\(\);/);
-assert.match(source, /authHydrationComplete = true;[\s\S]*if \(cloudUser\) await ensureSignedInReady\(\);[\s\S]*else onSignedOut\(\);/);
+assert.match(source, /if \(cloudUser\) await ensureSignedInReady\(\);[\s\S]*else onSignedOut\(\);/);
+assert.match(source, /if \(cloudUser\) ensureSignedInReady\(\)\.catch\([\s\S]*\); else if \(event !== "INITIAL_SESSION"\) onSignedOut\(\);/);
 assert.match(source, /AUTH_RESTORE_ATTEMPTS/);
 assert.match(source, /transientAuthError\(error\)/);
 assert.match(source, /signedInReadyUserId === userId/);

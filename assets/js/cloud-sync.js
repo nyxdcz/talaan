@@ -62,7 +62,6 @@
   let suppressQueue = false;
   let saveWrapped = false;
   let initialized = false;
-  let authHydrationComplete = false;
   let lastObservedData = clone(typeof data !== "undefined" ? data : {});
 
   const defaultState = () => ({
@@ -870,7 +869,7 @@
       const config = getStoredConfig(); const status = configStatus(config); if (!status.ok) throw new Error(status.message); if (typeof window.financeLoadSupabase !== "function") throw new Error("Supabase loader is missing.");
       const library = await window.financeLoadSupabase(); const createClient = library?.createClient || library?.default?.createClient || window.supabase?.createClient; if (typeof createClient !== "function") throw new Error("Supabase client could not be loaded.");
       const nextClient = createClient(config.supabaseUrl, config.supabasePublishableKey, { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, experimental:{ passkey:true } }, realtime:{ params:{ eventsPerSecond:8 } }, global:{ headers:{ "x-client-info":`my-finance-records/${appVersion()}` } } });
-      nextClient.auth.onAuthStateChange((event,nextSession) => { session = nextSession || null; cloudUser = nextSession?.user || null; if (event === "PASSWORD_RECOVERY") { setPrivacyAuthentication(false, { email:nextSession?.user?.email || "" }); passwordRecoveryRouteActive = true; passwordRecoveryError = null; passwordRecoveryActive = true; cleanPasswordRecoveryUrl({ keepRoute:true }); focusPasswordRecoverySettings(); renderCloudStats(); setAuthMessage("Choose a new password to finish account recovery.", "warning", "recovery"); setStatus("Reset password", "Choose a new password before continuing cloud sync.", "warning"); return; } if (cloudUser) ensureSignedInReady().catch(error => setStatus("Sync needs attention", friendlyAuthError(error,"sync"), "danger")); else if (authHydrationComplete || event !== "INITIAL_SESSION") onSignedOut(); });
+      nextClient.auth.onAuthStateChange((event,nextSession) => { session = nextSession || null; cloudUser = nextSession?.user || null; if (event === "PASSWORD_RECOVERY") { setPrivacyAuthentication(false, { email:nextSession?.user?.email || "" }); passwordRecoveryRouteActive = true; passwordRecoveryError = null; passwordRecoveryActive = true; cleanPasswordRecoveryUrl({ keepRoute:true }); focusPasswordRecoverySettings(); renderCloudStats(); setAuthMessage("Choose a new password to finish account recovery.", "warning", "recovery"); setStatus("Reset password", "Choose a new password before continuing cloud sync.", "warning"); return; } if (cloudUser) ensureSignedInReady().catch(error => setStatus("Sync needs attention", friendlyAuthError(error,"sync"), "danger")); else if (event !== "INITIAL_SESSION") onSignedOut(); });
       client = nextClient;
       return client;
     })();
@@ -895,7 +894,7 @@
   async function requestPasswordReset(email) { const value = String(email || "").trim(); if (!value || !/^\S+@\S+\.\S+$/.test(value)) throw new Error("Enter the email address used for your cloud account."); const sdk = await loadClient(); const redirectTo = passwordRecoveryRedirect(); if (!redirectTo) throw new Error("Open the hosted HTTPS app to reset a cloud password. Local file copies cannot receive the secure reset link."); const result = await sdk.auth.resetPasswordForEmail(value, { redirectTo }); if (result.error) throw result.error; return true; }
   async function completePasswordReset(password, confirmPassword) { const next = String(password || ""); if (next.length < 6) throw new Error("Use a password with at least 6 characters."); if (next !== String(confirmPassword || "")) throw new Error("The new passwords do not match."); const sdk = await loadClient(); const result = await sdk.auth.updateUser({ password:next }); if (result.error) throw result.error; passwordRecoveryActive = false; passwordRecoveryRouteActive = false; passwordRecoveryError = null; cleanPasswordRecoveryUrl({ keepRoute:false }); session = result.data?.session || session; cloudUser = result.data?.user || session?.user || cloudUser; return result.data?.user || cloudUser; }
   async function restoreSession() {
-    if (!configStatus().ok) { authHydrationComplete = true; return; }
+    if (!configStatus().ok) return;
     let lastError = null;
     for (let attempt = 0; attempt < AUTH_RESTORE_ATTEMPTS; attempt += 1) {
       try {
@@ -904,7 +903,6 @@
         if (result.error) throw result.error;
         session = result.data?.session || null;
         cloudUser = session?.user || null;
-        authHydrationComplete = true;
         if (cloudUser) await ensureSignedInReady();
         else onSignedOut();
         return;
@@ -915,7 +913,6 @@
         await waitForAuthRetry(attempt);
       }
     }
-    authHydrationComplete = true;
     setStatus("Cloud sync unavailable", lastError?.message || "Could not load cloud sync.", "danger");
   }
   function continueSignedInInBackground(){

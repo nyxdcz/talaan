@@ -122,6 +122,8 @@ test("cloud startup keeps the privacy gate open while a saved session hydrates",
   expect(result.sessionReads).toBe(2);
   expect(result.privacy).toEqual([false, true]);
   expect(result.status.signedIn).toBe(true);
+  await page.evaluate(() => window.__cloudTest.listener("INITIAL_SESSION", null));
+  expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true]);
   await page.evaluate(() => window.__cloudTest.listener("SIGNED_OUT", null));
   expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true, false]);
   expect(consoleNoise).toEqual([]);
