@@ -904,6 +904,7 @@
       ensureSignedInReady().catch(error => setStatus("Sync needs attention", friendlyAuthError(error, "sync"), "danger"));
       return;
     }
+    if (!authHydrationComplete) return;
     if (event === "INITIAL_SESSION" && activeAuthSession()) return;
     setTimeout(() => confirmEmptyAuthEvent(event), 0);
   }
