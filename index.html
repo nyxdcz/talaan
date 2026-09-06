@@ -935,6 +935,7 @@
                 </div>
                 <div class="system-actions"><button class="button button-primary" id="cloudSignIn" type="button">Sign in</button><button class="button button-secondary" id="cloudCreateAccount" type="button">Create account</button></div>
                 <div class="cloud-auth-secondary-actions"><button class="cloud-auth-link-button" id="cloudForgotPassword" type="button">Forgot password?</button><button class="button button-secondary button-small" id="cloudTestConnection" type="button">Test cloud connection</button></div>
+                <div class="cloud-auth-feedback" id="cloudAuthRestoreStatus" data-state="idle" role="status" aria-live="polite">Checking for a saved session…</div>
                 <div class="cloud-auth-feedback" id="cloudAuthMessage" role="status" aria-live="polite">Sign in to view finance records. Local records remain stored on this device and stay hidden if sign-in fails.</div>
                 <div class="cloud-connection-line"><span>Cloud connection</span><strong id="cloudConnectionStatus">Not tested</strong></div>
               </article>
@@ -9250,11 +9251,12 @@
   <script src="./sync-config.js?v=2.5.0-talaan1"></script>
   <script src="./sync-runtime-compat.js?v=2.5.0-talaan1"></script>
   <script src="./privacy-lock.js?v=2.5.0-talaan1"></script>
+  <script src="./finance-transaction-diagnostics.js?v=2.5.0-account-61963fd6eec4"></script>
   <script src="./security-profiles.js?v=2.5.0-talaan1"></script>
   <script src="./cloud-conflict-review.js?v=2.5.0-talaan1"></script>
-  <script src="./cloud-conflict-resolution.js?v=2.5.0-talaan1"></script><script src="./cloud-sync-lifecycle.js?v=2.5.0-account-a59d76de08c8"></script><script src="./cloud-sync.js?v=2.5.0-account-a59d76de08c8"></script>
-  <script src="./finance-integrity.js?v=2.5.0-account-a59d76de08c8"></script>
-  <script src="./account-ledger.js?v=2.5.0-account-a59d76de08c8"></script>
+  <script src="./cloud-conflict-resolution.js?v=2.5.0-talaan1"></script><script src="./cloud-sync-lifecycle.js?v=2.5.0-account-61963fd6eec4"></script><script src="./cloud-sync.js?v=2.5.0-account-61963fd6eec4"></script>
+  <script src="./finance-integrity.js?v=2.5.0-account-61963fd6eec4"></script>
+  <script src="./account-ledger.js?v=2.5.0-account-61963fd6eec4"></script>
   <script src="./budget-planning.js?v=2.5.0-talaan1"></script>
   <script src="./reports-insights.js?v=2.5.0-talaan1"></script>
   <script src="./net-worth.js?v=2.5.0-talaan1"></script>

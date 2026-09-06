@@ -26,6 +26,7 @@
   const RETRY_MAX_MS = 5 * 60 * 1000;
   const AUTH_RESTORE_ATTEMPTS = 3;
   const AUTH_RESTORE_RETRY_MS = 350;
+  const AUTH_RESTORE_TIMEOUT_MS = 10000;
   const ICON_ONLY_SYNC_QUERY = "(max-width: 850px)";
   const ARRAY_COLLECTIONS = ["expenses", "projects", "incomeRecords", "savingsGoals",
     "accountLedger", "accountReconciliations", "budgetTemplates", "expenseTemplates"
@@ -62,7 +63,10 @@
   let suppressQueue = false;
   let saveWrapped = false;
   let initialized = false;
+  let authRestoreInFlight = false;
+  let authEventQueue = Promise.resolve();
   let lastObservedData = clone(typeof data !== "undefined" ? data : {});
+  const authRestore = { status:"idle", storage:"unknown", error:"" };
 
   const defaultState = () => ({
     enabled:true,
@@ -791,6 +795,7 @@
 
   function renderCloudStats() {
     injectV2Ui();
+    renderAuthRestoreStatus();
     const configured = configStatus().ok;
     const readiness = cloudReadiness();
     const ready = readiness.ready;
@@ -859,8 +864,94 @@
   function scheduleRetry() { clearTimeout(retryTimer); const times = Object.values(pending).filter(item => item.status === "error" && item.nextAttemptAt > Date.now()).map(item => item.nextAttemptAt); if (!times.length || state.autoSync === false) return; const delay = Math.max(250, Math.min(...times) - Date.now()); retryTimer = setTimeout(() => syncNow({ reason:"retry" }).catch(() => {}), delay); }
   function retryDelay(attempts) { const exponential = Math.min(RETRY_MAX_MS, RETRY_BASE_MS * (2 ** Math.min(Number(attempts || 0), 8))); return Math.min(RETRY_MAX_MS, exponential + Math.floor(Math.random() * Math.min(1500, exponential * .2))); }
   function setPrivacyAuthentication(authenticated, detail = {}) { try { window.FinancePrivacyLock?.setAuthenticated?.(Boolean(authenticated), { email:String(detail.email || cloudUser?.email || "") }); } catch (error) {} }
+  function setPrivacyPending(detail = {}) { try { const lock = window.FinancePrivacyLock; if (typeof lock?.setPending === "function") lock.setPending({ email:String(detail.email || "") }); else lock?.setAuthenticated?.(false, { email:String(detail.email || "") }); } catch (error) {} }
   function transientAuthError(error) { return /failed to fetch|network|load failed|networkerror|timeout|timed out|abort|cdn|supabase loader/i.test(String(error?.message || error || "")); }
   function waitForAuthRetry(attempt) { return new Promise(resolve => setTimeout(resolve, AUTH_RESTORE_RETRY_MS * (attempt + 1))); }
+  function authStorageState() {
+    let available = false;
+    let present = false;
+    for (const storageName of ["localStorage", "sessionStorage"]) {
+      let storage = null;
+      try {
+        storage = window[storageName];
+        available = true;
+        for (let index = 0; index < storage.length; index += 1) {
+          if (/^sb-.+-auth-token$/i.test(String(storage.key(index) || ""))) {
+            present = true;
+            break;
+          }
+        }
+      } catch (error) {}
+      if (present) break;
+    }
+    return available ? (present ? "present" : "missing") : "unavailable";
+  }
+  function safeAuthDiagnostic(error) {
+    const raw = String(error?.message || error || "").trim();
+    if (/session restore timed out/i.test(raw)) return "The cloud session check timed out. Check your connection, then sign in again.";
+    const message = friendlyAuthError(error, "session-restore");
+    return String(message || "The saved session could not be restored.")
+      .replace(/(?:access|refresh)[_-]?token[^\s]*/ig, "[redacted]")
+      .slice(0, 220);
+  }
+  function authRestoreMessage() {
+    const storage = authRestore.storage === "present" ? "Saved session storage found" : authRestore.storage === "unavailable" ? "Session storage unavailable" : "No saved session storage found";
+    if (authRestore.status === "restoring") return `${storage} · Restoring session…`;
+    if (authRestore.status === "restored") return `${storage} · Session restored.`;
+    if (authRestore.status === "error") return `${storage} · Session restore failed. ${authRestore.error || "Sign in again to continue."}`;
+    if (authRestore.status === "signed-out") return `${storage} · Sign in to continue.`;
+    return "Checking for a saved session…";
+  }
+  function renderAuthRestoreStatus() {
+    const message = authRestoreMessage();
+    const tone = authRestore.status === "error" ? "danger" : authRestore.status === "restored" ? "success" : authRestore.status === "restoring" ? "info" : "warning";
+    document.querySelectorAll("#cloudAuthRestoreStatus, [data-privacy-restore-status]").forEach(node => {
+      node.textContent = message;
+      node.dataset.tone = tone;
+      node.dataset.state = authRestore.status;
+    });
+  }
+  function setAuthRestoreState(status, error = null) {
+    authRestore.status = String(status || "idle");
+    authRestore.storage = authStorageState();
+    authRestore.error = authRestore.status === "error" ? safeAuthDiagnostic(error) : "";
+    renderAuthRestoreStatus();
+  }
+  function authRestoreSnapshot() { return { ...authRestore }; }
+  function deferAuthStateChange(event, nextSession) {
+    authEventQueue = authEventQueue
+      .catch(() => {})
+      .then(() => new Promise(resolve => setTimeout(resolve, 0)))
+      .then(() => handleDeferredAuthStateChange(event, nextSession))
+      .catch(error => setStatus("Sync needs attention", friendlyAuthError(error, "sync"), "danger"));
+  }
+  async function handleDeferredAuthStateChange(event, nextSession) {
+    if (event === "PASSWORD_RECOVERY") {
+      setPrivacyAuthentication(false, { email:nextSession?.user?.email || "" });
+      passwordRecoveryRouteActive = true;
+      passwordRecoveryError = null;
+      passwordRecoveryActive = true;
+      cleanPasswordRecoveryUrl({ keepRoute:true });
+      focusPasswordRecoverySettings();
+      renderCloudStats();
+      setAuthMessage("Choose a new password to finish account recovery.", "warning", "recovery");
+      setStatus("Reset password", "Choose a new password before continuing cloud sync.", "warning");
+      return;
+    }
+    if (nextSession?.user) {
+      if (authRestoreInFlight) return;
+      await ensureSignedInReady();
+    } else if (event !== "INITIAL_SESSION") {
+      onSignedOut();
+    }
+  }
+  function withAuthTimeout(promise, label = "Session restore timed out.") {
+    let timer = null;
+    const timeout = new Promise((resolve, reject) => {
+      timer = setTimeout(() => reject(new Error(label)), AUTH_RESTORE_TIMEOUT_MS);
+    });
+    return Promise.race([promise, timeout]).finally(() => { if (timer) clearTimeout(timer); });
+  }
 
   async function loadClient() {
     if (client) return client;
@@ -869,7 +960,11 @@
       const config = getStoredConfig(); const status = configStatus(config); if (!status.ok) throw new Error(status.message); if (typeof window.financeLoadSupabase !== "function") throw new Error("Supabase loader is missing.");
       const library = await window.financeLoadSupabase(); const createClient = library?.createClient || library?.default?.createClient || window.supabase?.createClient; if (typeof createClient !== "function") throw new Error("Supabase client could not be loaded.");
       const nextClient = createClient(config.supabaseUrl, config.supabasePublishableKey, { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, experimental:{ passkey:true } }, realtime:{ params:{ eventsPerSecond:8 } }, global:{ headers:{ "x-client-info":`my-finance-records/${appVersion()}` } } });
-      nextClient.auth.onAuthStateChange((event,nextSession) => { session = nextSession || null; cloudUser = nextSession?.user || null; if (event === "PASSWORD_RECOVERY") { setPrivacyAuthentication(false, { email:nextSession?.user?.email || "" }); passwordRecoveryRouteActive = true; passwordRecoveryError = null; passwordRecoveryActive = true; cleanPasswordRecoveryUrl({ keepRoute:true }); focusPasswordRecoverySettings(); renderCloudStats(); setAuthMessage("Choose a new password to finish account recovery.", "warning", "recovery"); setStatus("Reset password", "Choose a new password before continuing cloud sync.", "warning"); return; } if (cloudUser) ensureSignedInReady().catch(error => setStatus("Sync needs attention", friendlyAuthError(error,"sync"), "danger")); else if (event !== "INITIAL_SESSION") onSignedOut(); });
+      nextClient.auth.onAuthStateChange((event,nextSession) => {
+        session = nextSession || null;
+        cloudUser = nextSession?.user || null;
+        deferAuthStateChange(event, nextSession);
+      });
       client = nextClient;
       return client;
     })();
@@ -894,26 +989,41 @@
   async function requestPasswordReset(email) { const value = String(email || "").trim(); if (!value || !/^\S+@\S+\.\S+$/.test(value)) throw new Error("Enter the email address used for your cloud account."); const sdk = await loadClient(); const redirectTo = passwordRecoveryRedirect(); if (!redirectTo) throw new Error("Open the hosted HTTPS app to reset a cloud password. Local file copies cannot receive the secure reset link."); const result = await sdk.auth.resetPasswordForEmail(value, { redirectTo }); if (result.error) throw result.error; return true; }
   async function completePasswordReset(password, confirmPassword) { const next = String(password || ""); if (next.length < 6) throw new Error("Use a password with at least 6 characters."); if (next !== String(confirmPassword || "")) throw new Error("The new passwords do not match."); const sdk = await loadClient(); const result = await sdk.auth.updateUser({ password:next }); if (result.error) throw result.error; passwordRecoveryActive = false; passwordRecoveryRouteActive = false; passwordRecoveryError = null; cleanPasswordRecoveryUrl({ keepRoute:false }); session = result.data?.session || session; cloudUser = result.data?.user || session?.user || cloudUser; return result.data?.user || cloudUser; }
   async function restoreSession() {
-    if (!configStatus().ok) return;
-    let lastError = null;
-    for (let attempt = 0; attempt < AUTH_RESTORE_ATTEMPTS; attempt += 1) {
-      try {
-        const sdk = await loadClient();
-        const result = await sdk.auth.getSession();
-        if (result.error) throw result.error;
-        session = result.data?.session || null;
-        cloudUser = session?.user || null;
-        if (cloudUser) await ensureSignedInReady();
-        else onSignedOut();
-        return;
-      } catch (error) {
-        lastError = error;
-        if (!transientAuthError(error) || attempt === AUTH_RESTORE_ATTEMPTS - 1) break;
-        setStatus("Restoring cloud session", "Checking your saved cloud session…", "info");
-        await waitForAuthRetry(attempt);
-      }
+    if (!configStatus().ok) {
+      setAuthRestoreState("idle");
+      return;
     }
-    setStatus("Cloud sync unavailable", lastError?.message || "Could not load cloud sync.", "danger");
+    authRestoreInFlight = true;
+    setAuthRestoreState("restoring");
+    let lastError = null;
+    try {
+      for (let attempt = 0; attempt < AUTH_RESTORE_ATTEMPTS; attempt += 1) {
+        try {
+          const sdk = await loadClient();
+          const result = await withAuthTimeout(sdk.auth.getSession());
+          if (result.error) throw result.error;
+          session = result.data?.session || null;
+          cloudUser = session?.user || null;
+          if (cloudUser) await ensureSignedInReady();
+          else onSignedOut();
+          setAuthRestoreState(cloudUser ? "restored" : "signed-out");
+          return;
+        } catch (error) {
+          lastError = error;
+          if (!transientAuthError(error) || attempt === AUTH_RESTORE_ATTEMPTS - 1) break;
+          setAuthRestoreState("restoring", error);
+          setStatus("Restoring cloud session", "Checking your saved cloud session…", "info");
+          await waitForAuthRetry(attempt);
+        }
+      }
+      const message = safeAuthDiagnostic(lastError);
+      setAuthRestoreState("error", message);
+      if (!cloudUser) setPrivacyAuthentication(false);
+      setStatus("Cloud sync unavailable", message, "danger");
+      setAuthMessage("Session restore failed. Sign in again to continue; your local records remain protected on this device.", "danger");
+    } finally {
+      authRestoreInFlight = false;
+    }
   }
   function continueSignedInInBackground(){
     if(!cloudUser) return;
@@ -934,6 +1044,7 @@
     if(result.error) throw result.error;
     session=result.data?.session||null;
     cloudUser=result.data?.user||session?.user||null;
+    setAuthRestoreState(cloudUser ? "restored" : "signed-out");
     setCloudConnectionStatus("Cloud reached","success");
     setAuthMessage("Signed in. Unlocking Talaan while sync continues in the background…","success");
     if(typeof showToast==="function") showToast("Signed in successfully!","success");
@@ -957,13 +1068,14 @@
     }
     session=result.data.session;
     cloudUser=result.data.user;
+    setAuthRestoreState("restored");
     setAuthMessage("Account created. Unlocking Talaan while sync continues in the background…","success");
     if(typeof showToast==="function") showToast("Account created and signed in!","success");
     continueSignedInInBackground();
     return {confirmed:true,session,user:cloudUser};
   }
   async function signOut() { if (client) { const result = await client.auth.signOut({ scope:"local" }); if (result?.error) throw result.error; } onSignedOut(); }
-  function onSignedOut() { session = null; cloudUser = null; signedInInitialization = null; signedInInitializationScope = ""; signedInReadyUserId = ""; profileSetupPromise = null; profileSetupScope = ""; profileSetupState = "idle"; profileSetupDetail = ""; setPrivacyAuthentication(false); passwordRecoveryActive = false; clearForegroundPoll(); clearRealtimeRetry({resetAttempts:true}); if (realtimeChannel && client) client.removeChannel(realtimeChannel).catch(() => {}); realtimeChannel = null; setStatus("Not connected", "Local finance records remain on this device until Cloud Sync is connected again.", "info"); }
+  function onSignedOut() { session = null; cloudUser = null; signedInInitialization = null; signedInInitializationScope = ""; signedInReadyUserId = ""; profileSetupPromise = null; profileSetupScope = ""; profileSetupState = "idle"; profileSetupDetail = ""; setPrivacyAuthentication(false); passwordRecoveryActive = false; clearForegroundPoll(); clearRealtimeRetry({resetAttempts:true}); if (realtimeChannel && client) client.removeChannel(realtimeChannel).catch(() => {}); realtimeChannel = null; setStatus("Not connected", "Local finance records remain on this device until Cloud Sync is connected again.", "info"); if (!authRestoreInFlight) setAuthRestoreState("signed-out"); }
 
   async function registerDevice() { const profileId = requireCloudProfile(); const result = await rpc("finance_v3_register_device", { p_profile_id:profileId, p_device_id:currentDeviceId(), p_device_name:currentDeviceName(), p_platform:navigator.userAgent || navigator.platform || "Browser", p_app_version:appVersion(), p_app_version_code:APP_VERSION_CODE, p_last_pull_audit_id:Number(state.lastAuditId || 0) }); if (result.status === "revoked") { await handleRevoked(result); return false; } state.profileRole = result.role || profileRole(); return true; }
   async function handleRevoked(result = {}) { state.enabled = false; state.lastError = "This device was signed out remotely."; persist(); try { await client?.auth?.signOut?.({ scope:"local" }); } catch (error) {} session = null; cloudUser = null; setPrivacyAuthentication(false); setStatus("Signed out remotely", `This installation was revoked${result.revoked_at ? ` on ${formatDateTime(result.revoked_at)}` : ""}. Local records remain available.`, "danger"); }
@@ -1427,13 +1539,13 @@
   function handlePendingClick(event) { const retry=event.target.closest("[data-sync-retry]"),discard=event.target.closest("[data-sync-discard]"),review=event.target.closest("[data-sync-review]"); if(review)return openConflictReview(keyFromToken(review.dataset.syncReview)); if(retry)retryRecord(keyFromToken(retry.dataset.syncRetry)); if(discard&&confirm("Replace this device’s pending version with the current cloud-confirmed record?"))discardLocal(keyFromToken(discard.dataset.syncDiscard)); }
 
   async function initialize() {
-    if(initialized)return; initialized=true; setPrivacyAuthentication(false); persist(); injectV2Ui(); wrapSaveData(); bindEvents();
+    if(initialized)return; initialized=true; setPrivacyPending(); persist(); injectV2Ui(); wrapSaveData(); bindEvents();
     const recoveryRoute = parsePasswordRecoveryUrl(); if (recoveryRoute.requested) { passwordRecoveryRouteActive = true; passwordRecoveryError = recoveryRoute.error || recoveryRoute.errorCode ? recoveryRoute : null; focusPasswordRecoverySettings(); if (passwordRecoveryError) { cleanPasswordRecoveryUrl({ keepRoute:true }); setStatus("Password reset needs attention", recoveryErrorMessage(passwordRecoveryError), "danger"); } }
-    renderCloudStats(); if (passwordRecoveryError) setRecoveryHelpMessage(recoveryErrorMessage(passwordRecoveryError), "danger"); const status=configStatus(); if(!status.ok){setStatus("Cloud sync not configured",status.message,"warning");return;} await restoreSession(); setInterval(()=>{if(cloudReadiness().ready&&state.autoSync!==false&&navigator.onLine&&!document.hidden)syncNow({reason:"periodic"}).catch(()=>{});},5*60*1000); scheduleForegroundPoll(); scheduleRetry();
+    renderCloudStats(); if (passwordRecoveryError) setRecoveryHelpMessage(recoveryErrorMessage(passwordRecoveryError), "danger"); const status=configStatus(); if(!status.ok){setAuthRestoreState("signed-out");if(typeof window.FinancePrivacyLock?.setPending === "function")setPrivacyAuthentication(false);setStatus("Cloud sync not configured",status.message,"warning");return;} await restoreSession(); setInterval(()=>{if(cloudReadiness().ready&&state.autoSync!==false&&navigator.onLine&&!document.hidden)syncNow({reason:"periodic"}).catch(()=>{});},5*60*1000); scheduleForegroundPoll(); scheduleRetry();
   }
 
-  window.FinanceCloudSync={ initialize,signIn,createAccount,syncNow,replaceCloudWithThisDevice, buildRecordMap:()=>toRecordMap(data), get status(){const readiness=cloudReadiness();return{...state,pendingCount:pendingCount(),conflictCount:conflictCount(),signedIn:Boolean(cloudUser),email:cloudUser?.email||"",readiness:readiness.key,ready:readiness.ready};} };
-  window.FinanceCloudSyncInternals={loadClient,restoreSession,ensureSignedInReady,autoEnsureCloudProfile,cloudReadiness,stable,checksum,deepMerge,threeWayMerge,toRecordMap,fromRecordStore,changesBetween,recordKey,keyToken,keyFromToken,retryDelay,detectFinancialOperations,encryptRecordPayload,decryptRecordPayload,toRpcChange,decryptRow,sanitizeRecordPayload,reconcileDerivedSettingsState,reconcileUnqueuedLocalChanges,seedBaseFromSnapshot,applyRemoteEvent,resolveConflict,persist,handlePersistedData,requestLifecycleSync,scheduleForegroundPoll,scheduleRealtimeRecovery,ensureRealtime,friendlyAuthError,passwordRecoveryRedirect,parsePasswordRecoveryUrl,recoveryErrorMessage,cleanPasswordRecoveryUrl,testCloudConnection,requestPasswordReset,verifyRecoveryCode,completePasswordReset,setPasswordVisibility,recoverStoredConflicts,reconcilePendingWithRemote,replaceCloudWithThisDevice};
+  window.FinanceCloudSync={ initialize,signIn,createAccount,syncNow,replaceCloudWithThisDevice, buildRecordMap:()=>toRecordMap(data), get status(){const readiness=cloudReadiness();return{...state,pendingCount:pendingCount(),conflictCount:conflictCount(),signedIn:Boolean(cloudUser),email:cloudUser?.email||"",readiness:readiness.key,ready:readiness.ready,authRestore:authRestoreSnapshot()};} };
+  window.FinanceCloudSyncInternals={loadClient,restoreSession,ensureSignedInReady,autoEnsureCloudProfile,cloudReadiness,authRestoreSnapshot,authStorageState,stable,checksum,deepMerge,threeWayMerge,toRecordMap,fromRecordStore,changesBetween,recordKey,keyToken,keyFromToken,retryDelay,detectFinancialOperations,encryptRecordPayload,decryptRecordPayload,toRpcChange,decryptRow,sanitizeRecordPayload,reconcileDerivedSettingsState,reconcileUnqueuedLocalChanges,seedBaseFromSnapshot,applyRemoteEvent,resolveConflict,persist,handlePersistedData,requestLifecycleSync,scheduleForegroundPoll,scheduleRealtimeRecovery,ensureRealtime,friendlyAuthError,passwordRecoveryRedirect,parsePasswordRecoveryUrl,recoveryErrorMessage,cleanPasswordRecoveryUrl,testCloudConnection,requestPasswordReset,verifyRecoveryCode,completePasswordReset,setPasswordVisibility,recoverStoredConflicts,reconcilePendingWithRemote,replaceCloudWithThisDevice};
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>initialize().catch(error=>setStatus("Cloud sync unavailable",error.message,"danger")),{once:true});
   else initialize().catch(error=>setStatus("Cloud sync unavailable",error.message,"danger"));

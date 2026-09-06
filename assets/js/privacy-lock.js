@@ -520,6 +520,7 @@
             </div>
             <div class="finance-privacy-signin-actions"><button class="button button-primary" type="submit" data-privacy-submit>Sign in &amp; sync</button><button class="button button-secondary" type="button" data-privacy-create="true">Create account</button></div>
             <div class="finance-privacy-signin-links"><button type="button" data-privacy-forgot="true">Forgot password?</button></div>
+            <p class="finance-privacy-signin-message" data-privacy-restore-status role="status" aria-live="polite">Checking for a saved session…</p>
             <p class="finance-privacy-signin-message" data-privacy-auth-message role="status" aria-live="polite">Sign in once to unlock your records. Sync will continue automatically.</p>
           </form>
           <small>Your local records stay stored on this device. Signing out hides them; it does not delete them.</small>
@@ -622,6 +623,12 @@
       setTimeout(()=>{ try { if(typeof renderAll==="function") renderAll(false); } catch(e){} },0);
     }
   }
+  function setPending(detail={}){
+    state.authenticated=false;
+    state.resolved=false;
+    state.email=String(detail.email||"");
+    apply();
+  }
 
   function isAllowed(target){ return Boolean(target?.closest?.(allowedSelector)); }
   function blockLockedInteraction(event){
@@ -699,6 +706,7 @@
 
   window.FinancePrivacyLock={
     setAuthenticated,
+    setPending,
     lock:()=>setAuthenticated(false),
     unlock:detail=>setAuthenticated(true,detail||{}),
     openSignIn,

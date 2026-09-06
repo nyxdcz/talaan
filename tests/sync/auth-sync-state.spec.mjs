@@ -122,9 +122,63 @@ test("cloud startup keeps the privacy gate open while a saved session hydrates",
   expect(result.sessionReads).toBe(2);
   expect(result.privacy).toEqual([false, true]);
   expect(result.status.signedIn).toBe(true);
+  expect(result.status.authRestore.status).toBe("restored");
+  expect(["missing", "unavailable"]).toContain(result.status.authRestore.storage);
+  expect(result.status.authRestore.error).toBe("");
   await page.evaluate(() => window.__cloudTest.listener("INITIAL_SESSION", null));
+  await page.waitForTimeout(10);
   expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true]);
   await page.evaluate(() => window.__cloudTest.listener("SIGNED_OUT", null));
+  await page.waitForTimeout(10);
   expect(await page.evaluate(() => window.__cloudTest.privacy)).toEqual([false, true, false]);
   expect(consoleNoise).toEqual([]);
+});
+
+test("auth callbacks defer cloud initialization until after Supabase releases its auth lock", async ({ page }) => {
+  await page.setContent("<!doctype html><html><body></body></html>");
+  await page.evaluate(() => {
+    window.data = {};
+    window.FINANCE_SYNC_CONFIG = {};
+    window.__cloudTest = { profileChecks:0, callbackReturned:false };
+    window.FinancePrivacyLock = { setAuthenticated() {} };
+    window.FinanceCloudSyncLifecycle = {
+      create:() => ({
+        clearForegroundPoll() {}, scheduleForegroundPoll() {}, clearRealtimeRetry() {},
+        scheduleRealtimeRecovery() {}, noteRealtimeSubscribed() {}
+      })
+    };
+    window.FinanceProfileArchitecture = {
+      activeProfileId:() => "profile-personal",
+      activeProfile:() => ({ name:"Personal", type:"personal", encryption:{ enabled:false } }),
+      cloudProfileId:() => "",
+      isCloudUnlocked:() => false,
+      listCloudProfiles:async () => { window.__cloudTest.profileChecks += 1; return { profiles:[] }; },
+      configureEncryption:async () => {},
+      createCloudProfile:async () => {}
+    };
+    window.financeLoadSupabase = async () => ({
+      createClient:() => ({
+        auth:{
+          onAuthStateChange(callback) {
+            callback("SIGNED_IN", { user:{ id:"user-1", email:"person@example.com" } });
+            window.__cloudTest.profileChecksAtCallbackReturn = window.__cloudTest.profileChecks;
+            window.__cloudTest.callbackReturned = true;
+          },
+          getSession:async () => ({ data:{ session:null }, error:null })
+        }
+      })
+    });
+  });
+  await page.addScriptTag({ path:"assets/js/cloud-sync.js" });
+  await page.evaluate(() => {
+    window.FINANCE_SYNC_CONFIG = {
+      supabaseUrl:"https://example.supabase.co",
+      supabasePublishableKey:"sb_publishable_abcdefghijklmnopqrstuvwxyz"
+    };
+  });
+  await page.evaluate(() => window.FinanceCloudSyncInternals.loadClient());
+  const immediate = await page.evaluate(() => ({ ...window.__cloudTest }));
+  expect(immediate.callbackReturned).toBe(true);
+  expect(immediate.profileChecksAtCallbackReturn).toBe(0);
+  await expect.poll(() => page.evaluate(() => window.__cloudTest.profileChecks)).toBeGreaterThan(0);
 });
