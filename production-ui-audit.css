@@ -2684,3 +2684,25 @@ html body :is(
     display: none !important;
   }
 }
+
+
+/* Keep compact card labels on one readable line. */
+@media (max-width: 700px) {
+  html body #money .legend-item {
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+  }
+
+  html body #money .summary-item {
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+  }
+
+  html body #money :is(.legend-text strong, .summary-card-label) {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
