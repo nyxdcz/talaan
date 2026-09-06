@@ -4,7 +4,7 @@
    pills, chips, badges, avatars, dots, swatches, and circular shapes keep their
    intentional geometry. */
 :root {
-  --talaan-control-radius: 8px;
+  --talaan-control-radius: 12px;
   --talaan-card-radius: 12px;
   --talaan-section-radius: 16px;
   --talaan-dialog-radius: 20px;
