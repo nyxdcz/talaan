@@ -1077,7 +1077,7 @@
 }
 
 /* V15.2.26 · Repeat-action readability and flat controls. */
-@media (min-width: 851px) and (hover: hover) and (pointer: fine) {
+@media (min-width: 851px) {
   html body #money .record-row[data-expense-row] > .desktop-record-actions,
   html body #paidExpenseList .desktop-record-actions {
     box-shadow: none !important;
