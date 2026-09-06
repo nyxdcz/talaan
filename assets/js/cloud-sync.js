@@ -862,6 +862,59 @@
   function setPrivacyAuthentication(authenticated, detail = {}) { try { window.FinancePrivacyLock?.setAuthenticated?.(Boolean(authenticated), { email:String(detail.email || cloudUser?.email || "") }); } catch (error) {} }
   function transientAuthError(error) { return /failed to fetch|network|load failed|networkerror|timeout|timed out|abort|cdn|supabase loader/i.test(String(error?.message || error || "")); }
   function waitForAuthRetry(attempt) { return new Promise(resolve => setTimeout(resolve, AUTH_RESTORE_RETRY_MS * (attempt + 1))); }
+  function applyAuthSession(nextSession) {
+    session = nextSession || null;
+    cloudUser = nextSession?.user || null;
+  }
+  function activeAuthSession() { return Boolean(session?.user?.id || cloudUser?.id || session?.access_token); }
+  async function confirmEmptyAuthEvent(event) {
+    try {
+      const sdk = await loadClient();
+      const result = await sdk.auth.getSession();
+      if (result.error) throw result.error;
+      const nextSession = result.data?.session || null;
+      if (nextSession?.user) {
+        applyAuthSession(nextSession);
+        ensureSignedInReady().catch(error => setStatus("Sync needs attention", friendlyAuthError(error, "sync"), "warning"));
+        return;
+      }
+    } catch (error) {
+      if (transientAuthError(error)) return;
+      setStatus("Sync needs attention", friendlyAuthError(error, "sync"), "warning");
+      return;
+    }
+    if (event === "INITIAL_SESSION" || !authHydrationComplete) return;
+    onSignedOut();
+  }
+  function handleAuthStateChange(event, nextSession) {
+    if (nextSession?.user) {
+      applyAuthSession(nextSession);
+      if (event === "PASSWORD_RECOVERY") {
+        setPrivacyAuthentication(false, { email:nextSession.user.email || "" });
+        passwordRecoveryRouteActive = true;
+        passwordRecoveryError = null;
+        passwordRecoveryActive = true;
+        cleanPasswordRecoveryUrl({ keepRoute:true });
+        focusPasswordRecoverySettings();
+        renderCloudStats();
+        setAuthMessage("Choose a new password to finish account recovery.", "warning", "recovery");
+        setStatus("Reset password", "Choose a new password before continuing cloud sync.", "warning");
+        return;
+      }
+      ensureSignedInReady().catch(error => setStatus("Sync needs attention", friendlyAuthError(error, "sync"), "danger"));
+      return;
+    }
+    if (event === "INITIAL_SESSION" && activeAuthSession()) return;
+    setTimeout(() => confirmEmptyAuthEvent(event), 0);
+  }
+  async function confirmSignedInSession(sdk) {
+    const result = await sdk.auth.getSession();
+    if (result.error) throw result.error;
+    const nextSession = result.data?.session || null;
+    if (!nextSession?.user) throw new Error("Cloud sign-in completed, but the session could not be restored. Try signing in again.");
+    applyAuthSession(nextSession);
+    return nextSession;
+  }
 
   async function loadClient() {
     if (client) return client;
@@ -870,7 +923,7 @@
       const config = getStoredConfig(); const status = configStatus(config); if (!status.ok) throw new Error(status.message); if (typeof window.financeLoadSupabase !== "function") throw new Error("Supabase loader is missing.");
       const library = await window.financeLoadSupabase(); const createClient = library?.createClient || library?.default?.createClient || window.supabase?.createClient; if (typeof createClient !== "function") throw new Error("Supabase client could not be loaded.");
       const nextClient = createClient(config.supabaseUrl, config.supabasePublishableKey, { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, experimental:{ passkey:true } }, realtime:{ params:{ eventsPerSecond:8 } }, global:{ headers:{ "x-client-info":`my-finance-records/${appVersion()}` } } });
-      nextClient.auth.onAuthStateChange((event,nextSession) => { session = nextSession || null; cloudUser = nextSession?.user || null; if (event === "PASSWORD_RECOVERY") { setPrivacyAuthentication(false, { email:nextSession?.user?.email || "" }); passwordRecoveryRouteActive = true; passwordRecoveryError = null; passwordRecoveryActive = true; cleanPasswordRecoveryUrl({ keepRoute:true }); focusPasswordRecoverySettings(); renderCloudStats(); setAuthMessage("Choose a new password to finish account recovery.", "warning", "recovery"); setStatus("Reset password", "Choose a new password before continuing cloud sync.", "warning"); return; } if (cloudUser) ensureSignedInReady().catch(error => setStatus("Sync needs attention", friendlyAuthError(error,"sync"), "danger")); else if (authHydrationComplete && event !== "INITIAL_SESSION") onSignedOut(); });
+       nextClient.auth.onAuthStateChange(handleAuthStateChange);
       client = nextClient;
       return client;
     })();
@@ -936,13 +989,13 @@
     setAuthMessage("Checking your email and password…","info");
     const result=await sdk.auth.signInWithPassword({email:normalizedEmail,password});
     if(result.error) throw result.error;
-    session=result.data?.session||null;
-    cloudUser=result.data?.user||session?.user||null;
+    const verifiedSession=await confirmSignedInSession(sdk);
     setCloudConnectionStatus("Cloud reached","success");
+    setPrivacyAuthentication(true, { email:cloudUser?.email || normalizedEmail });
     setAuthMessage("Signed in. Unlocking Talaan while sync continues in the background…","success");
     if(typeof showToast==="function") showToast("Signed in successfully!","success");
     continueSignedInInBackground();
-    return {session,user:cloudUser};
+    return {session:verifiedSession,user:cloudUser};
   }
 
   async function createAccount(email,password){
@@ -959,12 +1012,13 @@
       setStatus("Check your email","Confirm the sign-up email, then return and sign in.","warning");
       return {confirmed:false,user:result.data?.user||null};
     }
-    session=result.data.session;
-    cloudUser=result.data.user;
+    applyAuthSession(result.data.session);
+    const verifiedSession=await confirmSignedInSession(sdk);
+    setPrivacyAuthentication(true, { email:cloudUser?.email || normalizedEmail });
     setAuthMessage("Account created. Unlocking Talaan while sync continues in the background…","success");
     if(typeof showToast==="function") showToast("Account created and signed in!","success");
     continueSignedInInBackground();
-    return {confirmed:true,session,user:cloudUser};
+    return {confirmed:true,session:verifiedSession,user:cloudUser};
   }
   async function signOut() { if (client) { const result = await client.auth.signOut({ scope:"local" }); if (result?.error) throw result.error; } onSignedOut(); }
   function onSignedOut() { session = null; cloudUser = null; signedInInitialization = null; signedInInitializationScope = ""; signedInReadyUserId = ""; profileSetupPromise = null; profileSetupScope = ""; profileSetupState = "idle"; profileSetupDetail = ""; setPrivacyAuthentication(false); passwordRecoveryActive = false; clearForegroundPoll(); clearRealtimeRetry({resetAttempts:true}); if (realtimeChannel && client) client.removeChannel(realtimeChannel).catch(() => {}); realtimeChannel = null; setStatus("Not connected", "Local finance records remain on this device until Cloud Sync is connected again.", "info"); }
