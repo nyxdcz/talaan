@@ -901,3 +901,177 @@
     max-height: 35px !important;
   }
 }
+
+
+/* Phone content-card readability repair: keep 35px controls compact while
+   information cards size to their content instead of clipping text. */
+@media (max-width: 700px) {
+  html body #money :is(.legend-item, .summary-item) {
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    height: auto !important;
+    min-height: 56px !important;
+    max-height: none !important;
+    padding: 7px 8px !important;
+    gap: 6px !important;
+    overflow: visible !important;
+    white-space: normal !important;
+  }
+
+  html body #money .summary-item {
+    min-height: 60px !important;
+  }
+
+  html body #money :is(.legend-copy, .summary-card-copy) {
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  html body #money :is(.legend-text strong, .summary-card-label) {
+    min-width: 0 !important;
+    max-width: none !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  html body #money :is(.legend-text small, .summary-card-copy small) {
+    display: block !important;
+    max-width: none !important;
+    margin-top: 2px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  html body #money :is(.legend-total, .summary-card-value) {
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    font-size: clamp(.62rem, 2.5vw, .82rem) !important;
+    line-height: 1 !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  html body #availableMoneySection .card-header {
+    height: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    overflow: visible !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+
+  html body #availableMoneySection .collapse-actions {
+    grid-template-columns: minmax(96px, 1fr) 35px 35px !important;
+    grid-template-areas: "total add toggle" !important;
+    width: auto !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  html body #availableMoneySection .available-money-total-wrap {
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+  }
+
+  html body #availableMoneySection #moneyAvailableTotal {
+    display: block !important;
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    font-size: clamp(.62rem, 2.5vw, .78rem) !important;
+    line-height: 1 !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  html body :is(.section-help-button, .context-help-button) {
+    box-sizing: border-box !important;
+    width: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    max-height: 20px !important;
+    flex: 0 0 20px !important;
+    color: var(--muted) !important;
+    opacity: .62 !important;
+  }
+
+  html body #settings .settings-status-card {
+    box-sizing: border-box !important;
+    height: auto !important;
+    min-height: 76px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
+    line-height: normal !important;
+    grid-template-columns: 38px minmax(0, 1fr) auto !important;
+    align-items: center !important;
+  }
+
+  html body #settings .settings-status-card .settings-status-copy {
+    min-width: 0 !important;
+  }
+
+  html body #settings .settings-status-card .settings-status-copy > span,
+  html body #settings .settings-status-card .settings-status-copy strong,
+  html body #settings .settings-status-card .settings-status-copy small {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  html body #settings .settings-status-card .settings-status-copy strong {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-height: 1.12 !important;
+    overflow: hidden !important;
+  }
+
+  html body #settings .settings-status-card .settings-status-copy small {
+    display: none !important;
+  }
+}
+
+
+/* Keep compact summary cards single-height on narrow phones.  The label and
+   numeric value remain visible; explanatory copy is available in the card's
+   accessible text and section help. */
+@media (max-width: 700px) {
+  html body #money :is(.legend-text small, .summary-card-copy small) {
+    display: none !important;
+  }
+}
+
+
+/* Keep compact card labels on one readable line. */
+@media (max-width: 700px) {
+  html body #money .legend-item {
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+  }
+
+  html body #money .summary-item {
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+  }
+
+  html body #money :is(.legend-text strong, .summary-card-label) {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}

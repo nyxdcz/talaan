@@ -103,7 +103,9 @@ for (const file of ["README.md", "CHANGELOG.md", "CONTRIBUTING.md", "SECURITY.md
   const text = read(file);
   if (text.includes("V2.0.0") || text.includes(PREVIOUS_BRAND)) fail(`${file} contains superseded current-product identity`);
 }
-if (!read("README.md").startsWith(`# ${BRAND} · ${DISPLAY_VERSION}`)) fail(`README heading is not ${BRAND} ${DISPLAY_VERSION}`);
+const readmeHeading = read("README.md").split("\n", 1)[0];
+const acceptedReadmeHeadings = [`# ${BRAND} · ${DISPLAY_VERSION}`, `# 💰 ${BRAND} · ${DISPLAY_VERSION}`];
+if (!acceptedReadmeHeadings.includes(readmeHeading)) fail(`README heading is not ${BRAND} ${DISPLAY_VERSION}`);
 if (!read("CHANGELOG.md").startsWith(`# Changelog\n\n## ${DISPLAY_VERSION} · ${BRAND}`)) fail(`CHANGELOG heading is not ${DISPLAY_VERSION} ${BRAND}`);
 
 const repositorySurfaceFiles = [

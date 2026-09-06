@@ -830,10 +830,7 @@ html body #topbarToolsPanel #productivityCenterButton .toolbar-icon > svg {
     align-self: start !important;
   }
 
-  html body #money .legend-item,
-  html body #money .summary-item,
-  html body #money .summary-strip .summary-item:first-child,
-  html body #money .summary-strip .summary-item:last-child,
+  /* Content cards keep their readable 56–60px heights; this is the actual header control. */
   html body #availableMoneySection > .card-header {
     box-sizing: border-box !important;
     height: 35px !important;
