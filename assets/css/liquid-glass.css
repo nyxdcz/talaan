@@ -207,7 +207,7 @@ html[data-theme="dark"] {
 }
 
 /* Toasts / snackbars float above content without obscuring it. */
-:is(.toast,.snackbar,.toast-message,[role="status"].toast,[role="status"].snackbar) {
+:is(.toast,.snackbar,[role="status"].toast,[role="status"].snackbar) {
   background:linear-gradient(180deg,var(--liquid-glass-surface-strong),var(--liquid-glass-surface));
   border:1px solid var(--liquid-glass-border);
   box-shadow:var(--liquid-glass-shadow);
@@ -245,7 +245,7 @@ form {
   :is(.dashboard-week-marquee,.finance-week-marquee,.work-week-marquee) .dashboard-week-day,
   :is(.cloud-sync-toolbar-popover,.month-picker-popover,.topbar-tools-panel,.overflow-menu,.context-menu,.menu-popover,.popover),
   :is(dialog,.modal,.dialog) :is(.modal-header,.dialog-header,.modal-footer,.dialog-footer,.modal-actions,.dialog-actions),
-  :is(.toast,.snackbar,.toast-message,[role="status"].toast,[role="status"].snackbar) {
+  :is(.toast,.snackbar,[role="status"].toast,[role="status"].snackbar) {
     background:var(--surface);
   }
 }
@@ -657,7 +657,7 @@ html[data-theme="light"] :is(dialog,.modal,.dialog) :is(.modal-header,.dialog-he
 :is(.month-picker-popover,.topbar-tools-panel,.overflow-menu,.context-menu,.menu-popover,.popover),
 :is(dialog,.modal,.dialog) :is(.modal-header,.dialog-header,.modal-footer,.dialog-footer,.modal-actions,.dialog-actions),
 :is(.pc-full-dialog,.project-calendar-dialog) :is(.modal-header,.dialog-header,.pc-dialog-header,.modal-actions,.dialog-actions),
-:is(.toast,.snackbar,.toast-message,[role="status"].toast,[role="status"].snackbar) {
+:is(.toast,.snackbar,[role="status"].toast,[role="status"].snackbar) {
   background:var(--surface)!important;
   border-color:var(--line)!important;
   box-shadow:none!important;

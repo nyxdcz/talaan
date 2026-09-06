@@ -242,10 +242,10 @@
     box-shadow:var(--shadow);
   }
   .toast-icon { background:var(--surface-soft); }
-  .toast.toast-success { background:var(--surface); border-inline-start:3px solid var(--green); }
-  .toast.toast-info { background:var(--surface); border-inline-start:3px solid var(--blue); }
-  .toast.toast-warning { background:var(--surface); border-inline-start:3px solid var(--orange); }
-  .toast.toast-error { background:var(--surface); border-inline-start:3px solid var(--red); }
+  .toast.toast-success { background:var(--surface); color:var(--text); border-inline-start:3px solid var(--green); }
+  .toast.toast-info { background:var(--surface); color:var(--text); border-inline-start:3px solid var(--blue); }
+  .toast.toast-warning { background:var(--surface); color:var(--text); border-inline-start:3px solid var(--orange); }
+  .toast.toast-error { background:var(--surface); color:var(--text); border-inline-start:3px solid var(--red); }
   .toast-dismiss:hover { background:var(--surface-soft); }
 
   /* Help remains subtle but discoverable with a mouse; keyboard focus still uses the native ring. */

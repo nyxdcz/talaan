@@ -47,8 +47,7 @@ html body :where(
   .settings-disclosure,
   .settings-mobile-back,
   .toast,
-  .snackbar,
-  .toast-message
+  .snackbar
 ):not([class*="status-chip"]):not([class*="badge"]):not([class*="pill"]):not([class*="avatar"]):not([class*="dot"]):not([class*="swatch"]):not([class*="mascot"]):not(.finance-privacy-lock-card):not(.finance-device-lock-card) {
   border-radius: var(--talaan-ui-radius) !important;
 }
@@ -315,7 +314,6 @@ html body :is(
   .mobile-utility-panel,
   .toast,
   .snackbar,
-  .toast-message,
   .structured-drag-toast,
   #pwaUpdateBanner
 ) {
@@ -441,7 +439,6 @@ html body #monthlyBudgetPlannerCard .cash-forecast-panel {
     .popover,
     .toast,
     .snackbar,
-    .toast-message,
     .sidebar
   ) {
     box-shadow: none !important;
