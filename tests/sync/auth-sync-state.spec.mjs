@@ -101,9 +101,8 @@ test("cloud startup keeps the privacy gate open while a saved session hydrates",
             getSession:async () => {
               window.__cloudTest.sessionReads += 1;
               if (window.__cloudTest.sessionReads === 1) throw new Error("Network request failed");
-              const session = { user:{ id:"user-1", email:"person@example.com" } };
-              window.__cloudTest.currentSession = session;
-              return { data:{ session }, error:null };
+              if (!window.__cloudTest.currentSession) window.__cloudTest.currentSession = { user:{ id:"user-1", email:"person@example.com" } };
+              return { data:{ session:window.__cloudTest.currentSession }, error:null };
             }
           }
         })
