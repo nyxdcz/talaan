@@ -73,7 +73,7 @@ test("Kanban menu positioning is owned by Header Tools and receives a one-time P
   const headerTools = fs.readFileSync("assets/js/ui/header-tools-compat.js", "utf8");
   expect(updater).toContain("refreshCachedHeaderToolsOnce");
   expect(updater).toContain('/header-tools-compat.js');
-  expect(updater).toContain('const UI_HOTFIX_REFRESH_KEY = "finance-ui-hotfix-v2-0-1-talaan7"');
+  expect(updater).toContain('const UI_HOTFIX_REFRESH_KEY = "finance-ui-hotfix-v2-0-1-talaan8"');
   expect(updater).not.toContain("installKanbanColumnMenuViewportPositioning");
   expect(headerTools).toContain("installKanbanColumnMenuViewportPositioning");
   expect(headerTools).toContain('panel.style.setProperty("position", "fixed", "important")');

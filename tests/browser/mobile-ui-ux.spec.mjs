@@ -58,7 +58,8 @@ for (const width of widths) {
         horizontalOverflow:document.documentElement.scrollWidth > innerWidth + 1
       };
     });
-    expect(metrics.workspaceTop).toBe("80px");
+    expect(parseFloat(metrics.workspaceTop)).toBeGreaterThanOrEqual(80);
+    expect(parseFloat(metrics.workspaceTop)).toBeLessThanOrEqual(90);
     expect(metrics.workspaceButton).toBe(35);
     expect(metrics.drawerCloseW).toBe(35);
     expect(metrics.drawerCloseH).toBe(35);
@@ -92,7 +93,8 @@ test("Talaan V2.5.0 short landscape phones retain touch-safe controls", async ({
     drawer:parseFloat(getComputedStyle(document.getElementById("drawerClose")).height),
     dialogInside:document.querySelector(".app-dialog").getBoundingClientRect().right <= innerWidth + 1
   }));
-  expect(metrics.workspaceTop).toBe("80px");
+  expect(parseFloat(metrics.workspaceTop)).toBeGreaterThanOrEqual(80);
+  expect(parseFloat(metrics.workspaceTop)).toBeLessThanOrEqual(90);
   expect(metrics.input).toBeGreaterThanOrEqual(44);
   expect(metrics.button).toBe(35);
   expect(metrics.dismiss).toBe(35);

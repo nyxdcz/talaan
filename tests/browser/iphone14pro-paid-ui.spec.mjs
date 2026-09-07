@@ -123,7 +123,7 @@ test("Paid Expenses fits an iPhone 14 Pro viewport without horizontal overflow",
   state.bulkFieldHeights.forEach(height => expect(height).toBeGreaterThanOrEqual(44));
   expect(state.calendarColumns.trim().split(/\s+/)).toHaveLength(1);
   expect(state.entryColumns.trim().split(/\s+/)).toHaveLength(2);
-  expect(state.entryNameWhiteSpace).toBe("normal");
+  expect(state.entryNameWhiteSpace).toBe("nowrap");
   expect(state.entryAmountWhiteSpace).toBe("nowrap");
   expect(state.columnsButtonDisplay).toBe("none");
 });

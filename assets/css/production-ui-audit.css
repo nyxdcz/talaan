@@ -1543,7 +1543,15 @@
 
 
 /* V15.2.26 · iPhone 14 Pro phone audit contract. */
-@media (max-width: 700px) {
+@media (max-width: 700px),
+       (min-width: 701px) and (max-width: 850px) and (max-height: 520px) {
+  :root {
+    --talaan-phone-control-size: 35px;
+    --talaan-phone-gap: 8px;
+    --talaan-phone-card-padding: 10px;
+    --mobile-topbar-offset: calc(max(5px, env(safe-area-inset-top)) + 80px);
+  }
+
   /* Compact action controls use the approved 35px visual contract. */
   html body button,
   html body summary,
@@ -1657,6 +1665,7 @@
     min-height: var(--talaan-phone-control-size) !important;
     height: var(--talaan-phone-control-size) !important;
     max-height: var(--talaan-phone-control-size) !important;
+    min-width: 100px !important;
   }
 
   html body #money .period-card {
@@ -1755,7 +1764,8 @@
     border: 0 !important;
     opacity: 0 !important;
     pointer-events: none !important;
-    flex: 0 0 1px !important;
+    flex: 0 0 0 !important;
+    display: none !important;
   }
 
   html body :is(.help-inline-title, .section-title-row, .field-label-help-row, .help-generated-section-heading) {
@@ -1764,7 +1774,7 @@
 
   /* Phone Bento rhythm and flat normal surfaces. */
   html body #dashboard {
-    --dashboard-card-gap: var(--talaan-phone-gap) !important;
+    --dashboard-card-gap: 12px !important;
     --dashboard-card-padding: var(--talaan-phone-card-padding) !important;
   }
 
