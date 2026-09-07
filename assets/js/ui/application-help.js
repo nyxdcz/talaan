@@ -53,6 +53,25 @@ HELP_FIELD_TARGETS.push(
   { selector:'#incomeIncludeTotalsField strong', key:'field-income-totals' }
 );
 let lastHelpTrigger = null;
+let helpDescriptionSequence = 0;
+
+function attachAccessibleHelpDescription(target, key) {
+  const topic = HELP_CONTENT[key];
+  if (!target || !topic || target.closest("#sectionHelpDialog")) return;
+  const parent = target.parentElement || target;
+  let description = parent.querySelector?.(`[data-help-description="${key}"]`);
+  if (!description) {
+    description = document.createElement("span");
+    description.className = "sr-only help-accessible-description";
+    description.dataset.helpDescription = key;
+    description.id = `help-description-${key}-${++helpDescriptionSequence}`;
+    description.textContent = `${topic.title}: ${topic.summary}`;
+    parent.appendChild(description);
+  }
+  const describedBy = new Set((target.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean));
+  describedBy.add(description.id);
+  target.setAttribute("aria-describedby", [...describedBy].join(" "));
+}
 
 function helpButtonFor(key) {
   const topic = HELP_CONTENT[key];
@@ -79,24 +98,28 @@ function attachHelpButton(target, key) {
     existing.setAttribute("aria-haspopup", "dialog");
     existing.setAttribute("aria-controls", "sectionHelpDialog");
     existing.setAttribute("aria-label", `Help: ${HELP_CONTENT[key].title}`);
+    attachAccessibleHelpDescription(target, key);
     return;
   }
   const button = helpButtonFor(key);
   if (!button) return;
   target.classList.add("help-inline-title");
   target.appendChild(button);
+  attachAccessibleHelpDescription(target, key);
 }
 
 function attachFieldHelp(label, key) {
   if (!label || !HELP_CONTENT[key]) return;
   if (label.parentElement?.classList.contains("field-label-help-row")) {
     if (!label.parentElement.querySelector("[data-help-key]")) label.parentElement.appendChild(helpButtonFor(key));
+    attachAccessibleHelpDescription(label, key);
     return;
   }
   const row = document.createElement("div");
   row.className = "field-label-help-row";
   label.parentNode.insertBefore(row, label);
   row.append(label, helpButtonFor(key));
+  attachAccessibleHelpDescription(label, key);
 }
 
 function attachTextHelp(scopeSelector, selector, expectedText, key) {
@@ -115,6 +138,7 @@ function ensurePaymentRecordsHelpHeading() {
   const heading = document.createElement("div");
   heading.className = "help-generated-section-heading";
   heading.append(document.createTextNode("Project payment records"), helpButtonFor("payment-records"));
+  attachAccessibleHelpDescription(heading, "payment-records");
   const header = card.querySelector(".payment-record-header");
   card.insertBefore(heading, header || card.firstChild);
 }

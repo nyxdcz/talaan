@@ -12,7 +12,9 @@ const css = [
   "ui-icon-alignment.css?v=2.5.0-talaan1",
   "black-canvas.css?v=2.5.0-talaan1",
   "desktop-ui-phase1.css?v=2.5.0-talaan1",
-  "desktop-ux.css?v=2.5.0-talaan1"
+  "desktop-ux.css?v=2.5.0-talaan1",
+  "production-ui-audit.css?v=2.5.0-talaan1",
+  "ui-radius.css?v=2.5.0-ui-e0c1fb9945cf"
 ];
 
 async function fixture(page, width, height = 800) {
@@ -56,22 +58,22 @@ for (const width of widths) {
         horizontalOverflow:document.documentElement.scrollWidth > innerWidth + 1
       };
     });
-    expect(metrics.workspaceTop).toBe("112px");
-    expect(metrics.workspaceButton).toBeGreaterThanOrEqual(44);
-    expect(metrics.drawerCloseW).toBeGreaterThanOrEqual(44);
-    expect(metrics.drawerCloseH).toBeGreaterThanOrEqual(44);
-    expect(metrics.toastDismissW).toBeGreaterThanOrEqual(44);
-    expect(metrics.toastDismissH).toBeGreaterThanOrEqual(44);
-    expect(metrics.emptyAction).toBeGreaterThanOrEqual(44);
-    expect(metrics.chipRemove).toBeGreaterThanOrEqual(44);
-    expect(metrics.budgetMore).toBeGreaterThanOrEqual(44);
-    expect(metrics.budgetMenuItem).toBeGreaterThanOrEqual(44);
-    expect(metrics.agendaMore).toBeGreaterThanOrEqual(44);
-    expect(metrics.agendaMenuItem).toBeGreaterThanOrEqual(44);
-    expect(metrics.searchClear).toBeGreaterThanOrEqual(44);
+    expect(metrics.workspaceTop).toBe("80px");
+    expect(metrics.workspaceButton).toBe(35);
+    expect(metrics.drawerCloseW).toBe(35);
+    expect(metrics.drawerCloseH).toBe(35);
+    expect(metrics.toastDismissW).toBe(35);
+    expect(metrics.toastDismissH).toBe(35);
+    expect(metrics.emptyAction).toBe(35);
+    expect(metrics.chipRemove).toBe(35);
+    expect(metrics.budgetMore).toBe(35);
+    expect(metrics.budgetMenuItem).toBe(35);
+    expect(metrics.agendaMore).toBe(35);
+    expect(metrics.agendaMenuItem).toBe(35);
+    expect(metrics.searchClear).toBe(35);
     expect(metrics.dialogInput).toBeGreaterThanOrEqual(44);
     expect(metrics.dialogInputFont).toBeGreaterThanOrEqual(16);
-    expect(metrics.dialogButton).toBeGreaterThanOrEqual(44);
+    expect(metrics.dialogButton).toBe(35);
     expect(metrics.marqueeDisplay).toBe("none");
     expect(metrics.budgetInside).toBe(true);
     expect(metrics.agendaInside).toBe(true);
@@ -90,11 +92,11 @@ test("Talaan V2.5.0 short landscape phones retain touch-safe controls", async ({
     drawer:parseFloat(getComputedStyle(document.getElementById("drawerClose")).height),
     dialogInside:document.querySelector(".app-dialog").getBoundingClientRect().right <= innerWidth + 1
   }));
-  expect(metrics.workspaceTop).toBe("112px");
+  expect(metrics.workspaceTop).toBe("80px");
   expect(metrics.input).toBeGreaterThanOrEqual(44);
-  expect(metrics.button).toBeGreaterThanOrEqual(44);
-  expect(metrics.dismiss).toBeGreaterThanOrEqual(44);
-  expect(metrics.drawer).toBeGreaterThanOrEqual(44);
+  expect(metrics.button).toBe(35);
+  expect(metrics.dismiss).toBe(35);
+  expect(metrics.drawer).toBe(35);
   expect(metrics.dialogInside).toBe(true);
 });
 

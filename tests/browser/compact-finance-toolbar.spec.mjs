@@ -6,6 +6,7 @@ async function loadFixture(page, width) {
     <link rel="stylesheet" href="http://127.0.0.1:3000/app.css?v=2.5.0-talaan1">
     <link rel="stylesheet" href="http://127.0.0.1:3000/summary-mascots.css?v=2.5.0-talaan1">
     <link rel="stylesheet" href="http://127.0.0.1:3000/transaction-views.css?v=2.5.0-talaan1">
+    <link rel="stylesheet" href="http://127.0.0.1:3000/production-ui-audit.css?v=2.5.0-talaan1">
   </head><body><div class="app"><main class="main"><div class="content">
     <section class="page active" id="money">
       <details class="expense-filters-panel" id="expenseFiltersPanel" open>
@@ -131,7 +132,7 @@ test("phone keeps touch-safe transaction controls outside filters", async ({ pag
   });
 
   expect(state.outside).toBe(true);
-  state.modeHeights.forEach(height => expect(height).toBeGreaterThanOrEqual(44));
+  state.modeHeights.forEach(height => expect(height).toBe(35));
   expect(state.savedHeight).toBeGreaterThanOrEqual(44);
   expect(state.columnsDisplay).toBe("none");
 });

@@ -10,6 +10,7 @@ async function loadPaidExpensesPhoneFixture(page) {
     <link rel="stylesheet" href="http://127.0.0.1:3000/mobile.css?v=2.5.0-talaan1">
     <link rel="stylesheet" href="http://127.0.0.1:3000/productivity-tools.css?v=2.5.0-talaan1">
     <link rel="stylesheet" href="http://127.0.0.1:3000/transaction-views.css?v=2.5.0-talaan1">
+    <link rel="stylesheet" href="http://127.0.0.1:3000/production-ui-audit.css?v=2.5.0-talaan1">
   </head><body><div class="app"><main class="main"><div class="content">
     <section class="page active" id="paid-expenses">
       <div class="productivity-paid-bulk" id="paidProductivityBulk">
@@ -76,6 +77,10 @@ test("Paid Expenses fits an iPhone 14 Pro viewport without horizontal overflow",
       .filter(node => getComputedStyle(node).display !== "none");
     const visibleBulkControls = [...document.querySelectorAll("#paidProductivityBulk .button,#paidProductivityBulk .select")]
       .filter(node => getComputedStyle(node).display !== "none");
+    const visibleToolbarButtons = visibleToolbarControls.filter(node => node.matches(".button"));
+    const visibleToolbarFields = visibleToolbarControls.filter(node => node.matches(".select"));
+    const visibleBulkButtons = visibleBulkControls.filter(node => node.matches(".button"));
+    const visibleBulkFields = visibleBulkControls.filter(node => node.matches(".select"));
     const calendar = document.getElementById("transactionCalendar-paid");
     const entry = calendar.querySelector(".transaction-calendar-entry");
     const entryName = entry.querySelector("span");
@@ -93,6 +98,10 @@ test("Paid Expenses fits an iPhone 14 Pro viewport without horizontal overflow",
       rects,
       toolbarHeights:visibleToolbarControls.map(node => node.getBoundingClientRect().height),
       bulkHeights:visibleBulkControls.map(node => node.getBoundingClientRect().height),
+      toolbarButtonHeights:visibleToolbarButtons.map(node => node.getBoundingClientRect().height),
+      toolbarFieldHeights:visibleToolbarFields.map(node => node.getBoundingClientRect().height),
+      bulkButtonHeights:visibleBulkButtons.map(node => node.getBoundingClientRect().height),
+      bulkFieldHeights:visibleBulkFields.map(node => node.getBoundingClientRect().height),
       calendarColumns:getComputedStyle(calendar).gridTemplateColumns,
       entryColumns:getComputedStyle(entry).gridTemplateColumns,
       entryNameWhiteSpace:getComputedStyle(entryName).whiteSpace,
@@ -108,8 +117,10 @@ test("Paid Expenses fits an iPhone 14 Pro viewport without horizontal overflow",
   expect(state.bodyScrollWidth).toBeLessThanOrEqual(393);
   expect(rectFits(state.innerWidth, { left:state.hostLeft, right:state.hostRight, width:state.hostWidth })).toBe(true);
   state.rects.forEach(rect => expect(rectFits(state.innerWidth, rect), `${rect.selector} should stay inside the phone viewport`).toBe(true));
-  state.toolbarHeights.forEach(height => expect(height).toBeGreaterThanOrEqual(40));
-  state.bulkHeights.forEach(height => expect(height).toBeGreaterThanOrEqual(44));
+  state.toolbarButtonHeights.forEach(height => expect(height).toBe(35));
+  state.bulkButtonHeights.forEach(height => expect(height).toBe(35));
+  state.toolbarFieldHeights.forEach(height => expect(height).toBeGreaterThanOrEqual(44));
+  state.bulkFieldHeights.forEach(height => expect(height).toBeGreaterThanOrEqual(44));
   expect(state.calendarColumns.trim().split(/\s+/)).toHaveLength(1);
   expect(state.entryColumns.trim().split(/\s+/)).toHaveLength(2);
   expect(state.entryNameWhiteSpace).toBe("normal");

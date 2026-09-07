@@ -88,7 +88,7 @@
 @media (max-width: 850px) {
   body .workspace-switcher,
   body .finance-workspace-marquee-row {
-    top: var(--mobile-topbar-offset, calc(env(safe-area-inset-top) + 112px));
+    top: var(--mobile-topbar-offset, calc(max(5px, env(safe-area-inset-top)) + 80px));
   }
   .sidebar .sidebar-close-button {
     top: 10px;
@@ -478,24 +478,35 @@
   .project-calendar-v13020 .pc-header-actions{grid-template-columns:auto minmax(0,1fr) 44px!important}
 }
 
-/* Phase 5A · canonical phone Settings touch targets */
+/* Phase 5A · canonical phone Settings control sizing */
 @media (max-width: 700px) {
   html body #settings :is(button, summary, [role="tab"]) {
     box-sizing: border-box !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
+    min-width: 35px !important;
+    min-height: 35px !important;
   }
 
   html body #settings .context-help-button.section-help-button {
-    display: inline-grid !important;
-    place-items: center !important;
-    width: 44px !important;
-    min-width: 44px !important;
-    max-width: 44px !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
+    position: absolute !important;
+    width: 1px !important;
+    min-width: 1px !important;
+    max-width: 1px !important;
+    height: 1px !important;
+    min-height: 1px !important;
+    max-height: 1px !important;
     padding: 0 !important;
-    flex: 0 0 44px !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    flex: 0 0 1px !important;
+  }
+
+  html body :is(.help-inline-title, .section-title-row, .field-label-help-row, .help-generated-section-heading) {
+    gap: 0 !important;
   }
 }

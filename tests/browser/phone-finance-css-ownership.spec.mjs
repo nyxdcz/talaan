@@ -13,7 +13,8 @@ const css = [
   "ui-icon-alignment.css?v=2.5.0-talaan1",
   "black-canvas.css?v=2.5.0-talaan1",
   "desktop-ui-phase1.css?v=2.5.0-talaan1",
-  "desktop-ux.css?v=2.5.0-talaan1"
+  "desktop-ux.css?v=2.5.0-talaan1",
+  "production-ui-audit.css?v=2.5.0-talaan1"
 ];
 
 async function financeFixture(page, width) {
@@ -62,23 +63,23 @@ for (const width of widths) {
       };
     });
 
-    expect(metrics.financeTab).toBeGreaterThanOrEqual(44);
+    expect(metrics.financeTab).toBe(35);
     expect(metrics.plannerToggle).toBe(35);
-    expect(metrics.addAccountWidth).toBe(44);
-    expect(metrics.addAccountHeight).toBe(44);
+    expect(metrics.addAccountWidth).toBe(35);
+    expect(metrics.addAccountHeight).toBe(35);
     expect(metrics.availableToggleWidth).toBe(35);
     expect(metrics.availableToggleHeight).toBe(35);
     expect(metrics.periodToggleHeight).toBe(35);
     expect(metrics.expenseAreas).toContain("title amount");
     expect(metrics.expenseAreas).toContain("due account");
     expect(metrics.expenseAreas).toContain("actions actions");
-    expect(metrics.expenseActionsHeight).toBe(44);
+    expect(metrics.expenseActionsHeight).toBe(35);
     expect(metrics.incomeDisplay).toBe("grid");
-    expect(metrics.incomeActionHeight).toBeGreaterThanOrEqual(44);
+    expect(metrics.incomeActionHeight).toBe(35);
     expect(metrics.paidAreas).toContain("title amount");
     expect(metrics.paidAreas).toContain("date account");
     expect(metrics.paidAreas).toContain("actions actions");
-    expect(metrics.paidActionsHeight).toBe(44);
+    expect(metrics.paidActionsHeight).toBe(35);
     expect(metrics.runtimeStylePresent).toBe(false);
     expect(metrics.horizontalOverflow).toBe(false);
   });

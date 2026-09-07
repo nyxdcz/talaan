@@ -113,9 +113,14 @@
   }
 }
 
-/* Phone: compact the containers, not the touch targets. */
+/* Phone: compact both the containers and the approved action-control rhythm. */
 @media (max-width: 700px) {
-  :root { --mobile-topbar-offset: calc(max(7px, env(safe-area-inset-top)) + 101px); }
+  :root {
+    --talaan-phone-control-size: 35px;
+    --talaan-phone-gap: 8px;
+    --talaan-phone-card-padding: 10px;
+    --mobile-topbar-offset: calc(max(5px, env(safe-area-inset-top)) + 80px);
+  }
 
   html body .topbar {
     gap: 6px 5px !important;
@@ -138,7 +143,7 @@
   }
 
   html body #money .period-header {
-    min-height: 68px !important;
+    min-height: 50px !important;
     margin: 0 !important;
     padding: 10px 12px !important;
     border-start-start-radius: var(--talaan-card-radius) !important;
@@ -153,7 +158,7 @@
   }
 
   html body #money .period-card.is-collapsed .period-header {
-    min-height: 68px !important;
+    min-height: 50px !important;
     border-bottom: 0 !important;
     border-radius: var(--talaan-card-radius) !important;
   }
@@ -1537,9 +1542,312 @@
 }
 
 
-/* V15.2.25 · Phone topbar offset follows the 35px two-row rhythm. */
+/* V15.2.26 · iPhone 14 Pro phone audit contract. */
 @media (max-width: 700px) {
-  :root {
-    --mobile-topbar-offset: calc(max(5px, env(safe-area-inset-top)) + 80px);
+  /* Compact action controls use the approved 35px visual contract. */
+  html body button,
+  html body summary,
+  html body [role="button"],
+  html body [role="menuitem"] {
+    box-sizing: border-box !important;
+    height: var(--talaan-phone-control-size) !important;
+    min-height: var(--talaan-phone-control-size) !important;
+    max-height: var(--talaan-phone-control-size) !important;
+    line-height: 1.1 !important;
+  }
+
+  html body :is(
+    .phone-icon-only-action,
+    .menu-button,
+    .sidebar-close-button,
+    .month-nav-button,
+    .topbar-tools-menu > summary,
+    #topbarToolsTrigger,
+    #themeToggleButton,
+    #globalSearchButton,
+    #productivityCenterButton,
+    #quickAddExpense,
+    .cloud-sync-popover-close,
+    .compact-help-close,
+    .month-picker-year-button,
+    .emoji-option,
+    .emoji-custom-button,
+    .settings-search-field button,
+    .gym-override-chip button,
+    .overflow-menu-trigger,
+    .structured-drag-toast-dismiss,
+    .toast-dismiss
+  ) {
+    width: var(--talaan-phone-control-size) !important;
+    min-width: var(--talaan-phone-control-size) !important;
+    max-width: var(--talaan-phone-control-size) !important;
+    padding-inline: 0 !important;
+  }
+
+  html body :is(
+    .cloud-sync-toolbar-button,
+    .topbar-add-button,
+    .month-display-button,
+    .month-current-button,
+    .month-status-chip,
+    .workspace-switcher-button,
+    .collapse-toggle,
+    .budget-panel-collapse,
+    .button,
+    .settings-tablist [role="tab"],
+    #settings button,
+    #settings summary,
+    summary
+  ) {
+    max-width: 100% !important;
+    padding-block: 4px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body :is(
+    .finance-workspace-marquee-row > .money-workspace-switcher,
+    .project-workspace-switcher,
+    .dashboard-view-tabs
+  ) {
+    height: var(--talaan-phone-control-size) !important;
+    min-height: var(--talaan-phone-control-size) !important;
+    max-height: var(--talaan-phone-control-size) !important;
+    gap: 0 !important;
+    border-radius: var(--talaan-control-radius) !important;
+    box-shadow: none !important;
+  }
+
+  html body :is(
+    .finance-workspace-marquee-row > .money-workspace-switcher,
+    .project-workspace-switcher,
+    .dashboard-view-tabs
+  ) > .workspace-switcher-button {
+    height: var(--talaan-phone-control-size) !important;
+    min-height: var(--talaan-phone-control-size) !important;
+    max-height: var(--talaan-phone-control-size) !important;
+    padding-block: 4px !important;
+    border-radius: var(--talaan-control-radius) !important;
+  }
+
+  html body #availableMoneySection .collapse-actions {
+    grid-template-columns: minmax(0, 1fr) 35px 35px !important;
+    gap: var(--talaan-phone-gap) !important;
+  }
+
+  html body #availableMoneySection #addAccountButton,
+  html body .project-calendar-v13020 [data-pc-add],
+  html body .project-calendar-v13020 [data-pc-full-add] {
+    width: var(--talaan-phone-control-size) !important;
+    min-width: var(--talaan-phone-control-size) !important;
+    max-width: var(--talaan-phone-control-size) !important;
+    height: var(--talaan-phone-control-size) !important;
+    min-height: var(--talaan-phone-control-size) !important;
+    max-height: var(--talaan-phone-control-size) !important;
+    padding: 0 !important;
+  }
+
+  html body .project-calendar-v13020 .pc-header-actions {
+    grid-template-columns: auto minmax(0, 1fr) 35px !important;
+    gap: var(--talaan-phone-gap) !important;
+  }
+
+  html body .project-calendar-v13020 :is([data-pc-view], [data-kanban-add-column="agenda"]) {
+    min-height: var(--talaan-phone-control-size) !important;
+    height: var(--talaan-phone-control-size) !important;
+    max-height: var(--talaan-phone-control-size) !important;
+  }
+
+  html body #money .period-card {
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html body #money .period-header,
+  html body #money .period-card.is-collapsed .period-header {
+    min-height: 50px !important;
+    height: auto !important;
+    padding: 7px 10px !important;
+    align-items: center !important;
+  }
+
+  html body #money .period-header h3 {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body #money .period-header p {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+  }
+
+  html body #money .period-header .collapse-toggle {
+    width: var(--talaan-phone-control-size) !important;
+    min-width: var(--talaan-phone-control-size) !important;
+    height: var(--talaan-phone-control-size) !important;
+    min-height: var(--talaan-phone-control-size) !important;
+    max-height: var(--talaan-phone-control-size) !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .mobile-record-actions,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions {
+    grid-template-columns: minmax(0, 1fr) 35px !important;
+    min-height: var(--talaan-phone-control-size) !important;
+    height: var(--talaan-phone-control-size) !important;
+    max-height: var(--talaan-phone-control-size) !important;
+    gap: var(--talaan-phone-gap) !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .mobile-record-actions > .button,
+  html body #money .record-row[data-expense-row] .overflow-menu-trigger,
+  html body #paid-expenses [data-paid-expense-row] .mobile-record-actions > .button,
+  html body #paid-expenses [data-paid-expense-row] .overflow-menu-trigger {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: var(--talaan-phone-control-size) !important;
+    min-height: var(--talaan-phone-control-size) !important;
+    max-height: var(--talaan-phone-control-size) !important;
+    padding-block: 4px !important;
+  }
+
+  html body #money .record-row[data-expense-row] .record-more-menu,
+  html body #paid-expenses [data-paid-expense-row] .record-more-menu {
+    width: var(--talaan-phone-control-size) !important;
+    min-width: var(--talaan-phone-control-size) !important;
+    max-width: var(--talaan-phone-control-size) !important;
+  }
+
+  /* The approved 35px exception applies to action controls; data-entry fields
+     remain larger so typing and selection stay usable. */
+  html body #settings :is(button, [role="tab"]),
+  html body #settings summary {
+    min-width: var(--talaan-phone-control-size) !important;
+    min-height: var(--talaan-phone-control-size) !important;
+    height: var(--talaan-phone-control-size) !important;
+    max-height: var(--talaan-phone-control-size) !important;
+  }
+
+  /* Keep help topics available to assistive technology without a visible
+     question mark or an empty inline slot on phones. */
+  html body :is(.context-help-button, .section-help-button) {
+    position: absolute !important;
+    width: 1px !important;
+    min-width: 1px !important;
+    max-width: 1px !important;
+    height: 1px !important;
+    min-height: 1px !important;
+    max-height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    flex: 0 0 1px !important;
+  }
+
+  html body :is(.help-inline-title, .section-title-row, .field-label-help-row, .help-generated-section-heading) {
+    gap: 0 !important;
+  }
+
+  /* Phone Bento rhythm and flat normal surfaces. */
+  html body #dashboard {
+    --dashboard-card-gap: var(--talaan-phone-gap) !important;
+    --dashboard-card-padding: var(--talaan-phone-card-padding) !important;
+  }
+
+  html body #money .section-stack,
+  html body #settings .settings-panels,
+  html body #projects .project-workspace-content,
+  html body #income .section-stack,
+  html body #paid-expenses .section-stack {
+    gap: var(--talaan-phone-gap) !important;
+  }
+
+  html body :is(
+    .card,
+    .summary-card,
+    .summary-item,
+    .legend-item,
+    .record-row,
+    .period-card,
+    .account-card,
+    .workspace-switcher,
+    .dashboard-view-tabs
+  ) {
+    box-shadow: none !important;
+  }
+
+  /* Preserve one continuous row divider without a duplicate outer seam. */
+  html body #money :is(#earlyExpenses, #lateExpenses, #otherExpenses) > .record-row[data-expense-row],
+  html body #paid-expenses [data-paid-expense-row] {
+    border-left: 0 !important;
+    border-right: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html body #money :is(#earlyExpenses, #lateExpenses, #otherExpenses) > .record-row[data-expense-row] + .record-row[data-expense-row],
+  html body #paid-expenses [data-paid-expense-row] + [data-paid-expense-row] {
+    border-top: 1px solid var(--line) !important;
+  }
+
+  /* Non-monetary phone text slots may truncate; monetary values remain intact. */
+  html body :is(
+    #topTitle,
+    #todayLabel,
+    .month-display-value,
+    .workspace-switcher-button,
+    .dashboard-week-copy strong,
+    .settings-status-copy,
+    .settings-state-chip,
+    .system-status-value,
+    .summary-card-label,
+    .legend-copy,
+    .record-title-copy > strong,
+    .record-title-copy > small,
+    [data-label="Planned account"],
+    .account-card-label,
+    .account-card-main strong,
+    .finance-kanban-card-meta,
+    .finance-kanban-card-value,
+    .pc-event-title,
+    .pc-event-meta,
+    .project-title-text,
+    .project-title-note,
+    .productivity-search-copy strong,
+    .productivity-search-copy small,
+    .productivity-search-value,
+    .transaction-calendar-entry span
+  ) {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body :is(.period-total, .amount, .summary-card-value, .legend-total, .kpi-value, [data-money-value]) {
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+}
+
+@media (max-width: 390px) {
+  html body #availableMoneySection .collapse-actions {
+    grid-template-columns: minmax(0, 1fr) 35px 35px !important;
   }
 }

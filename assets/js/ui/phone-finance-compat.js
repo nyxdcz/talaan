@@ -21,6 +21,44 @@
     button.append(icon, text);
   }
 
+  const PHONE_TRUNCATION_TARGETS = [
+    "#topTitle",
+    "#todayLabel",
+    ".month-display-value",
+    ".workspace-switcher-button",
+    ".dashboard-week-copy strong",
+    ".card-header h3",
+    ".settings-status-copy",
+    ".settings-state-chip",
+    ".system-status-value",
+    ".summary-card-label",
+    ".legend-copy",
+    ".record-title-copy > strong",
+    ".record-title-copy > small",
+    "[data-label=\"Planned account\"]",
+    ".account-card-label",
+    ".account-card-main strong",
+    ".finance-kanban-card-meta",
+    ".finance-kanban-card-value",
+    ".pc-event-title",
+    ".pc-event-meta",
+    ".project-title-text",
+    ".project-title-note",
+    ".productivity-search-copy strong",
+    ".productivity-search-copy small",
+    ".productivity-search-value",
+    ".transaction-calendar-entry span"
+  ].join(",");
+
+  function preservePhoneTextLabels() {
+    if (!root.matchMedia?.("(max-width: 700px)").matches) return;
+    doc.querySelectorAll(PHONE_TRUNCATION_TARGETS).forEach(element => {
+      if (element.closest(".amount, .period-total, .summary-card-value, .legend-total, .kpi-value, [data-money-value]")) return;
+      const text = String(element.textContent || "").replace(/\s+/g, " ").trim();
+      if (text && !element.getAttribute("title")) element.setAttribute("title", text);
+    });
+  }
+
   function enhancePhoneCompactButtons() {
     bindPhoneIconOnlyButton(
       doc.getElementById("addAccountButton"),
@@ -35,12 +73,15 @@
   }
 
   function installPhoneFinanceCompactUi() {
-    const apply = () => enhancePhoneCompactButtons();
+    const apply = () => {
+      enhancePhoneCompactButtons();
+      preservePhoneTextLabels();
+    };
     if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", apply, { once:true }); else apply();
     const startObserver = () => {
       if (!doc.body || doc.body.dataset.phoneFinanceCompactObserved === "true") return;
       doc.body.dataset.phoneFinanceCompactObserved = "true";
-      const observer = new MutationObserver(() => enhancePhoneCompactButtons());
+      const observer = new MutationObserver(() => apply());
       observer.observe(doc.body, { childList:true, subtree:true });
     };
     if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", startObserver, { once:true }); else startObserver();

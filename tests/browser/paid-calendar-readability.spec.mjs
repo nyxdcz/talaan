@@ -7,6 +7,7 @@ async function loadPaidCalendarFixture(page, width) {
     <link rel="stylesheet" href="http://127.0.0.1:3000/ui-radius.css?v=2.5.0-talaan4">
     <link rel="stylesheet" href="http://127.0.0.1:3000/productivity-tools.css?v=2.5.0-talaan1">
     <link rel="stylesheet" href="http://127.0.0.1:3000/transaction-views.css?v=2.5.0-talaan1">
+    <link rel="stylesheet" href="http://127.0.0.1:3000/production-ui-audit.css?v=2.5.0-talaan1">
   </head><body><div class="app"><main class="main"><div class="content">
     <section class="page active" id="paid-expenses">
       <div class="productivity-paid-bulk" id="paidProductivityBulk">
@@ -155,12 +156,20 @@ test("phone paid calendar becomes one column and preserves touch targets", async
     const toolbar = document.getElementById("transactionToolbar-paid");
     const toolbarControls = [...toolbar.querySelectorAll(".select,.button")].filter(control=>getComputedStyle(control).display !== "none");
     const bulkControls = [...document.querySelectorAll("#paidProductivityBulk .select,#paidProductivityBulk .button")].filter(control=>getComputedStyle(control).display !== "none");
+    const toolbarButtons = toolbarControls.filter(control=>control.matches(".button"));
+    const toolbarFields = toolbarControls.filter(control=>control.matches(".select"));
+    const bulkButtons = bulkControls.filter(control=>control.matches(".button"));
+    const bulkFields = bulkControls.filter(control=>control.matches(".select"));
     const budgetCalendar = document.getElementById("transactionCalendar-expense");
     return {
       calendarColumns:getComputedStyle(calendar).gridTemplateColumns,
       budgetCalendarColumns:getComputedStyle(budgetCalendar).gridTemplateColumns,
       toolbarHeights:toolbarControls.map(control=>control.getBoundingClientRect().height),
       bulkHeights:bulkControls.map(control=>control.getBoundingClientRect().height),
+      toolbarButtonHeights:toolbarButtons.map(control=>control.getBoundingClientRect().height),
+      toolbarFieldHeights:toolbarFields.map(control=>control.getBoundingClientRect().height),
+      bulkButtonHeights:bulkButtons.map(control=>control.getBoundingClientRect().height),
+      bulkFieldHeights:bulkFields.map(control=>control.getBoundingClientRect().height),
       dayMinHeight:getComputedStyle(calendar.querySelector(".transaction-calendar-day")).minHeight,
       budgetDayMinHeight:getComputedStyle(budgetCalendar.querySelector(".transaction-calendar-day")).minHeight,
       columnsButtonDisplay:getComputedStyle(toolbar.querySelector(".transaction-columns-button")).display
@@ -169,9 +178,10 @@ test("phone paid calendar becomes one column and preserves touch targets", async
 
   expect(columnCount(state.calendarColumns)).toBe(1);
   expect(columnCount(state.budgetCalendarColumns)).toBe(1);
-  state.toolbarHeights.forEach(height=>expect(height).toBeGreaterThanOrEqual(40));
-  state.toolbarHeights.filter(height=>height > 40).forEach(height=>expect(height).toBeGreaterThanOrEqual(44));
-  state.bulkHeights.forEach(height=>expect(height).toBeGreaterThanOrEqual(44));
+  state.toolbarButtonHeights.forEach(height=>expect(height).toBe(35));
+  state.bulkButtonHeights.forEach(height=>expect(height).toBe(35));
+  state.toolbarFieldHeights.forEach(height=>expect(height).toBeGreaterThanOrEqual(44));
+  state.bulkFieldHeights.forEach(height=>expect(height).toBeGreaterThanOrEqual(44));
   expect(state.dayMinHeight).toBe("0px");
   expect(state.budgetDayMinHeight).toBe("0px");
   expect(state.columnsButtonDisplay).toBe("none");
