@@ -1677,6 +1677,7 @@
   html body #money .period-card.is-collapsed .period-header {
     min-height: 50px !important;
     height: auto !important;
+    max-height: none !important;
     padding: 7px 10px !important;
     align-items: center !important;
   }
