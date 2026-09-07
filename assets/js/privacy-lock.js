@@ -1,7 +1,7 @@
 "use strict";
 (() => {
   const state = { authenticated:false, resolved:false, email:"" };
-  const importReviewState = { bundle:null, beforeAccounts:{} };
+  const importReviewState = { bundle:null, normalized:null, beforeAccounts:{} };
   const RECOVERY_META_KEY = "simple-finance-project-records-v12-meta";
   const RECOVERY_DB_NAME = "simple-finance-project-records-v12-db";
   const RECOVERY_DB_VERSION = 2;
@@ -58,6 +58,11 @@
 
   function captureImportReview(bundle){
     importReviewState.bundle=cloneValue(bundle);
+    importReviewState.normalized=null;
+    try {
+      const incoming=bundle?.data || bundle || {};
+      if(typeof normalizeData === "function") importReviewState.normalized=cloneValue(normalizeData(incoming));
+    } catch(error) { console.warn("Could not normalize the imported recovery bundle before review",error); }
     importReviewState.beforeAccounts=currentAccounts();
   }
 
@@ -74,11 +79,15 @@
 
   function clearImportReviewCapture(){
     importReviewState.bundle=null;
+    importReviewState.normalized=null;
     importReviewState.beforeAccounts={};
   }
 
   function importedAccounts(){
-    const incoming=importReviewState.bundle?.data || importReviewState.bundle;
+    // Reconcile against the bundle's declared balances, not the normalized ledger view.
+    // Normalization recalculates accounts from legacy/incomplete ledgers and may turn a
+    // newly imported account into zero before the reconciliation safety check can run.
+    const incoming=importReviewState.bundle?.data || importReviewState.bundle || importReviewState.normalized;
     return incoming?.accounts && typeof incoming.accounts==="object" && !Array.isArray(incoming.accounts) ? incoming.accounts : {};
   }
 
@@ -339,7 +348,7 @@
       recoveryMeta=await persistRecoverySnapshot(`Before ${action[0]} import`,before);
       const integrity=window.FinanceIntegrity;
       if(!integrity?.scan) throw new Error("Financial integrity protection is unavailable. Reload Talaan before importing records.");
-      const incoming=importReviewState.bundle?.data || importReviewState.bundle || {};
+      const incoming=importReviewState.normalized || importReviewState.bundle?.data || importReviewState.bundle || {};
       const incomingReport=integrity.scan(incoming,{includeStorage:false});
       if(incomingReport.counts.critical) throw new Error(`Import blocked: ${incomingReport.counts.critical} critical financial integrity issue${incomingReport.counts.critical===1?"":"s"} found.`);
 
