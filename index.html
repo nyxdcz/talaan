@@ -8400,7 +8400,11 @@
       next.projectCalendarSettings = { ...(incoming.projectCalendarSettings || {}), ...(next.projectCalendarSettings || {}) };
       next.projectKanban = { ...(incoming.projectKanban || {}), ...(next.projectKanban || {}) };
       next.salaryWorkSettings = { ...(incoming.salaryWorkSettings || {}), ...(next.salaryWorkSettings || {}) };
-      next.ledgerSettings = { ...(next.ledgerSettings || {}) };
+      next.ledgerSettings = { ...(incoming.ledgerSettings || {}), ...(next.ledgerSettings || {}) };
+      next.ledgerSettings.archivedAccounts = {
+        ...(incoming.ledgerSettings?.archivedAccounts || {}),
+        ...(next.ledgerSettings?.archivedAccounts || {})
+      };
       if (globalThis.FinanceNetWorth?.mergeStores) next.ledgerSettings.netWorth = globalThis.FinanceNetWorth.mergeStores(next.ledgerSettings.netWorth, incoming.ledgerSettings?.netWorth, conflictPolicy);
       if (globalThis.FinanceHouseholdSplits?.mergeStores) next.ledgerSettings.householdSplits = globalThis.FinanceHouseholdSplits.mergeStores(next.ledgerSettings.householdSplits, incoming.ledgerSettings?.householdSplits, conflictPolicy);
       if (conflictPolicy === "incoming") {

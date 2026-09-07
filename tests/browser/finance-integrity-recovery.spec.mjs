@@ -335,3 +335,78 @@ test("mixed ledger history migrates legacy paid expenses before import checks", 
   expect(finalState.report.counts.critical).toBe(0);
   expect(finalState.migrated).toBe(6);
 });
+
+test("deleted-account ledger history is archived and repairs its legacy payment", async ({ page }) => {
+  await page.goto("http://127.0.0.1:3000/index.html?page=settings&settings=sync", { waitUntil:"networkidle" });
+  await stable(page);
+  await page.waitForFunction(() => typeof window.openSyncReview === "function" && typeof window.applyPendingSyncImport === "function");
+
+  const bundle = await page.evaluate(() => {
+    const source = structuredClone(data);
+    const activeAccounts = Object.keys(source.accounts || {});
+    const archivedAccount = "Legacy Wallet";
+    const initializedAt = new Date(Date.now() - 86400000).toISOString();
+    const date = initializedAt.slice(0, 10);
+    source.accountLedger = activeAccounts.map(name => ({
+      id:`archived-active-opening-${name}`,
+      transactionId:`archived-active-opening-${name}`,
+      operationId:`archived-active-opening-${name}`,
+      account:name,
+      type:"opening-balance",
+      amount:Number(source.accounts[name] || 0),
+      date,
+      description:`Opening balance for ${name}`,
+      source:"migration"
+    }));
+    // Five historical entries close at zero, matching the zero-balance account
+    // deletion rule. The account itself is intentionally absent from accounts.
+    source.accountLedger.push(
+      { id:"legacy-wallet-opening", transactionId:"legacy-wallet-opening", operationId:"legacy-wallet-opening", account:archivedAccount, type:"opening-balance", amount:500, date, description:"Opening balance for Legacy Wallet", source:"migration" },
+      { id:"legacy-wallet-payment-1", transactionId:"legacy-wallet-payment-1", operationId:"legacy-wallet-payment-1", account:archivedAccount, type:"expense-payment", amount:-100, date, description:"Expense payment 1", source:"app" },
+      { id:"legacy-wallet-payment-2", transactionId:"legacy-wallet-payment-2", operationId:"legacy-wallet-payment-2", account:archivedAccount, type:"expense-payment", amount:-150, date, description:"Expense payment 2", source:"app" },
+      { id:"legacy-wallet-credit-1", transactionId:"legacy-wallet-credit-1", operationId:"legacy-wallet-credit-1", account:archivedAccount, type:"income-deposit", amount:100, date, description:"Income deposit 1", source:"app" },
+      { id:"legacy-wallet-credit-2", transactionId:"legacy-wallet-credit-2", operationId:"legacy-wallet-credit-2", account:archivedAccount, type:"income-deposit", amount:150, date, description:"Income deposit 2", source:"app" }
+    );
+    source.expenses = [{
+      id:"legacy-wallet-unlinked-expense",
+      name:"Legacy Wallet expense",
+      amount:40,
+      date,
+      category:"Other",
+      expenseType:"normal",
+      recurring:"No",
+      paid:true,
+      paidDate:date,
+      paidFromAccount:archivedAccount,
+      paidAmount:40,
+      accountDeducted:true,
+      paymentTransactionId:""
+    }];
+    source.ledgerSettings = { version:1, migratedFrom:"12.19.1", initializedAt };
+    return { ...window.buildBundle("my-finance-v12-recovery"), data:source };
+  });
+
+  const beforeMigration = await page.evaluate(b => window.FinanceIntegrity.scan(b.data, { includeStorage:false }), bundle);
+  expect(beforeMigration.counts.critical).toBe(6);
+  expect(beforeMigration.issues.filter(item => item.code === "ledger-account-missing")).toHaveLength(5);
+  expect(beforeMigration.issues.filter(item => item.code === "expense-payment-ledger-missing")).toHaveLength(1);
+
+  await page.evaluate(value => window.openSyncReview(value), bundle);
+  await expect(page.locator("#syncReviewDialog")).toBeVisible();
+  await page.locator("#replaceWithIncomingButton").click();
+  await expect(page.locator("#syncReviewDialog")).not.toBeVisible({ timeout:10000 });
+  await expect(page.locator(".toast-message", { hasText:"Import failed" })).not.toBeVisible();
+
+  const finalState = await page.evaluate(() => ({
+    report:window.FinanceIntegrity.scan(data, { includeStorage:false }),
+    archived:data.ledgerSettings?.archivedAccounts?.["Legacy Wallet"] || null,
+    active:Object.prototype.hasOwnProperty.call(data.accounts || {}, "Legacy Wallet"),
+    payment:data.expenses.find(item => item.id === "legacy-wallet-unlinked-expense")?.paymentTransactionId || "",
+    migrated:data.accountLedger.find(item => item.expenseId === "legacy-wallet-unlinked-expense") || null
+  }));
+  expect(finalState.report.counts.critical).toBe(0);
+  expect(finalState.archived).toMatchObject({ inferred:true, source:"legacy-import" });
+  expect(finalState.active).toBe(false);
+  expect(finalState.payment).toBe("legacy-expense-payment:legacy-wallet-unlinked-expense");
+  expect(finalState.migrated).toMatchObject({ account:"Legacy Wallet", amount:-40, source:"legacy-migration" });
+});

@@ -37,20 +37,16 @@
   const originalSyncIncomeCategoryFields = syncIncomeCategoryFields;
   const originalCloneRecurringIncomeForMonth = cloneRecurringIncomeForMonth;
   const originalProcessGymMonthEndAutoPayments = typeof processGymMonthEndAutoPayments === "function" ? processGymMonthEndAutoPayments : null;
-
   function localDateKey(date = new Date()) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
   }
-
   function safeText(value, limit = 160) {
     return String(value || "").trim().slice(0, limit);
   }
-
   function deterministicOpeningId(account) {
     const slug = encodeURIComponent(String(account || "account")).replace(/%/g, "").slice(0, 80);
     return `ledger-opening-v1-${slug}`;
   }
-
   function normalizeLedgerEntry(entry) {
     if (!entry || typeof entry !== "object") return null;
     const account = safeText(entry.account, 100);
@@ -82,7 +78,6 @@
       notes:safeText(entry.notes || "", 240)
     };
   }
-
   function openingEntriesFromAccounts(accounts, initializedAt = new Date().toISOString()) {
     return Object.entries(accounts || {}).map(([account, balance]) => {
       const id = deterministicOpeningId(account);
@@ -100,7 +95,6 @@
       });
     }).filter(Boolean);
   }
-
   function normalizeReconciliation(item) {
     if (!item || typeof item !== "object") return null;
     const account = safeText(item.account, 100);
@@ -120,16 +114,15 @@
       createdByDevice:safeText(item.createdByDevice || "", 120)
     };
   }
-
   function prepareLegacyImport(bundle) {
-    // Clones raw bundle data and applies only migrateLegacyExpensePayments so
-    // income-record account fields are not remapped before the pre-import integrity scan.
     try {
       const raw = bundle?.data || bundle || {};
       const cloned = JSON.parse(JSON.stringify(raw));
-      const settings = cloned.ledgerSettings && typeof cloned.ledgerSettings === "object" ? cloned.ledgerSettings : {};
+      const initialSettings = cloned.ledgerSettings && typeof cloned.ledgerSettings === "object" ? cloned.ledgerSettings : {};
       const ledger = (Array.isArray(cloned.accountLedger) ? cloned.accountLedger : []).map(normalizeLedgerEntry).filter(Boolean);
-      if (!ledger.length) ledger.push(...openingEntriesFromAccounts(cloned.accounts && typeof cloned.accounts === "object" ? cloned.accounts : {}, settings.initializedAt || new Date().toISOString()));
+      if (!ledger.length) ledger.push(...openingEntriesFromAccounts(cloned.accounts && typeof cloned.accounts === "object" ? cloned.accounts : {}, initialSettings.initializedAt || new Date().toISOString()));
+      window.FinanceIntegrity?.archiveLegacyAccountReferences?.(cloned, ledger);
+      const settings = cloned.ledgerSettings && typeof cloned.ledgerSettings === "object" ? cloned.ledgerSettings : {};
       migrateLegacyExpensePayments(cloned, ledger, settings);
       cloned.accountLedger = ledger;
       return cloned;
@@ -138,7 +131,6 @@
       try { return JSON.parse(JSON.stringify(raw)); } catch { return raw; }
     }
   }
-
   function migrateLegacyExpensePayments(normalized, ledger, settingsSource) {
     const openingByAccount = new Map();
     ledger.forEach(entry => { if (entry?.type === "opening-balance" && entry.account && !openingByAccount.has(entry.account)) openingByAccount.set(entry.account, entry); });
@@ -147,19 +139,18 @@
     let migrated = 0;
     for (const item of Array.isArray(normalized.expenses) ? normalized.expenses : []) {
       if (!item?.paid || !item.accountDeducted || !item.paidFromAccount) continue;
-      // A blank paymentTransactionId is the unambiguous V12 shape. If a record
-      // already declares a transaction ID but its debit is missing, leave it as
-      // a critical integrity issue instead of guessing which transaction ran.
+      // A declared transaction ID with no debit remains a critical issue.
       if (safeText(item.paymentTransactionId, 120)) continue;
       const account = safeText(item.paidFromAccount, 100);
       const amount = roundMoney(Number(item.paidAmount || (typeof expensePaymentAmount === "function" ? expensePaymentAmount(item) : item.amount) || 0));
-      if (!account || !Object.prototype.hasOwnProperty.call(normalized.accounts || {}, account) || !Number.isFinite(amount) || amount <= 0) continue;
+      const archived = Boolean(window.FinanceIntegrity?.isArchivedAccount?.(normalized, account));
+      if (!account || (!Object.prototype.hasOwnProperty.call(normalized.accounts || {}, account) && !archived) || !Number.isFinite(amount) || amount <= 0) continue;
       const existing = ledger.find(entry => entry?.expenseId === item.id && ["expense-payment", "gym-auto-payment"].includes(entry.type));
       if (existing) continue;
       const type = item.autoPaidAtMonthEnd ? "gym-auto-payment" : "expense-payment";
       const transactionId = safeText(`legacy-expense-payment:${item.id}`, 120);
       const operationId = safeText(`${type}:legacy:${item.id}`, 180);
-      if (!transactionId || !operationId || operationIds.has(operationId) || !openingByAccount.has(account)) continue;
+      if (!transactionId || !operationId || operationIds.has(operationId) || (!archived && !openingByAccount.has(account))) continue;
       const encodedId = encodeURIComponent(String(item.id || "expense")).replace(/%/g, "").slice(0, 80);
       const entry = normalizeLedgerEntry({
         id:`ledger-legacy-expense-payment-v1-${encodedId}`, transactionId, operationId, account, type,
@@ -181,15 +172,15 @@
     });
     return migrated;
   }
-
-
   function ensureLedgerShape(value) {
     const normalized = value && typeof value === "object" ? value : {};
     const activeAccounts = normalized.accounts && typeof normalized.accounts === "object" ? normalized.accounts : {};
-    const settingsSource = normalized.ledgerSettings && typeof normalized.ledgerSettings === "object" ? normalized.ledgerSettings : {};
-    const initializedAt = settingsSource.initializedAt || new Date().toISOString();
     let ledger = (Array.isArray(normalized.accountLedger) ? normalized.accountLedger : []).map(normalizeLedgerEntry).filter(Boolean);
+    const initialSettings = normalized.ledgerSettings && typeof normalized.ledgerSettings === "object" ? normalized.ledgerSettings : {};
+    const initializedAt = initialSettings.initializedAt || new Date().toISOString();
     if (!ledger.length) ledger = openingEntriesFromAccounts(activeAccounts, initializedAt);
+    window.FinanceIntegrity?.archiveLegacyAccountReferences?.(normalized, ledger);
+    const settingsSource = normalized.ledgerSettings && typeof normalized.ledgerSettings === "object" ? normalized.ledgerSettings : {};
     migrateLegacyExpensePayments(normalized, ledger, settingsSource);
     const seenOperations = new Set();
     ledger = ledger.filter(entry => {
@@ -214,7 +205,6 @@
     recalculateBalances(normalized);
     return normalized;
   }
-
   function recalculateBalances(target = data, { stamp = false } = {}) {
     if (!target?.accounts || typeof target.accounts !== "object") target.accounts = {};
     const balances = Object.fromEntries(Object.keys(target.accounts).map(name => [name, 0]));
@@ -1568,6 +1558,12 @@
     if (!newName || !Number.isFinite(targetBalance)) { showToast("Enter a valid account name and balance", "warning"); return false; }
     const duplicate = accountNames().some(name => name.toLowerCase() === newName.toLowerCase() && name !== originalName);
     if (duplicate) { showToast("An account with this name already exists", "warning"); return false; }
+    const archivedNames = Object.keys(data.ledgerSettings?.archivedAccounts || {});
+    const archivedName = archivedNames.find(name => name.toLowerCase() === newName.toLowerCase());
+    if (archivedName && archivedName !== originalName) {
+      showToast("That name is reserved for archived ledger history. Choose a different account name.", "warning");
+      return false;
+    }
 
     const saved = runAccountMutation({
       undoLabel:originalName ? `Edit account ${originalName}` : `Add account ${newName}`,
@@ -1680,6 +1676,12 @@
       undoLabel:`Delete account ${name}`,
       message:"Zero-balance account deleted; ledger history preserved",
       mutate:() => {
+        data.ledgerSettings = data.ledgerSettings && typeof data.ledgerSettings === "object" ? data.ledgerSettings : {};
+        const archivedAccounts = data.ledgerSettings.archivedAccounts && typeof data.ledgerSettings.archivedAccounts === "object" ? data.ledgerSettings.archivedAccounts : {};
+        data.ledgerSettings.archivedAccounts = {
+          ...archivedAccounts,
+          [name]: { deletedAt:new Date().toISOString(), source:"account-deletion", inferred:false }
+        };
         (data.savingsGoals || []).forEach(goal => { if (goal.sourceType === "linked" && goal.linkedAccount === name) { goal.sourceType = "manual"; goal.currentAmount = 0; goal.linkedAccount = ""; goal.updatedAt = new Date().toISOString(); } });
         delete data.accounts[name];
         delete data.accountTypes[name];

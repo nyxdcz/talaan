@@ -36,6 +36,19 @@ const valid = {
 };
 assert.equal(integrity.scan(valid).counts.critical, 0, "valid transfer history must pass");
 
+const archivedHistory = structuredClone(valid);
+archivedHistory.accounts = { Cash:700 };
+archivedHistory.accountLedger = [
+  {id:"open-cash-archived-test",operationId:"open-cash-archived-test",transactionId:"open-cash-archived-test",account:"Cash",type:"opening-balance",amount:700},
+  {id:"open-old-wallet",operationId:"open-old-wallet",transactionId:"open-old-wallet",account:"Old Wallet",type:"opening-balance",amount:0}
+];
+archivedHistory.ledgerSettings = { version:1, archivedAccounts:{ "Old Wallet":{ source:"account-deletion" } } };
+assert.equal(integrity.scan(archivedHistory).counts.critical, 0, "archived ledger account references must remain valid audit history");
+
+const unmarkedArchivedHistory = structuredClone(archivedHistory);
+delete unmarkedArchivedHistory.ledgerSettings.archivedAccounts;
+assert.ok(integrity.scan(unmarkedArchivedHistory).issues.some(item => item.code === "ledger-account-missing"), "unmarked orphan account references must still be diagnosed");
+
 const halfTransfer = structuredClone(valid);
 halfTransfer.accountLedger = halfTransfer.accountLedger.filter(entry => entry.id !== "transfer-in");
 halfTransfer.accounts.Bank = 0;

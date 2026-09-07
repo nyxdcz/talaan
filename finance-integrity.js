@@ -19,6 +19,50 @@
     if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
     return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stable(value[key])}`).join(",")}}`;
   }
+  function own(target, key) { return Boolean(target && Object.prototype.hasOwnProperty.call(target, key)); }
+  function accountName(value) { return String(value || "").trim().slice(0, 100); }
+  function archivedStore(target) {
+    const accounts = asObject(target?.accounts);
+    const settings = asObject(target?.ledgerSettings);
+    const source = asObject(settings.archivedAccounts);
+    const archived = {};
+    Object.entries(source).forEach(([rawName, value]) => {
+      const name = accountName(rawName);
+      if (!name || own(accounts, name)) return;
+      archived[name] = value && typeof value === "object" && !Array.isArray(value) ? { ...value } : { inferred:Boolean(value) };
+    });
+    target.ledgerSettings = { ...settings, archivedAccounts:archived };
+    return archived;
+  }
+  function isArchivedAccount(target, account) {
+    const name = accountName(account);
+    return Boolean(name && !own(asObject(target?.accounts), name) && own(asObject(target?.ledgerSettings?.archivedAccounts), name));
+  }
+  function archiveLegacyAccountReferences(target, ledger) {
+    if (!target || typeof target !== "object") return [];
+    const accounts = asObject(target.accounts);
+    const archived = archivedStore(target);
+    const byAccount = new Map();
+    asArray(ledger).forEach(entry => {
+      const account = accountName(entry?.account);
+      if (!account) return;
+      if (!byAccount.has(account)) byAccount.set(account, []);
+      byAccount.get(account).push(entry);
+    });
+    const candidates = new Set(byAccount.keys());
+    asArray(target.expenses).forEach(item => { const account = item?.paid && item.accountDeducted ? accountName(item.paidFromAccount) : ""; if (account && !own(accounts, account)) candidates.add(account); });
+    const inferred = [];
+    candidates.forEach(account => {
+      if (own(accounts, account) || own(archived, account)) return;
+      const entries = byAccount.get(account) || [];
+      const net = entries.reduce((total, entry) => total + Number(entry?.amount || 0), 0);
+      if (!entries.length || !Number.isFinite(net) || Math.abs(net) >= EPSILON) return;
+      archived[account] = { deletedAt:"", source:"legacy-import", inferred:true };
+      inferred.push(account);
+    });
+    target.ledgerSettings.archivedAccounts = archived;
+    return inferred;
+  }
   function financialProjection(value) {
     const source = asObject(value);
     return {
@@ -66,7 +110,12 @@
     const expenses = asArray(target.expenses);
     const incomes = asArray(target.incomeRecords);
     const issues = [];
-    const accountNames = new Set(Object.keys(accounts));
+    const archivedAccounts = asObject(target.ledgerSettings?.archivedAccounts);
+    // Deleted accounts remain valid ledger namespaces for audit history. They
+    // are deliberately excluded from the active balance map, selectors, and
+    // available-money totals, but their historical entries must not be treated
+    // as broken references during import or sync verification.
+    const accountNames = new Set([...Object.keys(accounts), ...Object.keys(archivedAccounts)]);
     const ledgerById = new Map();
     const ledgerByTransaction = new Map();
     const operationIds = new Set();
@@ -265,5 +314,5 @@
     return "No financial integrity issues found";
   }
 
-  root.FinanceIntegrity = Object.freeze({ version:VERSION, scan, repairSafe, summary, financialProjection });
+  root.FinanceIntegrity = Object.freeze({ version:VERSION, scan, repairSafe, summary, financialProjection, isArchivedAccount, archiveLegacyAccountReferences });
 })(typeof window !== "undefined" ? window : globalThis);
