@@ -19,7 +19,10 @@ const RELEASE = Object.freeze({
 });
 const APP_STYLE_ASSET_QUERY = "2.5.0-talaan2";
 const SIDEBAR_BRAND_ASSET_QUERY = "2.2.0-talaan2";
-const UI_RADIUS_ASSET_QUERY = "2.5.0-talaan4";
+const UI_RADIUS_ASSET_QUERY = `2.5.0-ui-${crypto.createHash("sha256").update(fs.readFileSync(path.join(root, "assets/css/ui-radius.css"))).digest("hex").slice(0, 12)}`;
+const applyUiAssetQuery = source => source
+  .replace(/ui-radius\.css\?v=[^"'\s<>)]+/g, `ui-radius.css?v=${UI_RADIUS_ASSET_QUERY}`)
+  .replace(/summary-mascots\.css\?v=[^"'\s<>)]+/g, `summary-mascots.css?v=${UI_RADIUS_ASSET_QUERY}`);
 
 const ACCOUNT_INTEGRITY_SOURCES = Object.freeze([
   "assets/js/finance-transaction-diagnostics.js",
@@ -213,7 +216,7 @@ const applyAccountIntegrityAssetQuery = source => source
   .replace(/cloud-sync-lifecycle\.js\?v=[^\"'\s<>)]+/g, `cloud-sync-lifecycle.js?v=${ACCOUNT_INTEGRITY_ASSET_QUERY}`);
 
 patchTextFile("index.html", source => {
-  let next = applyAccountIntegrityAssetQuery(normalizeReleaseAssetQuery(normalizeRuntimeReferences(source)))
+  let next = applyUiAssetQuery(applyAccountIntegrityAssetQuery(normalizeReleaseAssetQuery(normalizeRuntimeReferences(source))))
   if (!next.includes("finance-transaction-diagnostics.js")) {
     next = next.replace(
       /(<script src="\.\/security-profiles\.js\?v=[^"]+"><\/script>)/,
@@ -296,7 +299,7 @@ patchTextFile("offline.html", source => source
   .replace(/Open [^<]+<\/button>/, `Open ${BRAND}</button>`));
 
 patchTextFile("sw.js", source => {
-  let next = applyAccountIntegrityAssetQuery(normalizeReleaseAssetQuery(normalizeRuntimeReferences(source)))
+  let next = applyUiAssetQuery(applyAccountIntegrityAssetQuery(normalizeReleaseAssetQuery(normalizeRuntimeReferences(source))))
     .replace(/app\.css\?v=[^"')]+/, `app.css?v=${APP_STYLE_ASSET_QUERY}`)
     .replace(/sidebar-compact-brand\.css\?v=[^"')]+/g, `sidebar-compact-brand.css?v=${SIDEBAR_BRAND_ASSET_QUERY}`)
     .replace(

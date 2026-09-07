@@ -58,7 +58,8 @@ test("UI surfaces use the platform-aligned radius hierarchy while structural and
 });
 
 test("runtime summary layer imports the canonical radius stylesheet", () => {
-  expect(source("summary-mascots.css")).toContain('@import url("./ui-radius.css?v=2.5.0-talaan4")');
+  const radiusUrl = source("index.html").match(/href="(\.\/ui-radius\.css\?v=2\.5\.0-ui-[a-f0-9]+)"/)[1];
+  expect(source("summary-mascots.css")).toContain(`@import url("${radiusUrl}")`);
   expect(source("ui-radius.css")).toContain("--talaan-control-radius: 12px");
   expect(source("ui-radius.css")).toContain("--talaan-card-radius: 12px");
   expect(source("ui-radius.css")).toContain("--talaan-section-radius: 16px");
