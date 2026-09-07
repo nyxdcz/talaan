@@ -1,6 +1,7 @@
 "use strict";
 const APP_VERSION = "2.5.0";
 self.__FINANCE_APP_VERSION = APP_VERSION;
+/* Runtime revision: repeat controls are source-level icon-only (2026-09-07). */
 const CACHE_VERSION = "finance-v2-20260828-household-splits-r17";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
@@ -42,12 +43,12 @@ const APP_SHELL = [
   asset("./security-profiles.css?v=2.5.0-talaan1"),
   asset("./cloud-conflict-review.js?v=2.5.0-talaan1"),
   asset("./cloud-conflict-resolution.js?v=2.5.0-talaan1"),
-  asset("./cloud-sync-lifecycle.js?v=2.5.0-account-b70450d0b1ee"),
-  asset("./cloud-sync.js?v=2.5.0-account-b70450d0b1ee"),
-  asset("./finance-transaction-diagnostics.js?v=2.5.0-account-b70450d0b1ee"),
-  asset("./finance-integrity.js?v=2.5.0-account-b70450d0b1ee"),
-  asset("./account-ledger.js?v=2.5.0-account-b70450d0b1ee"),
-  asset("./account-submit-compat.js?v=2.5.0-account-b70450d0b1ee"),
+  asset("./cloud-sync-lifecycle.js?v=2.5.0-account-f8f0804a8684"),
+  asset("./cloud-sync.js?v=2.5.0-account-f8f0804a8684"),
+  asset("./finance-transaction-diagnostics.js?v=2.5.0-account-f8f0804a8684"),
+  asset("./finance-integrity.js?v=2.5.0-account-f8f0804a8684"),
+  asset("./account-ledger.js?v=2.5.0-account-f8f0804a8684"),
+  asset("./account-submit-compat.js?v=2.5.0-account-f8f0804a8684"),
   asset("./account-ledger.css?v=2.5.0-talaan1"),
   asset("./budget-planning.js?v=2.5.0-talaan1"),
   asset("./budget-planning.css?v=2.5.0-talaan1"),

@@ -768,23 +768,6 @@
     font-size: .67rem !important;
   }
 
-  html body #money .record-row[data-expense-row] .button-saved .saved-icon-container {
-    display: none !important;
-  }
-
-  html body #money .record-row[data-expense-row] .button-saved .saved-button-text {
-    font-size: 0 !important;
-  }
-
-  html body #money .record-row[data-expense-row] .button-saved .saved-button-text::after {
-    content: "Repeat monthly";
-    font-size: .67rem !important;
-  }
-
-  html body #money .record-row[data-expense-row] .button-saved.active .saved-button-text::after {
-    content: "Repeats monthly";
-  }
-
   html body #money .record-row[data-expense-row] > .mobile-record-actions {
     display: none !important;
   }
@@ -933,26 +916,6 @@
     transform: none !important;
   }
 
-  html body #money .record-row[data-expense-row] .button-saved .saved-icon-container {
-    display: none !important;
-  }
-
-  html body #money .record-row[data-expense-row] .button-saved .saved-button-text {
-    display: inline !important;
-    font-size: 0 !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-  }
-
-  html body #money .record-row[data-expense-row] .button-saved .saved-button-text::after {
-    content: "Repeat monthly" !important;
-    font-size: .65rem !important;
-    line-height: 1 !important;
-  }
-
-  html body #money .record-row[data-expense-row] .button-saved.active .saved-button-text::after {
-    content: "Repeats monthly" !important;
-  }
 }
 
 
@@ -976,10 +939,6 @@
   html body #money .record-row[data-expense-row] > .desktop-record-actions { margin-top:1px !important; padding-top:5px !important; gap:4px !important; }
   html body #money .record-row[data-expense-row] > .desktop-record-actions > .button { height:30px !important; min-height:30px !important; padding:4px 7px !important; border-radius:var(--talaan-control-radius) !important; font-size:.65rem !important; }
   html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] { display:inline-flex !important; align-items:center !important; justify-content:center !important; flex:0 0 auto !important; flex-shrink:0 !important; width:max-content !important; min-width:82px !important; max-width:none !important; height:30px !important; min-height:30px !important; padding:4px 7px !important; white-space:nowrap !important; }
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-icon-container { display:none !important; }
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-button-text { display:inline !important; min-width:68px !important; font-size:0 !important; line-height:1 !important; text-align:center !important; white-space:nowrap !important; }
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-button-text::after { content:"Repeat monthly" !important; font-size:.65rem !important; }
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved].active .saved-button-text::after { content:"Repeats monthly" !important; }
 }
 
 
@@ -1025,30 +984,10 @@
     visibility:visible !important;
     white-space:nowrap !important;
   }
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-icon-container {
-    display:none !important;
-  }
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-button-text {
-    display:inline-flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    min-width:0 !important;
-    color:var(--text) !important;
-    font-size:.65rem !important;
-    font-weight:700 !important;
-    line-height:1 !important;
-    opacity:1 !important;
-    visibility:visible !important;
-    white-space:nowrap !important;
-  }
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-button-text::after {
-    content:none !important;
-    display:none !important;
-  }
 }
 
 
-/* V15.2.22 · Monthly repeat label isolation: bypass legacy .saved-button-text icon-only rules. */
+/* V15.2.22 · Monthly repeat control sizing. */
 @media (min-width: 851px) {
   html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] {
     display:inline-flex !important;
@@ -1065,33 +1004,6 @@
     box-sizing:border-box !important;
     transform:none !important;
     white-space:nowrap !important;
-  }
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-icon-container {
-    display:none !important;
-  }
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label {
-    display:inline-flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    flex:0 0 auto !important;
-    width:auto !important;
-    min-width:0 !important;
-    max-width:none !important;
-    height:auto !important;
-    color:var(--text) !important;
-    font-size:.65rem !important;
-    font-weight:700 !important;
-    line-height:1 !important;
-    opacity:1 !important;
-    visibility:visible !important;
-    transform:none !important;
-    white-space:nowrap !important;
-    overflow:visible !important;
-  }
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label::before,
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label::after {
-    content:none !important;
-    display:none !important;
   }
 }
 
@@ -1182,9 +1094,6 @@
     opacity:0 !important;
   }
 
-  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label {
-    display:none !important;
-  }
 }
 
 /* Talaan · desktop More tools viewport containment */

@@ -22,6 +22,11 @@ assert.ok(worker.includes(`./production-ui-audit.css?v=${query}`));
 assert.ok(index.indexOf("production-ui-audit.css") > index.indexOf("desktop-ux.css"));
 assert.match(runtimeCss, /TALAAN RUNTIME OVERLAY/);
 assert.match(runtimePhone, /installCompactExpenseCardEnhancements/);
+assert.match(index, /repeat-icon-control/, "repeat controls must use the icon-only contract");
+assert.doesNotMatch(index, /class="monthly-repeat-label"/, "repeat labels must not be rendered in the source");
+assert.doesNotMatch(css, /content\s*:\s*["']Repeat monthly|content\s*:\s*["']Repeats monthly/, "production CSS must not generate repeat labels");
+assert.doesNotMatch(compactJs, /readableStyle/, "runtime must not reintroduce repeat labels");
+assert.match(compactCss, /Repeat controls are permanently icon-only/, "runtime expense CSS must guard icon-only repeat controls");
 
 assert.match(css, /animation:\s*financeSummaryConfirm 420ms ease-out/);
 assert.doesNotMatch(css, /translateY\s*\(/);

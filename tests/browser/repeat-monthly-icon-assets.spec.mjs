@@ -18,9 +18,8 @@ test("repeat monthly control uses replaceable PNG artwork and click bounce", asy
       <main id="money">
         <div class="record-row" data-expense-row>
           <div class="desktop-record-actions">
-            <button class="button button-saved button-small" data-toggle-saved="example" aria-label="Repeat this expense monthly">
+            <button class="button button-saved button-small repeat-icon-control" data-toggle-saved="example" aria-label="Repeat this expense monthly">
               <span class="saved-icon-container" aria-hidden="true"><span class="saved-icon">☆</span></span>
-              <span class="monthly-repeat-label">Repeat monthly</span>
             </button>
           </div>
         </div>
@@ -33,6 +32,7 @@ test("repeat monthly control uses replaceable PNG artwork and click bounce", asy
   const container = button.locator(".saved-icon-container");
   const star = button.locator(".saved-icon");
 
+  await expect(button.locator(".monthly-repeat-label")).toHaveCount(0);
   await expect(container).toHaveCSS("background-image", /repeat-monthly-off\.png/);
   await expect(star).toHaveCSS("opacity", "0");
 

@@ -84,6 +84,11 @@ for (const icon of ["repeat-monthly-off.png", "repeat-monthly-on.png"]) {
   assert.ok(worker.includes(`./icons/${icon}?v=${query}`), `service worker must precache ${icon}`);
 }
 assert.match(compactCss, /\[data-toggle-saved\] \.saved-icon\s*\{[\s\S]*opacity:\s*0 !important;/, "text star must remain visually hidden behind PNG artwork");
+assert.match(index, /class="button button-saved button-small repeat-icon-control/, "desktop repeat controls must use the icon-only contract");
+assert.doesNotMatch(index, /class="monthly-repeat-label"/, "repeat labels must not be rendered by the page source");
+assert.match(compactCss, /Repeat controls are permanently icon-only/, "compact expense CSS must own the permanent icon-only guard");
+assert.match(compactCss, /:is\(\.monthly-repeat-label, \.saved-button-text\)[\s\S]*display: none !important;/, "legacy repeat label elements must stay hidden");
+assert.doesNotMatch(compactJs, /readableStyle/, "runtime must not inject a readable repeat-label style");
 
 for (const file of ["interaction-patterns.js", "budget-planning.js", "form-inputs.js"]) {
   assert.ok(index.includes(`./${file}?v=${query}`), `index must load ${file} with the Talaan query`);

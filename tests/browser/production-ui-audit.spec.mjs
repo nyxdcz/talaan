@@ -209,6 +209,7 @@ test("desktop expense cards match the approved compact type, status, and footer 
       repeatText:repeatText?.textContent?.trim() || "",
       repeatShadow:repeat ? style(repeat).boxShadow : "",
       repeatRadius:repeat ? parseFloat(style(repeat).borderRadius) : 0,
+      repeatLabelCount:repeat ? repeat.querySelectorAll(".monthly-repeat-label").length : 0,
       markPaidShadow:markPaid ? style(markPaid).boxShadow : "",
       editShadow:edit ? style(edit).boxShadow : "",
       markPaidSize:[paidRect.width, paidRect.height],
@@ -268,13 +269,14 @@ test("desktop expense cards match the approved compact type, status, and footer 
   expect(metrics.amount.weight).toBe(700);
 
   expect(metrics.actionGap).toBeCloseTo(5, 0);
-  expect(metrics.repeatSize[0]).toBeGreaterThan(110);
+  expect(metrics.repeatSize[0]).toBeCloseTo(30, 0);
   expect(metrics.repeatSize[1]).toBeCloseTo(30, 0);
   expect(metrics.repeatIconSize[0]).toBeCloseTo(30, 0);
   expect(metrics.repeatIconSize[1]).toBeCloseTo(30, 0);
   expect(metrics.repeatBackground).toMatch(/repeat-monthly-(?:on|off)\.png/);
-  expect(["inline-flex", "flex"]).toContain(metrics.repeatLabelDisplay);
-  expect(metrics.repeatText).toMatch(/Repeat(?:s)? monthly/);
+  expect(metrics.repeatLabelCount).toBe(0);
+  expect(metrics.repeatLabelDisplay).toBe("");
+  expect(metrics.repeatText).toBe("");
   expect(metrics.repeatShadow).toBe("none");
   expect(metrics.repeatRadius).toBeCloseTo(12, 0);
   expect(metrics.markPaidSize[0]).toBeCloseTo(74, 0);

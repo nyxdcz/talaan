@@ -4662,9 +4662,8 @@
           <div data-label="Planned account">${escapeHtml(item.account)}</div>
           <div class="amount" data-label="${item.householdSplit ? "Your share" : "Amount"}">${money(effectiveExpenseAmount(item))}</div>
           <div class="record-actions desktop-record-actions">
-            <button class="button button-saved button-small ${item.recurring === "Monthly" ? "active" : ""}" data-toggle-saved="${item.id}" title="${item.recurring === "Monthly" ? "Repeats monthly" : "Does not repeat monthly"}" aria-label="${item.recurring === "Monthly" ? "Monthly recurrence on. Click to stop repeating" : "Repeat this expense monthly"}">
+            <button class="button button-saved button-small repeat-icon-control ${item.recurring === "Monthly" ? "active" : ""}" data-toggle-saved="${item.id}" title="${item.recurring === "Monthly" ? "Repeats monthly" : "Does not repeat monthly"}" aria-label="${item.recurring === "Monthly" ? "Monthly recurrence on. Click to stop repeating" : "Repeat this expense monthly"}">
               <span class="saved-icon-container" aria-hidden="true"><span class="saved-icon">${item.recurring === "Monthly" ? "★" : "☆"}</span></span>
-              <span class="monthly-repeat-label">${item.recurring === "Monthly" ? "Repeats monthly" : "Repeat monthly"}</span>
             </button>
             <button class="button button-paid button-small" data-mark-paid="${item.id}">Mark paid</button>
             <button class="button button-secondary button-small" data-edit-expense="${item.id}">Edit</button>
@@ -4674,7 +4673,9 @@
             <button class="button button-paid" data-mark-paid="${item.id}">Mark paid</button>
             <div class="record-more-menu overflow-menu"><button class="button button-secondary overflow-menu-trigger" type="button" aria-label="More actions for ${escapeAttribute(item.name)}" title="More actions" aria-haspopup="menu" aria-controls="expense-more-${escapeAttribute(item.id)}" aria-expanded="false"><span class="kebab-icon" aria-hidden="true">&#8942;</span><span class="sr-only">More actions</span></button><div class="record-more-panel" id="expense-more-${escapeAttribute(item.id)}" role="menu" aria-label="More actions for ${escapeAttribute(item.name)}" hidden>
               <button class="button button-secondary" role="menuitem" data-edit-expense="${item.id}">Edit expense</button>
-              <button class="button button-secondary" role="menuitem" data-toggle-saved="${item.id}">${item.recurring === "Monthly" ? "Stop monthly repeat" : "Repeat monthly"}</button>
+              <button class="button button-secondary repeat-icon-control ${item.recurring === "Monthly" ? "active" : ""}" role="menuitem" data-toggle-saved="${item.id}" title="${item.recurring === "Monthly" ? "Repeats monthly" : "Does not repeat monthly"}" aria-label="${item.recurring === "Monthly" ? "Monthly recurrence on. Click to stop repeating" : "Repeat this expense monthly"}">
+                <span class="saved-icon-container" aria-hidden="true"><span class="saved-icon">${item.recurring === "Monthly" ? "★" : "☆"}</span></span>
+              </button>
             </div></div>
           </div>
         </div>`;
@@ -4780,9 +4781,8 @@
           <div data-label="Paid from">${escapeHtml(item.paidFromAccount || item.account || "N/A")}</div>
           <div class="amount text-green" data-label="${item.householdSplit ? "Your share" : "Amount"}">${money(settledExpenseAmount(item))}</div>
           <div class="record-actions desktop-record-actions">
-            <button class="button button-saved button-small ${item.recurring === "Monthly" ? "active" : ""}" data-toggle-saved="${item.id}" title="${item.recurring === "Monthly" ? "Repeats monthly" : "Does not repeat monthly"}" aria-label="${item.recurring === "Monthly" ? "Monthly recurrence on. Click to stop repeating" : "Repeat this expense monthly"}">
+            <button class="button button-saved button-small repeat-icon-control ${item.recurring === "Monthly" ? "active" : ""}" data-toggle-saved="${item.id}" title="${item.recurring === "Monthly" ? "Repeats monthly" : "Does not repeat monthly"}" aria-label="${item.recurring === "Monthly" ? "Monthly recurrence on. Click to stop repeating" : "Repeat this expense monthly"}">
               <span class="saved-icon-container" aria-hidden="true"><span class="saved-icon">${item.recurring === "Monthly" ? "★" : "☆"}</span></span>
-              <span class="monthly-repeat-label">${item.recurring === "Monthly" ? "Repeats monthly" : "Repeat monthly"}</span>
             </button>
             <button class="button button-secondary button-small" data-undo-paid="${item.id}">Move to unpaid</button>
             <button class="button button-secondary button-small" data-edit-expense="${item.id}">Edit</button>
@@ -4792,7 +4792,9 @@
             <button class="button button-secondary" data-undo-paid="${item.id}">Move to unpaid</button>
             <div class="record-more-menu overflow-menu"><button class="button button-secondary overflow-menu-trigger" type="button" aria-label="More actions for ${escapeAttribute(item.name)}" title="More actions" aria-haspopup="menu" aria-controls="paid-expense-more-${escapeAttribute(item.id)}" aria-expanded="false"><span class="kebab-icon" aria-hidden="true">&#8942;</span><span class="sr-only">More actions</span></button><div class="record-more-panel" id="paid-expense-more-${escapeAttribute(item.id)}" role="menu" aria-label="More actions for ${escapeAttribute(item.name)}" hidden>
               <button class="button button-secondary" role="menuitem" data-edit-expense="${item.id}">Edit expense</button>
-              <button class="button button-secondary" role="menuitem" data-toggle-saved="${item.id}">${item.recurring === "Monthly" ? "Stop monthly repeat" : "Repeat monthly"}</button>
+              <button class="button button-secondary repeat-icon-control ${item.recurring === "Monthly" ? "active" : ""}" role="menuitem" data-toggle-saved="${item.id}" title="${item.recurring === "Monthly" ? "Repeats monthly" : "Does not repeat monthly"}" aria-label="${item.recurring === "Monthly" ? "Monthly recurrence on. Click to stop repeating" : "Repeat this expense monthly"}">
+                <span class="saved-icon-container" aria-hidden="true"><span class="saved-icon">${item.recurring === "Monthly" ? "★" : "☆"}</span></span>
+              </button>
             </div></div>
           </div>
         </div>
@@ -9254,12 +9256,12 @@
   <script src="./sync-config.js?v=2.5.0-talaan1"></script>
   <script src="./sync-runtime-compat.js?v=2.5.0-talaan1"></script>
   <script src="./privacy-lock.js?v=2.5.0-talaan1"></script>
-  <script src="./finance-transaction-diagnostics.js?v=2.5.0-account-b70450d0b1ee"></script>
+  <script src="./finance-transaction-diagnostics.js?v=2.5.0-account-f8f0804a8684"></script>
   <script src="./security-profiles.js?v=2.5.0-talaan1"></script>
   <script src="./cloud-conflict-review.js?v=2.5.0-talaan1"></script>
-  <script src="./cloud-conflict-resolution.js?v=2.5.0-talaan1"></script><script src="./cloud-sync-lifecycle.js?v=2.5.0-account-b70450d0b1ee"></script><script src="./cloud-sync.js?v=2.5.0-account-b70450d0b1ee"></script>
-  <script src="./finance-integrity.js?v=2.5.0-account-b70450d0b1ee"></script>
-  <script src="./account-ledger.js?v=2.5.0-account-b70450d0b1ee"></script>
+  <script src="./cloud-conflict-resolution.js?v=2.5.0-talaan1"></script><script src="./cloud-sync-lifecycle.js?v=2.5.0-account-f8f0804a8684"></script><script src="./cloud-sync.js?v=2.5.0-account-f8f0804a8684"></script>
+  <script src="./finance-integrity.js?v=2.5.0-account-f8f0804a8684"></script>
+  <script src="./account-ledger.js?v=2.5.0-account-f8f0804a8684"></script>
   <script src="./budget-planning.js?v=2.5.0-talaan1"></script>
   <script src="./reports-insights.js?v=2.5.0-talaan1"></script>
   <script src="./net-worth.js?v=2.5.0-talaan1"></script>
