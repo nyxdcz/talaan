@@ -95,7 +95,8 @@ test("phone controls and content cards keep the approved compact rhythm", async 
       const controls = sizes('button:not(.settings-status-card), input[type="button"], input[type="submit"], input[type="reset"], summary, [role="button"]:not(.settings-status-card)');
       const collapse = sizes('#money .collapse-toggle, #availableMoneySection [data-collapse-toggle], .budget-planner-toggle, .budget-panel-collapse');
       const collapseIcons = sizes('#money .collapse-icon svg, #availableMoneySection .collapse-icon svg');
-      const headers = sizes('#money .period-header, #availableMoneySection .card-header');
+      const periodHeaders = sizes('#money .period-header');
+      const headers = sizes('#availableMoneySection .card-header');
       const contentCards = sizes('#money .legend-item, #money .summary-item');
       const values = [...document.querySelectorAll('#money .legend-total, #money .summary-card-value, #moneyAvailableTotal')]
         .filter(visible)
@@ -109,6 +110,7 @@ test("phone controls and content cards keep the approved compact rhythm", async 
         oversized:controls.filter(size => size.height > 35.5),
         collapse,
         collapseIcons,
+        periodHeaders,
         headers,
         contentCards,
         values,
@@ -132,6 +134,9 @@ test("phone controls and content cards keep the approved compact rhythm", async 
       expect(size.height).toBeLessThanOrEqual(20.5);
     });
     expect(metrics.headers.every(size => size.height <= 35.5)).toBe(true);
+    metrics.periodHeaders.forEach(size => {
+      expect(size.height).toBeGreaterThanOrEqual(50);
+    });
     expect(metrics.contentCards.length).toBeGreaterThanOrEqual(8);
     metrics.contentCards.forEach(size => {
       expect(size.height).toBeGreaterThanOrEqual(55.5);

@@ -473,11 +473,21 @@
     height: auto !important;
     min-height: 50px !important;
     max-height: none !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
     margin: 0 !important;
     padding: 7px 10px !important;
     gap: 8px !important;
     align-items: center !important;
     overflow: visible !important;
+  }
+
+  html body #money .period-card,
+  html body #money .period-header > div:first-child,
+  html body #money .period-header .collapse-actions {
+    min-width: 0 !important;
+    max-width: 100% !important;
   }
 
   html body #money .period-header h3 {
