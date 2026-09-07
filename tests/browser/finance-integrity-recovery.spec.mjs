@@ -132,3 +132,116 @@ test("legacy paid expenses are migrated before recovery import integrity checks"
   }));
   expect(migrated).toEqual({ legacyExpenses:6, ledgerPayments:6 });
 });
+
+test("schema-12 bundle with real ledger history is not blocked by false integrity failures", async ({ page }) => {
+  await page.goto("http://127.0.0.1:3000/index.html?page=settings&settings=sync", { waitUntil:"networkidle" });
+  await stable(page);
+  await page.waitForFunction(() => typeof window.openSyncReview === "function" && typeof window.applyPendingSyncImport === "function");
+
+  const bundle = await page.evaluate(() => {
+    // Build a Schema 12 bundle with real income-deposit and expense-payment ledger entries.
+    // This is the shape of data that was working before e6c8a47 and must continue to work.
+    const source = structuredClone(data);
+    const accounts = Object.keys(source.accounts || {});
+    const account = accounts[0] || "Cash";
+    const initializedAt = new Date(Date.now() - 86400000).toISOString();
+    const txnIncome = `schema12-income-txn-1`;
+    const txnExpense = `schema12-expense-txn-1`;
+    const incomeId = `schema12-income-1`;
+    const expenseId = `schema12-expense-1`;
+
+    // Real income record posted to the ledger
+    const incomeRecord = {
+      id: incomeId,
+      name: "Schema 12 income",
+      amount: 1000,
+      date: initializedAt.slice(0, 10),
+      category: "Other income",
+      categoryGroup: "Other income",
+      account,
+      recurring: "No",
+      seriesId: "",
+      includeInTotals: true,
+      notes: "",
+      postToLedger: true,
+      ledgerTransactionId: txnIncome
+    };
+
+    // Paid expense with a real payment ledger entry
+    const paidExpense = {
+      id: expenseId,
+      name: "Schema 12 expense",
+      amount: 100,
+      date: initializedAt.slice(0, 10),
+      category: "Other",
+      expenseType: "normal",
+      recurring: "No",
+      paid: true,
+      paidDate: initializedAt.slice(0, 10),
+      paidFromAccount: account,
+      paidAmount: 100,
+      accountDeducted: true,
+      paymentTransactionId: txnExpense
+    };
+
+    // Matching ledger entries
+    const incomeDeposit = {
+      id: `schema12-income-deposit-1`,
+      transactionId: txnIncome,
+      operationId: `income-deposit:${txnIncome}`,
+      account,
+      type: "income-deposit",
+      amount: 1000,
+      date: initializedAt.slice(0, 10),
+      description: "Income deposit: Schema 12 income",
+      incomeId,
+      source: "app"
+    };
+    const expenseDebit = {
+      id: `schema12-expense-debit-1`,
+      transactionId: txnExpense,
+      operationId: `expense-payment:${txnExpense}`,
+      account,
+      type: "expense-payment",
+      amount: -100,
+      date: initializedAt.slice(0, 10),
+      description: "Expense payment: Schema 12 expense",
+      expenseId,
+      source: "app"
+    };
+
+    source.incomeRecords = [incomeRecord];
+    source.expenses = [paidExpense];
+    source.accountLedger = [
+      ...Object.entries(source.accounts || {}).map(([name, balance]) => ({
+        id: `opening-${name}`, transactionId: `opening-${name}`, operationId: `opening-${name}`,
+        account: name, type: "opening-balance", amount: Number(balance || 0),
+        date: initializedAt.slice(0, 10), description: `Opening balance for ${name}`, source: "migration"
+      })),
+      incomeDeposit,
+      expenseDebit
+    ];
+    source.ledgerSettings = { version: 1, initializedAt }; // no migratedFrom — this is a real Schema 12 bundle
+
+    // Recalculate the declared balance to match the ledger
+    source.accounts[account] = (Number(source.accounts[account] || 0) + 1000 - 100);
+
+    return { ...window.buildBundle("my-finance-v12-recovery"), data: source };
+  });
+
+  const preScanResult = await page.evaluate(b => {
+    return window.FinanceIntegrity.scan(b.data, { includeStorage: false });
+  }, bundle);
+  expect(preScanResult.counts.critical).toBe(0);
+
+  await page.evaluate(value => window.openSyncReview(value), bundle);
+  await expect(page.locator("#syncReviewDialog")).toBeVisible();
+  await page.locator("#replaceWithIncomingButton").click();
+  await expect(page.locator("#syncReviewDialog")).not.toBeVisible({ timeout: 10000 });
+
+  const errorToast = page.locator(".toast-message", { hasText: "Import failed" });
+  await expect(errorToast).not.toBeVisible();
+
+  const finalReport = await page.evaluate(() => window.FinanceIntegrity.scan(data, { includeStorage: false }));
+  expect(finalReport.counts.critical).toBe(0);
+});

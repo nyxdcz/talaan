@@ -121,6 +121,31 @@
     };
   }
 
+  function prepareLegacyImport(bundle) {
+    // Returns a shallow-cloned copy of the raw bundle data with legacy expense-payment
+    // ledger entries synthesized, but without running the full normalizeData pipeline.
+    // Used by privacy-lock.js to gate the pre-import integrity scan without corrupting
+    // income-record account links or deduplicating ledger entries.
+    try {
+      const raw = bundle?.data || bundle || {};
+      const cloned = JSON.parse(JSON.stringify(raw));
+      const settingsSource = cloned.ledgerSettings && typeof cloned.ledgerSettings === "object" ? cloned.ledgerSettings : {};
+      const ledger = (Array.isArray(cloned.accountLedger) ? cloned.accountLedger : []).map(normalizeLedgerEntry).filter(Boolean);
+      if (!ledger.length) {
+        const activeAccounts = cloned.accounts && typeof cloned.accounts === "object" ? cloned.accounts : {};
+        const initializedAt = settingsSource.initializedAt || new Date().toISOString();
+        ledger.push(...openingEntriesFromAccounts(activeAccounts, initializedAt));
+      }
+      migrateLegacyExpensePayments(cloned, ledger, settingsSource);
+      cloned.accountLedger = ledger;
+      return cloned;
+    } catch (error) {
+      console.warn("prepareLegacyImport failed, returning raw data", error);
+      const raw = bundle?.data || bundle || {};
+      try { return JSON.parse(JSON.stringify(raw)); } catch { return raw; }
+    }
+  }
+
   function migrateLegacyExpensePayments(normalized, ledger, settingsSource) {
     const sourceLedger = Array.isArray(normalized.accountLedger) ? normalized.accountLedger : [];
     const migratedFromLegacy = !sourceLedger.length
@@ -1756,7 +1781,8 @@
     saveIncome:commitIncomeRecord,
     deleteIncome:commitIncomeDeletion,
     processGymAutoPayments:commitGymAutoPayments,
-    invariantReport:moneyMutationInvariantReport
+    invariantReport:moneyMutationInvariantReport,
+    prepareLegacyImport
   });
 
   window.FinanceAccountMutations = {
