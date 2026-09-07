@@ -81,3 +81,54 @@ test("failed post-import reconciliation restores the pre-import recovery snapsho
   const after = await page.evaluate(() => JSON.stringify(data));
   expect(JSON.parse(after).accounts).toEqual(baseline.accounts);
 });
+
+test("legacy paid expenses are migrated before recovery import integrity checks", async ({ page }) => {
+  await page.goto("http://127.0.0.1:3000/index.html?page=settings&settings=sync", { waitUntil:"networkidle" });
+  await stable(page);
+  await page.waitForFunction(() => typeof window.openSyncReview === "function" && typeof window.applyPendingSyncImport === "function");
+
+  const bundle = await page.evaluate(() => {
+    const source = structuredClone(data);
+    const account = Object.keys(source.accounts || {})[0] || "Cash";
+    const initializedAt = new Date().toISOString();
+    source.accountLedger = Object.entries(source.accounts || {}).map(([name, balance]) => ({
+      id:`legacy-opening-${name}`,
+      transactionId:`legacy-opening-${name}`,
+      operationId:`legacy-opening-${name}`,
+      account:name,
+      type:"opening-balance",
+      amount:Number(balance || 0),
+      date:initializedAt.slice(0, 10),
+      description:`Opening balance for ${name}`,
+      source:"migration"
+    }));
+    source.ledgerSettings = { version:1, migratedFrom:"12.19.1", initializedAt };
+    source.expenses = Array.from({ length:6 }, (_, index) => ({
+      id:`legacy-import-expense-${index}`,
+      name:`Legacy import ${index}`,
+      amount:10,
+      date:initializedAt.slice(0, 10),
+      category:"Other",
+      account,
+      recurring:"No",
+      paid:true,
+      paidDate:initializedAt.slice(0, 10),
+      paidFromAccount:account,
+      paidAmount:10,
+      accountDeducted:true,
+      paymentTransactionId:""
+    }));
+    return { ...window.buildBundle("my-finance-v12-recovery"), data:source };
+  });
+
+  await page.evaluate(value => window.openSyncReview(value), bundle);
+  await expect(page.locator("#syncReviewDialog")).toBeVisible();
+  await page.locator("#replaceWithIncomingButton").click();
+  await expect(page.locator("#syncReviewDialog")).not.toBeVisible({ timeout:10000 });
+  await expect.poll(() => page.evaluate(() => window.FinanceIntegrity.scan(data, { includeStorage:false }))).toMatchObject({ counts:{ critical:0 } });
+  const migrated = await page.evaluate(() => ({
+    legacyExpenses:data.expenses.filter(item => String(item.id || "").startsWith("legacy-import-expense-")).length,
+    ledgerPayments:data.accountLedger.filter(item => item.source === "legacy-migration").length
+  }));
+  expect(migrated).toEqual({ legacyExpenses:6, ledgerPayments:6 });
+});
