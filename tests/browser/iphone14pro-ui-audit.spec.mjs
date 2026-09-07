@@ -52,6 +52,31 @@ for (const theme of ["light", "dark"]) {
         height:node.getBoundingClientRect().height,
         width:node.getBoundingClientRect().width
       }));
+      const overflowDetails = (() => {
+        const round = value => Math.round(value * 10) / 10;
+        const candidates = [...document.querySelectorAll("body *")].map(node => {
+          const box = node.getBoundingClientRect();
+          const computed = getComputedStyle(node);
+          return {
+            tag:node.tagName.toLowerCase(),
+            id:node.id || "",
+            className:typeof node.className === "string" ? node.className.slice(0,120) : "",
+            left:round(box.left),
+            right:round(box.right),
+            width:round(box.width),
+            overflowX:computed.overflowX,
+            minWidth:computed.minWidth,
+            maxWidth:computed.maxWidth,
+            position:computed.position
+          };
+        }).filter(item => item.right > innerWidth + 1 || item.left < -1).slice(0,20);
+        return {
+          innerWidth,
+          documentScrollWidth:document.documentElement.scrollWidth,
+          bodyScrollWidth:document.body.scrollWidth,
+          candidates
+        };
+      })();
       return {
         helpVisible:help.filter(node => node.getBoundingClientRect().width > 2 && node.getBoundingClientRect().height > 2).length,
         helpLayoutWidth:help.map(node => node.getBoundingClientRect().width),
@@ -63,6 +88,7 @@ for (const theme of ["light", "dark"]) {
         controlRadius:parseFloat(style("#money .collapse-toggle")?.borderRadius || "0"),
         cardShadow:style("#money .card")?.boxShadow || "",
         overflow:Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) > innerWidth + 1,
+        overflowDetails,
         longTextStyle:style("#money .record-title-copy > strong") ? {
           minWidth:style("#money .record-title-copy > strong").minWidth,
           overflow:style("#money .record-title-copy > strong").overflow,
@@ -83,7 +109,7 @@ for (const theme of ["light", "dark"]) {
     expect(metrics.iconSize).toEqual([20, 20]);
     expect(metrics.controlRadius).toBe(12);
     expect(metrics.cardShadow).toBe("none");
-    expect(metrics.overflow).toBe(false);
+    expect(metrics.overflow, JSON.stringify(metrics.overflowDetails)).toBe(false);
     expect(metrics.offset).toContain("80px");
     expect(metrics.longTextStyle).toMatchObject({
       minWidth:"0px",
