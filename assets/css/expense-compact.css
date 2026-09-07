@@ -470,14 +470,14 @@
   html body #money .period-header,
   html body #money .period-card.is-collapsed .period-header {
     box-sizing: border-box !important;
-    height: 35px !important;
-    min-height: 35px !important;
-    max-height: 35px !important;
+    height: auto !important;
+    min-height: 50px !important;
+    max-height: none !important;
     margin: 0 !important;
-    padding: 0 6px !important;
-    gap: 4px !important;
+    padding: 7px 10px !important;
+    gap: 8px !important;
     align-items: center !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   html body #money .period-header h3 {
@@ -491,7 +491,14 @@
   }
 
   html body #money .period-header p {
-    display: none !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
   }
 
   html body #money .period-header .period-total {
