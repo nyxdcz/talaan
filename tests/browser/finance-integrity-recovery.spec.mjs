@@ -361,7 +361,7 @@ test("deleted-account ledger history is archived and repairs its legacy payment"
     // Five historical entries close at zero, matching the zero-balance account
     // deletion rule. The account itself is intentionally absent from accounts.
     source.accountLedger.push(
-      { id:"legacy-wallet-opening", transactionId:"legacy-wallet-opening", operationId:"legacy-wallet-opening", account:archivedAccount, type:"opening-balance", amount:500, date, description:"Opening balance for Legacy Wallet", source:"migration" },
+      { id:"legacy-wallet-opening", transactionId:"legacy-wallet-opening", operationId:"legacy-wallet-opening", account:archivedAccount, type:"opening-balance", amount:0, date, description:"Opening balance for Legacy Wallet", source:"migration" },
       { id:"legacy-wallet-payment-1", transactionId:"legacy-wallet-payment-1", operationId:"legacy-wallet-payment-1", account:archivedAccount, type:"expense-payment", amount:-100, date, description:"Expense payment 1", source:"app" },
       { id:"legacy-wallet-payment-2", transactionId:"legacy-wallet-payment-2", operationId:"legacy-wallet-payment-2", account:archivedAccount, type:"expense-payment", amount:-150, date, description:"Expense payment 2", source:"app" },
       { id:"legacy-wallet-credit-1", transactionId:"legacy-wallet-credit-1", operationId:"legacy-wallet-credit-1", account:archivedAccount, type:"income-deposit", amount:100, date, description:"Income deposit 1", source:"app" },
