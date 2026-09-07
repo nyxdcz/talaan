@@ -122,25 +122,18 @@
   }
 
   function prepareLegacyImport(bundle) {
-    // Returns a shallow-cloned copy of the raw bundle data with legacy expense-payment
-    // ledger entries synthesized, but without running the full normalizeData pipeline.
-    // Used by privacy-lock.js to gate the pre-import integrity scan without corrupting
-    // income-record account links or deduplicating ledger entries.
+    // Clones raw bundle data and applies only migrateLegacyExpensePayments so
+    // income-record account fields are not remapped before the pre-import integrity scan.
     try {
       const raw = bundle?.data || bundle || {};
       const cloned = JSON.parse(JSON.stringify(raw));
-      const settingsSource = cloned.ledgerSettings && typeof cloned.ledgerSettings === "object" ? cloned.ledgerSettings : {};
+      const settings = cloned.ledgerSettings && typeof cloned.ledgerSettings === "object" ? cloned.ledgerSettings : {};
       const ledger = (Array.isArray(cloned.accountLedger) ? cloned.accountLedger : []).map(normalizeLedgerEntry).filter(Boolean);
-      if (!ledger.length) {
-        const activeAccounts = cloned.accounts && typeof cloned.accounts === "object" ? cloned.accounts : {};
-        const initializedAt = settingsSource.initializedAt || new Date().toISOString();
-        ledger.push(...openingEntriesFromAccounts(activeAccounts, initializedAt));
-      }
-      migrateLegacyExpensePayments(cloned, ledger, settingsSource);
+      if (!ledger.length) ledger.push(...openingEntriesFromAccounts(cloned.accounts && typeof cloned.accounts === "object" ? cloned.accounts : {}, settings.initializedAt || new Date().toISOString()));
+      migrateLegacyExpensePayments(cloned, ledger, settings);
       cloned.accountLedger = ledger;
       return cloned;
-    } catch (error) {
-      console.warn("prepareLegacyImport failed, returning raw data", error);
+    } catch (e) {
       const raw = bundle?.data || bundle || {};
       try { return JSON.parse(JSON.stringify(raw)); } catch { return raw; }
     }
@@ -151,21 +144,16 @@
     const migratedFromLegacy = !sourceLedger.length
       || (String(settingsSource?.migratedFrom || "") === "12.19.1" && sourceLedger.every(entry => entry?.type === "opening-balance"));
     if (!migratedFromLegacy) return 0;
-
     const openingByAccount = new Map();
-    ledger.forEach(entry => {
-      if (entry?.type === "opening-balance" && entry.account && !openingByAccount.has(entry.account)) openingByAccount.set(entry.account, entry);
-    });
+    ledger.forEach(entry => { if (entry?.type === "opening-balance" && entry.account && !openingByAccount.has(entry.account)) openingByAccount.set(entry.account, entry); });
     const operationIds = new Set(ledger.map(entry => String(entry?.operationId || entry?.id || "")).filter(Boolean));
     const migratedTotals = new Map();
     let migrated = 0;
-
     for (const item of Array.isArray(normalized.expenses) ? normalized.expenses : []) {
       if (!item?.paid || !item.accountDeducted || !item.paidFromAccount) continue;
       const account = safeText(item.paidFromAccount, 100);
       const amount = roundMoney(Number(item.paidAmount || (typeof expensePaymentAmount === "function" ? expensePaymentAmount(item) : item.amount) || 0));
       if (!account || !Object.prototype.hasOwnProperty.call(normalized.accounts || {}, account) || !Number.isFinite(amount) || amount <= 0) continue;
-
       const existing = ledger.find(entry => entry?.expenseId === item.id && ["expense-payment", "gym-auto-payment"].includes(entry.type));
       if (existing) continue;
       const type = item.autoPaidAtMonthEnd ? "gym-auto-payment" : "expense-payment";
@@ -174,17 +162,11 @@
       if (!transactionId || !operationId || operationIds.has(operationId) || !openingByAccount.has(account)) continue;
       const encodedId = encodeURIComponent(String(item.id || "expense")).replace(/%/g, "").slice(0, 80);
       const entry = normalizeLedgerEntry({
-        id:`ledger-legacy-expense-payment-v1-${encodedId}`,
-        transactionId,
-        operationId,
-        account,
-        type,
+        id:`ledger-legacy-expense-payment-v1-${encodedId}`, transactionId, operationId, account, type,
         amount:roundMoney(-amount),
         date:/^\d{4}-\d{2}-\d{2}$/.test(String(item.paidDate || "")) ? item.paidDate : String(item.date || settingsSource?.initializedAt || "").slice(0, 10),
         description:`${type === "gym-auto-payment" ? "Gym auto-payment" : "Expense payment"}: ${item.name || item.id}`,
-        expenseId:item.id,
-        source:"legacy-migration",
-        notes:item.notes || ""
+        expenseId:item.id, source:"legacy-migration", notes:item.notes || ""
       });
       if (!entry || ledger.some(candidate => candidate.id === entry.id)) continue;
       ledger.push(entry);
@@ -193,13 +175,13 @@
       migratedTotals.set(account, roundMoney((migratedTotals.get(account) || 0) + amount));
       migrated += 1;
     }
-
     migratedTotals.forEach((amount, account) => {
       const opening = openingByAccount.get(account);
       if (opening) opening.amount = roundMoney(Number(opening.amount || 0) + amount);
     });
     return migrated;
   }
+
 
   function ensureLedgerShape(value) {
     const normalized = value && typeof value === "object" ? value : {};
