@@ -1814,6 +1814,30 @@
     border-top: 1px solid var(--line) !important;
   }
 
+  /* Keep stacked title and metadata on separate constrained lines so a long
+     title cannot push the following metadata beyond the phone viewport. */
+  html body :is(
+    #money .record-title-copy,
+    #paid-expenses .record-title-copy,
+    #income .record-title-copy
+  ) {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  html body :is(
+    #money .record-title-copy > strong,
+    #money .record-title-copy > small,
+    #paid-expenses .record-title-copy > strong,
+    #paid-expenses .record-title-copy > small,
+    #income .record-title-copy > strong,
+    #income .record-title-copy > small
+  ) {
+    display: block !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
   /* Non-monetary phone text slots may truncate; monetary values remain intact. */
   html body :is(
     #topTitle,
