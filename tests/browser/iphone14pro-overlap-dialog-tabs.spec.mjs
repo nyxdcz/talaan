@@ -27,6 +27,7 @@ test("iPhone account modes keep their title, scroll origin, and fields contained
   await expect(dialog).toBeVisible();
   await expect(page.locator("#accountDialogTitle")).toHaveText("Record spending");
 
+  await dialog.evaluate(node => Promise.all(node.getAnimations({ subtree: true }).map(a => a.finished)));
   await page.locator("#accountCorrectModeButton").click();
   await expect(page.locator("#accountDialogTitle")).toHaveText("Edit account");
   await page.locator("#accountDialog .modal-body").evaluate(node => {
