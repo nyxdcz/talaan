@@ -338,6 +338,21 @@
     });
   }
 
+  function integrityFailureDetails(report){
+    const counts=new Map();
+    (Array.isArray(report?.issues) ? report.issues : []).filter(item=>item?.severity === "critical").forEach(item=>{
+      const code=String(item.code || "unknown-integrity-issue").trim() || "unknown-integrity-issue";
+      counts.set(code,(counts.get(code) || 0) + 1);
+    });
+    const details=[...counts.entries()].slice(0,3).map(([code,count])=>`${code}${count>1?` ×${count}`:""}`).join(", ");
+    return details ? ` Codes: ${details}.` : "";
+  }
+
+  function integrityFailureMessage(prefix, report, countLabel="critical issue"){
+    const count=Number(report?.counts?.critical || 0);
+    return `${prefix}${count} ${countLabel}${count===1?"":"s"}${integrityFailureDetails(report)}`;
+  }
+
   async function executeRecoveryImport(button,action){
     if(recoveryImportBusy) return;
     recoveryImportBusy=true;
@@ -356,7 +371,7 @@
       if(!integrity?.scan) throw new Error("Financial integrity protection is unavailable. Reload Talaan before importing records.");
       const incoming=importReviewState.migrated || importReviewState.bundle?.data || importReviewState.bundle || {};
       const incomingReport=integrity.scan(incoming,{includeStorage:false});
-      if(incomingReport.counts.critical) throw new Error(`Import blocked: ${incomingReport.counts.critical} critical financial integrity issue${incomingReport.counts.critical===1?"":"s"} found.`);
+      if(incomingReport.counts.critical) throw new Error(integrityFailureMessage("Import blocked: ", incomingReport, "critical financial integrity issue") + " found.");
 
       try {
         if(typeof createRecoverySnapshot!=="function") throw new Error("Recovery snapshot hook is unavailable");
@@ -372,11 +387,11 @@
       importApplied=true;
       if(dialog?.open) throw new Error("Import review expired. Choose the backup again.");
       const appliedReport=integrity.scan(currentFinanceData(),{includeStorage:false});
-      if(appliedReport.counts.critical) throw new Error(`Imported records failed integrity verification with ${appliedReport.counts.critical} critical issue${appliedReport.counts.critical===1?"":"s"}.`);
+      if(appliedReport.counts.critical) throw new Error(integrityFailureMessage("Imported records failed integrity verification with ", appliedReport));
       const reconciliation=reconcileImportedAccountBalances(action[0],action[1]);
       if(!reconciliation?.ok) throw new Error(`Imported account reconciliation failed: ${reconciliation?.reason || "unknown error"}.`);
       const finalReport=integrity.scan(currentFinanceData(),{includeStorage:true});
-      if(finalReport.counts.critical) throw new Error(`Imported records failed final integrity verification with ${finalReport.counts.critical} critical issue${finalReport.counts.critical===1?"":"s"}.`);
+      if(finalReport.counts.critical) throw new Error(integrityFailureMessage("Imported records failed final integrity verification with ", finalReport));
       clearImportReviewCapture();
     } catch(error) {
       if(importApplied && recoveryMeta?.id){

@@ -245,3 +245,93 @@ test("schema-12 bundle with real ledger history is not blocked by false integrit
   const finalReport = await page.evaluate(() => window.FinanceIntegrity.scan(data, { includeStorage: false }));
   expect(finalReport.counts.critical).toBe(0);
 });
+
+test("mixed ledger history migrates legacy paid expenses before import checks", async ({ page }) => {
+  await page.goto("http://127.0.0.1:3000/index.html?page=settings&settings=sync", { waitUntil:"networkidle" });
+  await stable(page);
+  await page.waitForFunction(() => typeof window.openSyncReview === "function" && typeof window.applyPendingSyncImport === "function");
+
+  const bundle = await page.evaluate(() => {
+    const source = structuredClone(data);
+    const account = Object.keys(source.accounts || {})[0] || "Cash";
+    const initializedAt = new Date(Date.now() - 86400000).toISOString();
+    const date = initializedAt.slice(0, 10);
+    const existingExpenseId = "mixed-history-expense";
+    const existingTransactionId = "mixed-history-payment";
+    const existingAmount = 25;
+    const openingEntries = Object.entries(source.accounts || {}).map(([name, balance]) => ({
+      id:`mixed-opening-${name}`,
+      transactionId:`mixed-opening-${name}`,
+      operationId:`mixed-opening-${name}`,
+      account:name,
+      type:"opening-balance",
+      amount:Number(balance || 0) + (name === account ? existingAmount : 0),
+      date,
+      description:`Opening balance for ${name}`,
+      source:"migration"
+    }));
+    const existingExpense = {
+      id:existingExpenseId,
+      name:"Existing ledger expense",
+      amount:existingAmount,
+      date,
+      category:"Other",
+      expenseType:"normal",
+      recurring:"No",
+      paid:true,
+      paidDate:date,
+      paidFromAccount:account,
+      paidAmount:existingAmount,
+      accountDeducted:true,
+      paymentTransactionId:existingTransactionId
+    };
+    const existingDebit = {
+      id:"mixed-history-debit",
+      transactionId:existingTransactionId,
+      operationId:`expense-payment:${existingTransactionId}`,
+      account,
+      type:"expense-payment",
+      amount:-existingAmount,
+      date,
+      description:"Expense payment: Existing ledger expense",
+      expenseId:existingExpenseId,
+      source:"app"
+    };
+    const legacyExpenses = Array.from({ length:6 }, (_, index) => ({
+      id:`mixed-legacy-expense-${index}`,
+      name:`Mixed legacy ${index}`,
+      amount:10,
+      date,
+      category:"Other",
+      expenseType:"normal",
+      recurring:"No",
+      paid:true,
+      paidDate:date,
+      paidFromAccount:account,
+      paidAmount:10,
+      accountDeducted:true,
+      paymentTransactionId:""
+    }));
+    source.expenses = [existingExpense, ...legacyExpenses];
+    source.accountLedger = [...openingEntries, existingDebit];
+    source.ledgerSettings = { version:1, migratedFrom:"12.19.1", initializedAt };
+    return { ...window.buildBundle("my-finance-v12-recovery"), data:source };
+  });
+
+  const beforeMigration = await page.evaluate(b => window.FinanceIntegrity.scan(b.data, { includeStorage:false }), bundle);
+  expect(beforeMigration.counts.critical).toBe(6);
+  expect(beforeMigration.issues.filter(item => item.code === "expense-payment-ledger-missing")).toHaveLength(6);
+
+  await page.evaluate(value => window.openSyncReview(value), bundle);
+  await expect(page.locator("#syncReviewDialog")).toBeVisible();
+  await page.locator("#replaceWithIncomingButton").click();
+  await expect(page.locator("#syncReviewDialog")).not.toBeVisible({ timeout:10000 });
+  await expect(page.locator(".toast-message", { hasText:"Import failed" })).not.toBeVisible();
+
+  const finalState = await page.evaluate(() => ({
+    report:window.FinanceIntegrity.scan(data, { includeStorage:false }),
+    migrated:data.accountLedger.filter(item => item.source === "legacy-migration").length
+  }));
+  expect(finalState.report.counts.critical).toBe(0);
+  expect(finalState.migrated).toBe(6);
+});

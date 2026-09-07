@@ -140,10 +140,6 @@
   }
 
   function migrateLegacyExpensePayments(normalized, ledger, settingsSource) {
-    const sourceLedger = Array.isArray(normalized.accountLedger) ? normalized.accountLedger : [];
-    const migratedFromLegacy = !sourceLedger.length
-      || (String(settingsSource?.migratedFrom || "") === "12.19.1" && sourceLedger.every(entry => entry?.type === "opening-balance"));
-    if (!migratedFromLegacy) return 0;
     const openingByAccount = new Map();
     ledger.forEach(entry => { if (entry?.type === "opening-balance" && entry.account && !openingByAccount.has(entry.account)) openingByAccount.set(entry.account, entry); });
     const operationIds = new Set(ledger.map(entry => String(entry?.operationId || entry?.id || "")).filter(Boolean));
@@ -151,13 +147,17 @@
     let migrated = 0;
     for (const item of Array.isArray(normalized.expenses) ? normalized.expenses : []) {
       if (!item?.paid || !item.accountDeducted || !item.paidFromAccount) continue;
+      // A blank paymentTransactionId is the unambiguous V12 shape. If a record
+      // already declares a transaction ID but its debit is missing, leave it as
+      // a critical integrity issue instead of guessing which transaction ran.
+      if (safeText(item.paymentTransactionId, 120)) continue;
       const account = safeText(item.paidFromAccount, 100);
       const amount = roundMoney(Number(item.paidAmount || (typeof expensePaymentAmount === "function" ? expensePaymentAmount(item) : item.amount) || 0));
       if (!account || !Object.prototype.hasOwnProperty.call(normalized.accounts || {}, account) || !Number.isFinite(amount) || amount <= 0) continue;
       const existing = ledger.find(entry => entry?.expenseId === item.id && ["expense-payment", "gym-auto-payment"].includes(entry.type));
       if (existing) continue;
       const type = item.autoPaidAtMonthEnd ? "gym-auto-payment" : "expense-payment";
-      const transactionId = safeText(item.paymentTransactionId || `legacy-expense-payment:${item.id}`, 120);
+      const transactionId = safeText(`legacy-expense-payment:${item.id}`, 120);
       const operationId = safeText(`${type}:legacy:${item.id}`, 180);
       if (!transactionId || !operationId || operationIds.has(operationId) || !openingByAccount.has(account)) continue;
       const encodedId = encodeURIComponent(String(item.id || "expense")).replace(/%/g, "").slice(0, 80);
