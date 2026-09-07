@@ -139,25 +139,24 @@
     let migrated = 0;
     for (const item of Array.isArray(normalized.expenses) ? normalized.expenses : []) {
       if (!item?.paid || !item.accountDeducted || !item.paidFromAccount) continue;
-      // A declared transaction ID with no debit remains a critical issue.
-      if (safeText(item.paymentTransactionId, 120)) continue;
       const account = safeText(item.paidFromAccount, 100);
       const amount = roundMoney(Number(item.paidAmount || (typeof expensePaymentAmount === "function" ? expensePaymentAmount(item) : item.amount) || 0));
       const archived = Boolean(window.FinanceIntegrity?.isArchivedAccount?.(normalized, account));
       if (!account || (!Object.prototype.hasOwnProperty.call(normalized.accounts || {}, account) && !archived) || !Number.isFinite(amount) || amount <= 0) continue;
-      const existing = ledger.find(entry => entry?.expenseId === item.id && ["expense-payment", "gym-auto-payment"].includes(entry.type));
-      if (existing) continue;
+      const existing = ledger.filter(entry => entry?.expenseId === item.id && ["expense-payment", "gym-auto-payment"].includes(entry.type));
+      if (existing.length) continue;
       const type = item.autoPaidAtMonthEnd ? "gym-auto-payment" : "expense-payment";
-      const transactionId = safeText(`legacy-expense-payment:${item.id}`, 120);
-      const operationId = safeText(`${type}:legacy:${item.id}`, 180);
-      if (!transactionId || !operationId || operationIds.has(operationId) || (!archived && !openingByAccount.has(account))) continue;
+      const declaredTransactionId = safeText(item.paymentTransactionId, 120);
+      const transactionId = declaredTransactionId || safeText(`legacy-expense-payment:${item.id}`, 120);
+      const operationId = safeText(`${type}:${declaredTransactionId ? "repair" : "legacy"}:${item.id}`, 180);
+      if (!transactionId || !operationId || operationIds.has(operationId) || ledger.some(entry => entry?.transactionId === transactionId) || (!archived && !openingByAccount.has(account))) continue;
       const encodedId = encodeURIComponent(String(item.id || "expense")).replace(/%/g, "").slice(0, 80);
       const entry = normalizeLedgerEntry({
         id:`ledger-legacy-expense-payment-v1-${encodedId}`, transactionId, operationId, account, type,
         amount:roundMoney(-amount),
         date:/^\d{4}-\d{2}-\d{2}$/.test(String(item.paidDate || "")) ? item.paidDate : String(item.date || settingsSource?.initializedAt || "").slice(0, 10),
         description:`${type === "gym-auto-payment" ? "Gym auto-payment" : "Expense payment"}: ${item.name || item.id}`,
-        expenseId:item.id, source:"legacy-migration", notes:item.notes || ""
+        expenseId:item.id, source:declaredTransactionId ? "legacy-repair" : "legacy-migration", notes:item.notes || ""
       });
       if (!entry || ledger.some(candidate => candidate.id === entry.id)) continue;
       ledger.push(entry);

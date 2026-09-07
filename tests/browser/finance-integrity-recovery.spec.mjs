@@ -336,6 +336,40 @@ test("mixed ledger history migrates legacy paid expenses before import checks", 
   expect(finalState.migrated).toBe(6);
 });
 
+test("unused declared payment IDs repair their missing ledger debit", async ({ page }) => {
+  await page.goto("http://127.0.0.1:3000/index.html?page=settings&settings=sync", { waitUntil:"networkidle" });
+  await stable(page);
+  const bundle = await page.evaluate(() => {
+    const source = structuredClone(data);
+    const account = Object.keys(source.accounts || {})[0] || "Cash";
+    const expenseId = "declared-payment-without-debit";
+    const transactionId = "declared-payment-tx-1";
+    const initializedAt = new Date(Date.now() - 86400000).toISOString();
+    const date = initializedAt.slice(0, 10);
+    source.accountLedger = Object.entries(source.accounts || {}).map(([name, balance]) => ({
+      id:`declared-payment-opening-${name}`, transactionId:`declared-payment-opening-${name}`, operationId:`declared-payment-opening-${name}`,
+      account:name, type:"opening-balance", amount:Number(balance || 0), date, description:`Opening balance for ${name}`, source:"migration"
+    }));
+    source.expenses = [{ id:expenseId, name:"Declared payment", amount:40, date, category:"Other", expenseType:"normal", recurring:"No", paid:true, paidDate:date, paidFromAccount:account, paidAmount:40, accountDeducted:true, paymentTransactionId:transactionId }];
+    source.ledgerSettings = { version:1, migratedFrom:"12.19.1", initializedAt };
+    return { ...window.buildBundle("my-finance-v12-recovery"), data:source };
+  });
+  const before = await page.evaluate(value => window.FinanceIntegrity.scan(value.data, { includeStorage:false }), bundle);
+  expect(before.counts.critical).toBe(1);
+  expect(before.issues[0].code).toBe("expense-payment-ledger-missing");
+  await page.evaluate(value => window.openSyncReview(value), bundle);
+  await expect(page.locator("#syncReviewDialog")).toBeVisible();
+  await page.locator("#replaceWithIncomingButton").click();
+  await expect(page.locator("#syncReviewDialog")).not.toBeVisible({ timeout:10000 });
+  await expect(page.locator(".toast-message", { hasText:"Import failed" })).not.toBeVisible();
+  const finalState = await page.evaluate(() => ({
+    report:window.FinanceIntegrity.scan(data, { includeStorage:false }),
+    payment:data.accountLedger.find(item => item.expenseId === "declared-payment-without-debit") || null
+  }));
+  expect(finalState.report.counts.critical).toBe(0);
+  expect(finalState.payment).toMatchObject({ transactionId:"declared-payment-tx-1", amount:-40, source:"legacy-repair" });
+});
+
 test("deleted-account ledger history is archived and repairs its legacy payment", async ({ page }) => {
   await page.goto("http://127.0.0.1:3000/index.html?page=settings&settings=sync", { waitUntil:"networkidle" });
   await stable(page);
