@@ -15,5 +15,7 @@ test("canonical UI shadow contract is published to the runtime", async ({ reques
 
   const summaryResponse = await request.get("http://127.0.0.1:3000/summary-mascots.css?v=2.5.0-talaan1");
   expect(summaryResponse.ok()).toBeTruthy();
-  expect(await summaryResponse.text()).toContain('@import url("./ui-radius.css?v=2.5.0-talaan4")');
+  const html = await (await request.get("http://127.0.0.1:3000/index.html")).text();
+  const radiusUrl = html.match(/href="(\.\/ui-radius\.css\?v=2\.5\.0-ui-[a-f0-9]+)"/)[1];
+  expect(await summaryResponse.text()).toContain(`@import url("${radiusUrl}")`);
 });

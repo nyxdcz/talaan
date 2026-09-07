@@ -24,7 +24,7 @@ const APP_SHELL = [
   asset("./desktop-ui-phase1.css?v=2.5.0-talaan1"),
   asset("./desktop-ux.css?v=2.5.0-talaan1"),
   asset("./production-ui-audit.css?v=2.5.0-talaan1"),
-  asset("./summary-mascots.css?v=2.5.0-talaan1"),
+  asset("./summary-mascots.css?v=2.5.0-ui-e0c1fb9945cf"),
   asset("./form-inputs.js?v=2.5.0-talaan1"),
   asset("./application-help.js?v=2.5.0-talaan1"),
   asset("./pwa-update.js?v=2.5.0-talaan1"),
@@ -42,11 +42,12 @@ const APP_SHELL = [
   asset("./security-profiles.css?v=2.5.0-talaan1"),
   asset("./cloud-conflict-review.js?v=2.5.0-talaan1"),
   asset("./cloud-conflict-resolution.js?v=2.5.0-talaan1"),
-  asset("./cloud-sync-lifecycle.js?v=2.5.0-account-a59d76de08c8"),
-  asset("./cloud-sync.js?v=2.5.0-account-a59d76de08c8"),
-  asset("./finance-integrity.js?v=2.5.0-account-a59d76de08c8"),
-  asset("./account-ledger.js?v=2.5.0-account-a59d76de08c8"),
-  asset("./account-submit-compat.js?v=2.5.0-account-a59d76de08c8"),
+  asset("./cloud-sync-lifecycle.js?v=2.5.0-account-b70450d0b1ee"),
+  asset("./cloud-sync.js?v=2.5.0-account-b70450d0b1ee"),
+  asset("./finance-transaction-diagnostics.js?v=2.5.0-account-b70450d0b1ee"),
+  asset("./finance-integrity.js?v=2.5.0-account-b70450d0b1ee"),
+  asset("./account-ledger.js?v=2.5.0-account-b70450d0b1ee"),
+  asset("./account-submit-compat.js?v=2.5.0-account-b70450d0b1ee"),
   asset("./account-ledger.css?v=2.5.0-talaan1"),
   asset("./budget-planning.js?v=2.5.0-talaan1"),
   asset("./budget-planning.css?v=2.5.0-talaan1"),
@@ -180,7 +181,7 @@ self.addEventListener("fetch", event => {
     return;
   }
   if (url.origin !== self.location.origin) return;
-  if (url.pathname.endsWith("app.css") || url.pathname.endsWith("privacy-lock.js") || url.pathname.endsWith("privacy-display.js") || url.pathname.endsWith("transaction-views.js") || url.pathname.endsWith("payees-rules.js") || url.pathname.endsWith("import-formats.js") || url.pathname.endsWith("import-center.js") || url.pathname.endsWith("net-worth.js") || url.pathname.endsWith("household-splits.js") || url.pathname.endsWith("cloud-sync-lifecycle.js") || url.pathname.endsWith("cloud-sync.js") || url.pathname.endsWith("finance-integrity.js") || url.pathname.endsWith("account-ledger.js") || url.pathname.endsWith("account-submit-compat.js") || url.pathname.endsWith("interaction-patterns.js") || url.pathname.endsWith("pwa-update.js") || url.pathname.endsWith("budget-planning.js") || url.pathname.endsWith("productivity-tools.js") || url.pathname.endsWith("application-help.js") || url.pathname.endsWith("desktop-ux.css") || url.pathname.endsWith("sidebar-compact-brand.css") || url.pathname.endsWith("ui-icon-alignment.css") || url.pathname.endsWith("mobile.css") || url.pathname.endsWith("production-ui-audit.css") || url.pathname.endsWith("budget-planning.css") || url.pathname.endsWith("black-canvas.css") || url.pathname.endsWith("transaction-views.css") || url.pathname.endsWith("privacy-display.css") || url.pathname.endsWith("payees-rules.css") || url.pathname.endsWith("import-center.css") || url.pathname.endsWith("net-worth.css") || url.pathname.endsWith("household-splits.css") || url.pathname.endsWith("summary-mascots.css") || url.pathname.endsWith("summary-mascots.js") || url.pathname.endsWith("repeat-monthly-off.png") || url.pathname.endsWith("repeat-monthly-on.png")) {
+  if (url.pathname.endsWith(".css") || url.pathname.endsWith("app.css") || url.pathname.endsWith("privacy-lock.js") || url.pathname.endsWith("privacy-display.js") || url.pathname.endsWith("transaction-views.js") || url.pathname.endsWith("payees-rules.js") || url.pathname.endsWith("import-formats.js") || url.pathname.endsWith("import-center.js") || url.pathname.endsWith("net-worth.js") || url.pathname.endsWith("household-splits.js") || url.pathname.endsWith("cloud-sync-lifecycle.js") || url.pathname.endsWith("cloud-sync.js") || url.pathname.endsWith("finance-transaction-diagnostics.js") || url.pathname.endsWith("finance-integrity.js") || url.pathname.endsWith("account-ledger.js") || url.pathname.endsWith("account-submit-compat.js") || url.pathname.endsWith("interaction-patterns.js") || url.pathname.endsWith("pwa-update.js") || url.pathname.endsWith("budget-planning.js") || url.pathname.endsWith("productivity-tools.js") || url.pathname.endsWith("application-help.js") || url.pathname.endsWith("desktop-ux.css") || url.pathname.endsWith("sidebar-compact-brand.css") || url.pathname.endsWith("ui-icon-alignment.css") || url.pathname.endsWith("mobile.css") || url.pathname.endsWith("production-ui-audit.css") || url.pathname.endsWith("budget-planning.css") || url.pathname.endsWith("black-canvas.css") || url.pathname.endsWith("transaction-views.css") || url.pathname.endsWith("privacy-display.css") || url.pathname.endsWith("payees-rules.css") || url.pathname.endsWith("import-center.css") || url.pathname.endsWith("net-worth.css") || url.pathname.endsWith("household-splits.css") || url.pathname.endsWith("summary-mascots.css") || url.pathname.endsWith("summary-mascots.js") || url.pathname.endsWith("repeat-monthly-off.png") || url.pathname.endsWith("repeat-monthly-on.png")) {
     event.respondWith(networkFirstCriticalAsset(request));
     return;
   }
