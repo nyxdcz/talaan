@@ -1924,19 +1924,19 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
 /* V15.2.30 · Separate compact controls from phone divider lines. */
 @media (max-width:700px) {
   :root {
-    /* V15.2.30 adds 8px of intentional bottom separation to the two-row
-       topbar; keep sticky phone navigation aligned with the real topbar edge. */
-    --mobile-topbar-offset:calc(max(5px, env(safe-area-inset-top)) + 88px) !important;
+    /* Keep the workspace aligned with the compact two-row topbar while leaving
+       only a small clearance below the month controls. */
+    --mobile-topbar-offset:calc(max(5px, env(safe-area-inset-top)) + 80px) !important;
   }
 
-  /* Leave a clear bottom row for the topbar divider so the month controls are
-     not visually cut by the header border. */
+  /* Leave a small bottom clearance for the topbar divider so the month
+     controls are not visually cut without creating a detached blank band. */
   html body .topbar {
-    padding-bottom:9px !important;
+    padding-bottom:5px !important;
   }
 
   html body .topbar-actions .month-navigator {
-    margin-bottom:4px !important;
+    margin-bottom:0 !important;
   }
 
   /* The Available Money action row is 35px; its divider needs its own space.
@@ -1969,5 +1969,78 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     margin:0 !important;
     padding:0 !important;
     border-bottom-color:transparent !important;
+  }
+}
+
+/* V15.2.31 · Row overflow controls own one visible surface on phones. */
+@media (max-width:700px) {
+  /* The menu wrapper is structural. Its border and glass material used to
+     render behind the trigger as a second outline and could intercept taps
+     near the trigger edge. */
+  html body #money .record-row[data-expense-row] > .mobile-record-actions,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions {
+    border:0 !important;
+    background:transparent !important;
+    background-image:none !important;
+    box-shadow:none !important;
+    overflow:visible !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .mobile-record-actions > .record-more-menu,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions > .record-more-menu {
+    box-sizing:border-box !important;
+    display:block !important;
+    position:relative !important;
+    z-index:2 !important;
+    width:var(--talaan-phone-control-size, 35px) !important;
+    min-width:var(--talaan-phone-control-size, 35px) !important;
+    max-width:var(--talaan-phone-control-size, 35px) !important;
+    height:var(--talaan-phone-control-size, 35px) !important;
+    min-height:var(--talaan-phone-control-size, 35px) !important;
+    max-height:var(--talaan-phone-control-size, 35px) !important;
+    margin:0 !important;
+    padding:0 !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    background-image:none !important;
+    box-shadow:none !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+    overflow:visible !important;
+    pointer-events:auto !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .mobile-record-actions > .record-more-menu > .overflow-menu-trigger,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions > .record-more-menu > .overflow-menu-trigger {
+    box-sizing:border-box !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:var(--talaan-phone-control-size, 35px) !important;
+    min-width:var(--talaan-phone-control-size, 35px) !important;
+    max-width:var(--talaan-phone-control-size, 35px) !important;
+    height:var(--talaan-phone-control-size, 35px) !important;
+    min-height:var(--talaan-phone-control-size, 35px) !important;
+    max-height:var(--talaan-phone-control-size, 35px) !important;
+    margin:0 !important;
+    padding:0 !important;
+    border:1px solid var(--line) !important;
+    border-radius:var(--talaan-control-radius) !important;
+    background:var(--surface) !important;
+    background-image:none !important;
+    box-shadow:none !important;
+    pointer-events:auto !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .mobile-record-actions > .record-more-menu > .overflow-menu-trigger .kebab-icon,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions > .record-more-menu > .overflow-menu-trigger .kebab-icon {
+    pointer-events:none !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .mobile-record-actions .record-more-panel,
+  html body #paid-expenses [data-paid-expense-row] > .mobile-record-actions .record-more-panel {
+    z-index:30 !important;
+    pointer-events:auto !important;
   }
 }

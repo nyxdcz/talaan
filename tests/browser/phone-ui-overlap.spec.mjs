@@ -113,23 +113,51 @@ test("phone Finance tabs are static and expense actions stay on one 35px row", a
     row.dataset.expenseRow = "fixture";
     row.style.setProperty("display", "grid", "important");
     row.style.setProperty("width", "360px", "important");
-    row.innerHTML = '<div class="record-title">Fixture</div><strong class="amount">₱100.00</strong><div class="due-cell">21</div><div data-label="Planned account">Maya</div><div class="mobile-record-actions"><button class="button button-paid">Mark paid</button><div class="record-more-menu overflow-menu"><button class="button button-secondary overflow-menu-trigger" type="button">⋮</button></div></div>';
+    row.innerHTML = '<div class="record-title">Fixture</div><strong class="amount">₱100.00</strong><div class="due-cell">21</div><div data-label="Planned account">Maya</div><div class="mobile-record-actions"><button class="button button-paid">Mark paid</button><div class="record-more-menu overflow-menu"><button class="button button-secondary overflow-menu-trigger" type="button" aria-haspopup="menu" aria-controls="phoneHotfixExpenseMenu" aria-expanded="false">⋮</button><div class="record-more-panel" id="phoneHotfixExpenseMenu" role="menu" hidden><button class="button button-secondary" type="button" role="menuitem">Edit expense</button></div></div></div>';
     host.appendChild(row);
   });
 
   const actions = await page.locator("#phoneHotfixExpenseFixture > .mobile-record-actions").evaluate(node => {
     const rect = node.getBoundingClientRect();
-    const more = node.querySelector(":scope > .record-more-menu").getBoundingClientRect();
+    const moreNode = node.querySelector(":scope > .record-more-menu");
+    const more = moreNode.getBoundingClientRect();
     const markPaid = node.querySelector(":scope > .button").getBoundingClientRect();
+    const moreStyle = getComputedStyle(moreNode);
+    const trigger = moreNode.querySelector(":scope > .overflow-menu-trigger");
+    const triggerStyle = getComputedStyle(trigger);
     return {
       height:rect.height,
       moreWidth:more.width,
       moreHeight:more.height,
-      sameRow:Math.abs(markPaid.top - more.top) < 1
+      sameRow:Math.abs(markPaid.top - more.top) < 1,
+      wrapperBorder:moreStyle.borderTopWidth,
+      wrapperShadow:moreStyle.boxShadow,
+      wrapperBackgroundImage:moreStyle.backgroundImage,
+      triggerWidth:trigger.getBoundingClientRect().width,
+      triggerHeight:trigger.getBoundingClientRect().height,
+      triggerBorder:triggerStyle.borderTopWidth,
+      triggerShadow:triggerStyle.boxShadow
     };
   });
   expect(actions.height).toBe(35);
   expect(actions.moreWidth).toBe(35);
   expect(actions.moreHeight).toBe(35);
   expect(actions.sameRow).toBe(true);
+  expect(actions.wrapperBorder).toBe("0px");
+  expect(actions.wrapperShadow).toBe("none");
+  expect(actions.wrapperBackgroundImage).toBe("none");
+  expect(actions.triggerWidth).toBe(35);
+  expect(actions.triggerHeight).toBe(35);
+  expect(actions.triggerBorder).toBe("1px");
+  expect(actions.triggerShadow).toBe("none");
+
+  const more = page.locator("#phoneHotfixExpenseFixture .overflow-menu-trigger");
+  const panel = page.locator("#phoneHotfixExpenseMenu");
+  await more.click();
+  await expect(more).toHaveAttribute("aria-expanded", "true");
+  await expect(panel).not.toBeHidden();
+  await expect(page.locator("#phoneHotfixExpenseFixture .record-more-menu")).toHaveClass(/is-open/);
+  await more.click();
+  await expect(more).toHaveAttribute("aria-expanded", "false");
+  await expect(panel).toBeHidden();
 });

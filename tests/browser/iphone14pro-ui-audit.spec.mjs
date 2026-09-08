@@ -24,7 +24,7 @@ async function loadAuditFixture(page, theme) {
         <div class="section-stack">
           <article class="period-card is-collapsed" data-collapse-key="first-half"><div class="period-header"><div><div class="section-title-row"><h3 aria-describedby="help-description-fixture">First half of the month with a long label</h3><button class="section-help-button context-help-button" aria-label="Help: First half">?</button><span class="sr-only" id="help-description-fixture">First half: Unpaid expenses</span></div><p>Unpaid expenses due on days 1–15</p></div><div class="collapse-actions"><strong class="period-total">₱123,456.00</strong><button class="collapse-toggle" aria-expanded="false"><span class="collapse-icon"><svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"></path></svg></span></button></div></div><div class="record-list" hidden></div></article>
           <article class="card" id="availableMoneySection"><div class="card-header"><div><h3>Available money</h3></div><div class="collapse-actions"><button class="button" id="addAccountButton">Add</button><button class="collapse-toggle"><span class="collapse-icon"><svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"></path></svg></span></button></div></div><div class="account-card"><strong class="account-card-label" title="A very long account name that must truncate">A very long account name that must truncate</strong></div></article>
-          <article class="card record-row" data-expense-row><div class="record-title-copy"><strong title="A very long expense name that must truncate">A very long expense name that must truncate</strong><small>Long expense metadata that must truncate</small></div><strong class="amount">₱12,345.00</strong><div class="mobile-record-actions"><button class="button">Mark paid</button><button class="button overflow-menu-trigger">⋮</button></div></article>
+          <article class="card record-row" data-expense-row><div class="record-title-copy"><strong title="A very long expense name that must truncate">A very long expense name that must truncate</strong><small>Long expense metadata that must truncate</small></div><strong class="amount">₱12,345.00</strong><div class="mobile-record-actions"><button class="button">Mark paid</button><div class="record-more-menu overflow-menu"><button class="button overflow-menu-trigger" type="button" aria-haspopup="menu" aria-controls="iphoneExpenseMenu" aria-expanded="false">⋮</button><div class="record-more-panel" id="iphoneExpenseMenu" role="menu" hidden><button class="button" type="button" role="menuitem">Edit expense</button></div></div></div></article>
         </div>
       </section>
       <section id="settings" class="page active"><article class="card settings-panel"><div class="section-title-row"><h3>Sync &amp; Backup</h3><button class="section-help-button context-help-button" aria-label="Help: Sync">?</button></div><button class="button">Export recovery bundle</button></article></section>
@@ -47,6 +47,8 @@ for (const theme of ["light", "dark"]) {
       const periodHeader = rect("#money .period-header");
       const collapse = rect("#money .collapse-toggle");
       const icon = rect("#money .collapse-icon");
+      const rowMore = document.querySelector("#money .record-row[data-expense-row] .record-more-menu");
+      const rowMoreTrigger = document.querySelector("#money .record-row[data-expense-row] .overflow-menu-trigger");
       const compactButtons = visible("button").map(node => ({
         selector:node.className || node.id,
         height:node.getBoundingClientRect().height,
@@ -84,6 +86,16 @@ for (const theme of ["light", "dark"]) {
         periodHeight:periodHeader?.height || 0,
         collapseSize:[collapse?.width || 0, collapse?.height || 0],
         iconSize:[icon?.width || 0, icon?.height || 0],
+        rowMoreSurface:rowMore ? {
+          borderTopWidth:getComputedStyle(rowMore).borderTopWidth,
+          boxShadow:getComputedStyle(rowMore).boxShadow,
+          backgroundImage:getComputedStyle(rowMore).backgroundImage
+        } : null,
+        rowMoreTrigger:rowMoreTrigger ? {
+          width:rowMoreTrigger.getBoundingClientRect().width,
+          height:rowMoreTrigger.getBoundingClientRect().height,
+          boxShadow:getComputedStyle(rowMoreTrigger).boxShadow
+        } : null,
         compactButtons,
         controlRadius:parseFloat(style("#money .collapse-toggle")?.borderRadius || "0"),
         cardShadow:style("#money .card")?.boxShadow || "",
@@ -107,10 +119,12 @@ for (const theme of ["light", "dark"]) {
     expect(metrics.periodHeight).toBeLessThanOrEqual(56);
     expect(metrics.collapseSize).toEqual([35, 35]);
     expect(metrics.iconSize).toEqual([20, 20]);
+    expect(metrics.rowMoreSurface).toEqual({ borderTopWidth:"0px", boxShadow:"none", backgroundImage:"none" });
+    expect(metrics.rowMoreTrigger).toEqual({ width:35, height:35, boxShadow:"none" });
     expect(metrics.controlRadius).toBe(12);
     expect(metrics.cardShadow).toBe("none");
     expect(metrics.overflow, JSON.stringify(metrics.overflowDetails)).toBe(false);
-    expect(metrics.offset).toContain("88px");
+    expect(metrics.offset).toContain("80px");
     expect(metrics.longTextStyle).toMatchObject({
       minWidth:"0px",
       overflow:"hidden",
