@@ -1831,3 +1831,122 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     white-space:nowrap !important;
   }
 }
+
+/* V15.2.29 · iPhone 14 Pro overflow and shadow cleanup. */
+@media (max-width:700px) {
+  /* Budget summary cards must use the phone viewport as their only width. */
+  html body #money,
+  html body #money > *,
+  html body #money .finance-workspace-marquee-row,
+  html body #money .page-heading,
+  html body #money .legend,
+  html body #money #moneySummary,
+  html body #money .section-stack,
+  html body #money .collapsible-section {
+    box-sizing:border-box !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  html body #money {
+    overflow-x:clip !important;
+  }
+
+  /* Single-column summaries keep labels and monetary values readable at 390px. */
+  html body #money .legend,
+  html body #money #moneySummary {
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+
+  html body #money .legend-item,
+  html body #money #moneySummary .summary-item {
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    grid-column:1 !important;
+  }
+
+  html body #money :is(.legend-copy,.legend-text,.legend-total,.summary-card-copy,.summary-card-label,.summary-card-value) {
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  html body #money :is(.legend-total,.summary-card-value) {
+    overflow:visible !important;
+    text-overflow:clip !important;
+    white-space:nowrap !important;
+  }
+
+  /* The phone surface is flat; keep focus rings and popover/dialog shadows. */
+  html body .topbar,
+  html body #money,
+  html body #money .card,
+  html body #money .card-header,
+  html body #money .legend-item,
+  html body #money .summary-item,
+  html body #money .period-card,
+  html body #money .account-card,
+  html body #money .budget-planner-card,
+  html body #money .budget-bento-panel,
+  html body .topbar .cloud-sync-toolbar-button,
+  html body .topbar .topbar-add-button,
+  html body .topbar .topbar-tools-trigger,
+  html body .topbar .month-navigator,
+  html body .topbar .month-control,
+  html body .topbar .month-nav-button,
+  html body .topbar .month-display-button,
+  html body .topbar .month-current-button,
+  html body .topbar .month-status-chip,
+  html body #money .collapse-toggle,
+  html body #money .budget-panel-collapse,
+  html body #money .button,
+  html body #money .workspace-switcher,
+  html body #money .workspace-switcher-button,
+  html body .mobile-add-expense-fab {
+    box-shadow:none !important;
+  }
+
+  html body #money .legend-live-update,
+  html body #money .summary-item.legend-live-update {
+    animation:none !important;
+    transform:none !important;
+  }
+
+  /* This is a divider, not a shadow; keep it inside the card edge. */
+  html body #availableMoneySection .card-header {
+    width:100% !important;
+    margin-inline:0 !important;
+  }
+}
+
+/* V15.2.30 · Separate compact controls from phone divider lines. */
+@media (max-width:700px) {
+  /* Leave a clear bottom row for the topbar divider so the month controls are
+     not visually cut by the header border. */
+  html body .topbar {
+    padding-bottom:9px !important;
+  }
+
+  html body .topbar-actions .month-navigator {
+    margin-bottom:4px !important;
+  }
+
+  /* The Available Money action row is 35px; its divider needs its own space. */
+  html body #availableMoneySection .card-header {
+    box-sizing:border-box !important;
+    height:44px !important;
+    min-height:44px !important;
+    max-height:none !important;
+    padding:0 6px 8px !important;
+    margin-bottom:8px !important;
+    align-items:center !important;
+    border-bottom:1px solid var(--line) !important;
+    overflow:visible !important;
+  }
+
+  html body #availableMoneySection .collapse-actions,
+  html body #availableMoneySection .collapse-actions > :is(#addAccountButton,[data-collapse-toggle="available-money"]) {
+    align-self:center !important;
+  }
+}

@@ -57,6 +57,18 @@ async function loadFixture(page, width) {
         <article class="card income-records-card"><div class="card-header"><div><h3>Income records</h3><p>Manual income received during the selected month</p></div><button class="button button-secondary button-small" id="exportIncomeCsv">Export income CSV</button></div></article>
       </section>
       <section class="page active" id="money">
+        <div class="legend" aria-label="Monthly budget and expense totals">
+          <div class="legend-item summary-card summary-card-green"><div class="legend-copy"><span class="legend-dot"></span><span class="legend-text"><strong>Available money</strong><small>Included account balances</small></span></div><strong class="legend-total text-green">₱27,615.00</strong></div>
+          <div class="legend-item summary-card summary-card-red"><div class="legend-copy"><span class="legend-dot"></span><span class="legend-text"><strong>First half</strong><small>Unpaid · days 1–15</small></span></div><strong class="legend-total text-red">₱17,892.00</strong></div>
+          <div class="legend-item summary-card summary-card-orange"><div class="legend-copy"><span class="legend-dot"></span><span class="legend-text"><strong>Second half</strong><small>Unpaid · days 16–end</small></span></div><strong class="legend-total text-orange">₱10,159.00</strong></div>
+          <div class="legend-item summary-card summary-card-blue"><div class="legend-copy"><span class="legend-dot"></span><span class="legend-text"><strong>Other</strong><small>One-time / undated</small></span></div><strong class="legend-total text-blue">₱1,360.00</strong></div>
+        </div>
+        <div class="summary-strip" id="moneySummary">
+          <div class="summary-item summary-card summary-card-red"><div class="summary-card-copy"><span class="summary-card-label">Outstanding</span><small>Included unpaid expenses</small></div><strong class="summary-card-value text-red">₱17,892.00</strong></div>
+          <div class="summary-item summary-card summary-card-green"><div class="summary-card-copy"><span class="summary-card-label">1st-half diff</span><small>Available minus first half</small></div><strong class="summary-card-value text-green">₱21,242.00</strong></div>
+          <div class="summary-item summary-card summary-card-green"><div class="summary-card-copy"><span class="summary-card-label">2nd-half diff</span><small>Available minus first two periods</small></div><strong class="summary-card-value text-green">₱11,083.00</strong></div>
+          <div class="summary-item summary-card summary-card-green"><div class="summary-card-copy"><span class="summary-card-label">Money remaining</span><small>Available minus expenses</small></div><strong class="summary-card-value text-green">₱9,723.00</strong></div>
+        </div>
         <article class="card collapsible-section" id="availableMoneySection"><div class="card-header collapsible-header"><div><div class="section-title-row"><h3>Available money</h3></div><p>Edit balances, add accounts, reorder, or remove accounts here</p></div><div class="collapse-actions"><div class="available-money-total-wrap"><strong class="period-total text-green" id="moneyAvailableTotal">₱27,115.00</strong><small class="available-money-account-count">4 accounts</small></div><button class="button button-primary button-small" id="addAccountButton"><span class="phone-only-action-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="phone-only-action-label">Add account</span></button><button class="collapse-toggle" data-collapse-toggle="available-money"><span class="collapse-icon"><svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg></span></button></div></div><div class="account-grid"></div></article>
       </section>
     </div></main>
@@ -91,13 +103,18 @@ for (const width of widths) {
       const incomeHeader = document.querySelector(".income-records-card .card-header");
       const exportButton = document.querySelector("#exportIncomeCsv");
       const navigator = document.querySelector(".month-navigator");
+      const topbar = document.querySelector(".topbar");
+      const summary = [...document.querySelectorAll("#money .legend-item, #money #moneySummary .summary-item")].map(node => ({ width:rect(node).width, left:rect(node).left, right:rect(node).right }));
+      const shadowTargets = [".topbar", ".month-navigator", ".month-control", "#money", "#availableMoneySection", "#availableMoneySection .card-header", "#addAccountButton", "#availableMoneySection [data-collapse-toggle]"];
       return {
         menuItems,
         planner:{ header:rect(plannerHeader), actions:rect(plannerActions), toggle:rect(plannerToggle), overflow:styles(plannerHeader).overflow },
         bentoHeadings,
         available:{ header:rect(availableHeader), amount:rect(availableAmount), add:rect(availableAdd), toggle:rect(availableToggle), amountClipped:availableAmount.scrollWidth > availableAmount.clientWidth + 1 },
+        summary,
+        shadows:shadowTargets.map(selector => ({ selector, value:styles(document.querySelector(selector)).boxShadow })),
         income:{ header:rect(incomeHeader), export:rect(exportButton) },
-        navigator:{ box:rect(navigator), controls:[...navigator.querySelectorAll(":scope > .month-nav-button, :scope > .month-control, :scope > .month-status-chip")].map(node => [rect(node).width,rect(node).height]) },
+        navigator:{ box:rect(navigator), topbar:rect(topbar), controls:[...navigator.querySelectorAll(":scope > .month-nav-button, :scope > .month-control, :scope > .month-status-chip")].map(node => [rect(node).width,rect(node).height]) },
         overflow:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth) > innerWidth + 1
       };
     });
@@ -127,16 +144,27 @@ for (const width of widths) {
       expect(heading.toggle).toMatchObject({ width:35, height:35 });
     });
 
-    expect(metrics.available.header.height).toBeCloseTo(35, 0);
+    expect(metrics.available.header.height).toBeGreaterThanOrEqual(43);
     expect(metrics.available.amountClipped).toBe(false);
     expect(metrics.available.amount.right).toBeLessThanOrEqual(metrics.available.add.left + 1);
     expect(metrics.available.add.right).toBeLessThanOrEqual(metrics.available.toggle.left + 1);
     expect(metrics.available.add).toMatchObject({ width:35, height:35 });
     expect(metrics.available.toggle).toMatchObject({ width:35, height:35 });
+    expect(metrics.available.add.bottom).toBeLessThanOrEqual(metrics.available.header.bottom - 1);
+    expect(metrics.available.toggle.bottom).toBeLessThanOrEqual(metrics.available.header.bottom - 1);
+
+    expect(metrics.summary).toHaveLength(8);
+    metrics.summary.forEach(item => {
+      expect(item.width).toBeGreaterThan(0);
+      expect(item.left).toBeGreaterThanOrEqual(-1);
+      expect(item.right).toBeLessThanOrEqual(width + 1);
+    });
+    metrics.shadows.forEach(item => expect(item.value, item.selector).toBe("none"));
 
     expect(metrics.income.export.height).toBeCloseTo(35, 0);
     expect(metrics.income.export.right).toBeLessThanOrEqual(metrics.income.header.right + 1);
     expect(metrics.navigator.box.right).toBeLessThanOrEqual(width + 1);
+    expect(metrics.navigator.box.bottom).toBeLessThanOrEqual(metrics.navigator.topbar.bottom - 1);
     metrics.navigator.controls.forEach(([controlWidth,controlHeight]) => {
       expect(controlWidth).toBeGreaterThan(0);
       expect(controlHeight).toBeLessThanOrEqual(35.5);
