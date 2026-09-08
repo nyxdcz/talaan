@@ -1913,15 +1913,22 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     transform:none !important;
   }
 
-  /* This is a divider, not a shadow; keep it inside the card edge. */
-  html body #availableMoneySection .card-header {
-    width:100% !important;
-    margin-inline:0 !important;
+  /* This is a divider, not a shadow; keep the expanded row flush with the
+     card edge even when the icon-alignment layer is loaded after this file. */
+  html body #money #availableMoneySection:not(.is-collapsed) > .card-header {
+    width:auto !important;
+    margin-inline:calc(-1 * var(--row-divider-bleed, 10px)) !important;
   }
 }
 
 /* V15.2.30 · Separate compact controls from phone divider lines. */
 @media (max-width:700px) {
+  :root {
+    /* V15.2.30 adds 8px of intentional bottom separation to the two-row
+       topbar; keep sticky phone navigation aligned with the real topbar edge. */
+    --mobile-topbar-offset:calc(max(5px, env(safe-area-inset-top)) + 88px) !important;
+  }
+
   /* Leave a clear bottom row for the topbar divider so the month controls are
      not visually cut by the header border. */
   html body .topbar {
@@ -1932,21 +1939,35 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     margin-bottom:4px !important;
   }
 
-  /* The Available Money action row is 35px; its divider needs its own space. */
-  html body #availableMoneySection .card-header {
+  /* The Available Money action row is 35px; its divider needs its own space.
+     The two-ID selector remains authoritative when ui-icon-alignment.css is
+     loaded after this overlay in a fixture or embedded shell. */
+  html body #money #availableMoneySection:not(.is-collapsed) > .card-header {
     box-sizing:border-box !important;
     height:44px !important;
     min-height:44px !important;
-    max-height:none !important;
-    padding:0 6px 8px !important;
-    margin-bottom:8px !important;
+    max-height:44px !important;
+    width:auto !important;
+    padding:0 var(--row-divider-bleed, 10px) 8px !important;
+    margin:0 calc(-1 * var(--row-divider-bleed, 10px)) 8px !important;
     align-items:center !important;
     border-bottom:1px solid var(--line) !important;
     overflow:visible !important;
   }
 
-  html body #availableMoneySection .collapse-actions,
-  html body #availableMoneySection .collapse-actions > :is(#addAccountButton,[data-collapse-toggle="available-money"]) {
+  html body #money #availableMoneySection:not(.is-collapsed) > .card-header .collapse-actions,
+  html body #money #availableMoneySection:not(.is-collapsed) > .card-header .collapse-actions > :is(#addAccountButton,[data-collapse-toggle="available-money"]) {
     align-self:center !important;
+  }
+
+  /* A collapsed section has no visible divider or account content. */
+  html body #money #availableMoneySection.is-collapsed > .card-header {
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    width:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    border-bottom-color:transparent !important;
   }
 }

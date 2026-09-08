@@ -110,7 +110,7 @@ for (const theme of ["light", "dark"]) {
     expect(metrics.controlRadius).toBe(12);
     expect(metrics.cardShadow).toBe("none");
     expect(metrics.overflow, JSON.stringify(metrics.overflowDetails)).toBe(false);
-    expect(metrics.offset).toContain("80px");
+    expect(metrics.offset).toContain("88px");
     expect(metrics.longTextStyle).toMatchObject({
       minWidth:"0px",
       overflow:"hidden",

@@ -133,7 +133,10 @@ test("phone controls and content cards keep the approved compact rhythm", async 
       expect(size.height).toBeGreaterThanOrEqual(19.5);
       expect(size.height).toBeLessThanOrEqual(20.5);
     });
-    expect(metrics.headers.every(size => size.height <= 35.5)).toBe(true);
+    const dividerHeaders = metrics.headers.filter(size => size.className.includes("collapsible-header"));
+    const compactHeaders = metrics.headers.filter(size => !size.className.includes("collapsible-header"));
+    dividerHeaders.forEach(size => expect(size.height).toBeLessThanOrEqual(44.5));
+    compactHeaders.forEach(size => expect(size.height).toBeLessThanOrEqual(35.5));
     metrics.periodHeaders.forEach(size => {
       expect(size.height).toBeGreaterThanOrEqual(50);
     });
