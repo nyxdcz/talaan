@@ -1408,3 +1408,426 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     opacity: 0 !important;
   }
 }
+
+/* V15.2.28 · iPhone 14 Pro finance-header geometry repair. */
+@media (max-width:700px) {
+  /* Keep the month row contained while every visible control stays compact. */
+  html body .topbar-actions .month-navigator {
+    box-sizing:border-box !important;
+    display:grid !important;
+    grid-template-columns:35px minmax(0,1fr) 35px auto !important;
+    align-items:center !important;
+    gap:4px !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    overflow:visible !important;
+  }
+
+  html body .topbar-actions .month-navigator > .month-nav-button {
+    box-sizing:border-box !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    flex:0 0 35px !important;
+    padding:0 !important;
+  }
+
+  html body .topbar-actions .month-navigator > .month-control {
+    box-sizing:border-box !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    padding:4px 6px !important;
+  }
+
+  html body .topbar-actions .month-navigator .month-display-button {
+    box-sizing:border-box !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:33px !important;
+    min-height:33px !important;
+    max-height:33px !important;
+    padding:3px 5px !important;
+  }
+
+  html body .topbar-actions .month-navigator > :is(.month-current-button,.month-status-chip) {
+    box-sizing:border-box !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:64px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    flex:0 0 auto !important;
+    padding-inline:6px !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+  }
+
+  /* Expanded planner headers use their own content height; the 35px toggle
+     reserves a fixed disclosure column instead of sharing the action row. */
+  html body .budget-planner-card .budget-planner-header {
+    position:relative !important;
+    box-sizing:border-box !important;
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    margin-bottom:0 !important;
+    padding:10px 55px 10px 10px !important;
+    overflow:visible !important;
+  }
+
+  html body .budget-planner-card .budget-planner-heading-copy,
+  html body .budget-planner-card .budget-planner-heading-copy h3,
+  html body .budget-planner-card .budget-planner-heading-copy p {
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  html body .budget-planner-card .budget-planner-heading-copy h3 {
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+  }
+
+  html body .budget-planner-card .budget-planner-heading-copy p {
+    display:-webkit-box !important;
+    -webkit-box-orient:vertical !important;
+    -webkit-line-clamp:2 !important;
+    line-clamp:2 !important;
+    overflow:hidden !important;
+    text-overflow:clip !important;
+    white-space:normal !important;
+  }
+
+  html body .budget-planner-card .budget-planner-actions {
+    box-sizing:border-box !important;
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    align-items:center !important;
+    gap:6px !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    margin-top:8px !important;
+  }
+
+  html body .budget-planner-card .budget-planner-actions > .button,
+  html body .budget-planner-card .budget-planner-actions > .overflow-menu,
+  html body .budget-planner-card .budget-planner-actions > .overflow-menu > .overflow-menu-trigger {
+    box-sizing:border-box !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  html body .budget-planner-card .budget-planner-actions > .button,
+  html body .budget-planner-card .budget-planner-actions > .overflow-menu > .overflow-menu-trigger {
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    padding-inline:7px !important;
+    font-size:.68rem !important;
+  }
+
+  html body .budget-planner-card #addBudgetItem { order:1 !important; }
+  html body .budget-planner-card .budget-planner-more-menu { order:2 !important; }
+  html body .budget-planner-card #buildBudgetFromExpenses { order:3 !important; }
+  html body .budget-planner-card #copyPreviousBudget { order:4 !important; }
+
+  html body .budget-planner-card .budget-planner-actions > .budget-planner-toggle {
+    position:absolute !important;
+    top:10px !important;
+    right:10px !important;
+    box-sizing:border-box !important;
+    display:grid !important;
+    place-items:center !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  html body .budget-planner-card.is-planner-collapsed .budget-planner-header {
+    display:flex !important;
+    align-items:center !important;
+    height:50px !important;
+    min-height:50px !important;
+    max-height:50px !important;
+    padding:7px 55px 7px 10px !important;
+  }
+
+  html body .budget-planner-card.is-planner-collapsed .budget-planner-heading-copy p {
+    display:none !important;
+  }
+
+  html body .budget-planner-card.is-planner-collapsed .budget-planner-actions {
+    position:absolute !important;
+    top:7px !important;
+    right:10px !important;
+    display:block !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    margin:0 !important;
+  }
+
+  html body .budget-planner-card.is-planner-collapsed .budget-planner-actions > :not(.budget-planner-toggle) {
+    display:none !important;
+  }
+
+  html body .budget-planner-card.is-planner-collapsed .budget-planner-actions > .budget-planner-toggle {
+    position:static !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+  }
+
+  /* Bento panel headings can wrap their title while the status and disclosure
+     controls remain in a fixed, non-overlapping action column. */
+  html body .budget-planner-card .budget-bento-panel .budget-panel-heading {
+    box-sizing:border-box !important;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto !important;
+    align-items:center !important;
+    gap:6px !important;
+    width:100% !important;
+    min-width:0 !important;
+    height:auto !important;
+    min-height:56px !important;
+    max-height:none !important;
+    padding:8px 9px !important;
+    overflow:visible !important;
+  }
+
+  html body .budget-planner-card .budget-bento-panel .budget-panel-heading-copy,
+  html body .budget-planner-card .budget-bento-panel .budget-panel-heading-copy h4,
+  html body .budget-planner-card .budget-bento-panel .budget-panel-heading-copy p {
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  html body .budget-planner-card .budget-bento-panel .budget-panel-heading-copy h4 {
+    overflow-wrap:anywhere !important;
+    white-space:normal !important;
+    line-height:1.15 !important;
+  }
+
+  html body .budget-planner-card .budget-bento-panel .budget-panel-heading-copy p {
+    display:-webkit-box !important;
+    -webkit-box-orient:vertical !important;
+    -webkit-line-clamp:2 !important;
+    line-clamp:2 !important;
+    overflow:hidden !important;
+    text-overflow:clip !important;
+    white-space:normal !important;
+  }
+
+  html body .budget-planner-card .budget-bento-panel .budget-panel-heading-actions {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:6px !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    flex:0 0 auto !important;
+  }
+
+  html body .budget-planner-card .budget-bento-panel .budget-panel-heading-actions .status-chip {
+    box-sizing:border-box !important;
+    max-width:clamp(80px,30vw,120px) !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+  }
+
+  html body .budget-planner-card .budget-bento-panel .budget-panel-collapse {
+    box-sizing:border-box !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    flex:0 0 35px !important;
+    padding:0 !important;
+  }
+
+  html body .budget-planner-card .budget-bento-panel.is-collapsed .budget-panel-heading {
+    min-height:50px !important;
+    padding-block:7px !important;
+  }
+
+  html body .budget-planner-card .budget-bento-panel.is-collapsed .budget-panel-heading-copy p {
+    display:none !important;
+  }
+
+  /* Available money keeps the amount in a bounded text track before the two
+     icon controls. Monetary text remains visible; only its scale adapts. */
+  html body #availableMoneySection .card-header {
+    box-sizing:border-box !important;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(0,190px) !important;
+    align-items:center !important;
+    gap:4px 8px !important;
+    width:auto !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    margin:0 -10px 4px !important;
+    padding:0 6px !important;
+    overflow:visible !important;
+  }
+
+  html body #availableMoneySection .card-header > div:first-child {
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  html body #availableMoneySection .section-title-row h3 {
+    min-width:0 !important;
+    max-width:100% !important;
+    font-size:.72rem !important;
+    line-height:1 !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+  }
+
+  html body #availableMoneySection .collapse-actions {
+    box-sizing:border-box !important;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) 35px 35px !important;
+    grid-template-areas:"total add toggle" !important;
+    align-items:center !important;
+    justify-items:stretch !important;
+    gap:4px !important;
+    width:190px !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    overflow:visible !important;
+  }
+
+  html body #availableMoneySection .available-money-total-wrap {
+    box-sizing:border-box !important;
+    grid-area:total !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    justify-items:end !important;
+    overflow:visible !important;
+    white-space:nowrap !important;
+  }
+
+  html body #availableMoneySection #moneyAvailableTotal {
+    display:block !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+    white-space:nowrap !important;
+    font-size:clamp(.62rem,2.8vw,.78rem) !important;
+    line-height:1 !important;
+    letter-spacing:-.02em !important;
+    font-variant-numeric:tabular-nums !important;
+  }
+
+  html body #availableMoneySection #addAccountButton,
+  html body #availableMoneySection [data-collapse-toggle="available-money"] {
+    box-sizing:border-box !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    padding:0 !important;
+  }
+
+  html body #availableMoneySection #addAccountButton {
+    grid-area:add !important;
+    display:grid !important;
+    place-items:center !important;
+  }
+
+  html body #availableMoneySection [data-collapse-toggle="available-money"] {
+    grid-area:toggle !important;
+  }
+
+  /* The export action stays labeled and fits beside a shrinkable heading. */
+  html body #income .income-records-card .card-header {
+    box-sizing:border-box !important;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto !important;
+    align-items:center !important;
+    gap:8px !important;
+    min-width:0 !important;
+    width:100% !important;
+    overflow:visible !important;
+  }
+
+  html body #income .income-records-card .card-header > div:first-child {
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  html body #income .income-records-card .card-header h3 {
+    min-width:0 !important;
+    max-width:100% !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+  }
+
+  html body #income .income-records-card .card-header p {
+    display:-webkit-box !important;
+    -webkit-box-orient:vertical !important;
+    -webkit-line-clamp:2 !important;
+    line-clamp:2 !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    overflow:hidden !important;
+    text-overflow:clip !important;
+    white-space:normal !important;
+  }
+
+  html body #income #exportIncomeCsv {
+    box-sizing:border-box !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    padding-inline:8px !important;
+    font-size:.68rem !important;
+    white-space:nowrap !important;
+  }
+}

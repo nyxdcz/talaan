@@ -494,6 +494,51 @@ html body #topbarToolsPanel #themeToggleText {
   text-align:left !important;
 }
 
+/* V15.2.28 · Phone More tools rows keep their labels inside the 35px contract. */
+@media (max-width:700px) {
+  html body #topbarToolsPanel > .topbar-tools-item {
+    box-sizing:border-box !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:8px !important;
+    padding:3px 8px !important;
+    overflow:hidden !important;
+  }
+
+  html body #topbarToolsPanel #themeToggleButton.topbar-tools-item.theme-toggle-button {
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    padding:3px 8px !important;
+  }
+
+  html body #topbarToolsPanel > .topbar-tools-item > .toolbar-icon {
+    width:20px !important;
+    min-width:20px !important;
+    max-width:20px !important;
+    height:20px !important;
+    min-height:20px !important;
+    max-height:20px !important;
+    flex:0 0 20px !important;
+  }
+
+  html body #topbarToolsPanel > .topbar-tools-item > span:last-child {
+    min-width:0 !important;
+    max-width:100% !important;
+    display:block !important;
+  }
+}
+
 /* V15.2.5-r3 · Available Money uses universal 35px scalloped account badges without cropping. */
 html body #money #moneyAccounts .account-card-icon {
   --available-account-badge-fill:color-mix(in srgb,var(--surface-soft) 82%,var(--primary) 18%);
