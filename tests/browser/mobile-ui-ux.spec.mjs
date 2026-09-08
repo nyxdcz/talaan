@@ -59,7 +59,9 @@ for (const width of widths) {
       };
     });
     expect(parseFloat(metrics.workspaceTop)).toBeGreaterThanOrEqual(80);
-    expect(parseFloat(metrics.workspaceTop)).toBeLessThanOrEqual(90);
+    // V15.2.30 adds an 8px bottom clearance row to the phone topbar. With the
+    // 5px safe-area floor, the sticky workspace begins at 93px.
+    expect(parseFloat(metrics.workspaceTop)).toBeLessThanOrEqual(95);
     expect(metrics.workspaceButton).toBe(35);
     expect(metrics.drawerCloseW).toBe(35);
     expect(metrics.drawerCloseH).toBe(35);
@@ -94,7 +96,8 @@ test("Talaan V2.5.0 short landscape phones retain touch-safe controls", async ({
     dialogInside:document.querySelector(".app-dialog").getBoundingClientRect().right <= innerWidth + 1
   }));
   expect(parseFloat(metrics.workspaceTop)).toBeGreaterThanOrEqual(80);
-  expect(parseFloat(metrics.workspaceTop)).toBeLessThanOrEqual(90);
+  // Keep the landscape contract aligned with the two-row phone topbar.
+  expect(parseFloat(metrics.workspaceTop)).toBeLessThanOrEqual(95);
   expect(metrics.input).toBeGreaterThanOrEqual(44);
   expect(metrics.button).toBe(35);
   expect(metrics.dismiss).toBe(35);
