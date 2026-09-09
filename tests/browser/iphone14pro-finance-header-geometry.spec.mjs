@@ -110,9 +110,11 @@ for (const width of widths) {
       const incomeHeader = document.querySelector(".income-records-card .card-header");
       const exportButton = document.querySelector("#exportIncomeCsv");
       const navigator = document.querySelector(".month-navigator");
+      const monthDisplay = document.querySelector("#monthDisplayButton, .month-display-button");
       const topbar = document.querySelector(".topbar");
       const workspaceRow = document.querySelector(".finance-workspace-marquee-row");
       const navigatorBox = rect(navigator);
+      const monthDisplayBox = rect(monthDisplay);
       const topbarBox = rect(topbar);
       const workspaceBox = rect(workspaceRow);
       const summary = [...document.querySelectorAll("#money .legend-item, #money #moneySummary .summary-item")].map(node => ({ width:rect(node).width, left:rect(node).left, right:rect(node).right }));
@@ -125,7 +127,7 @@ for (const width of widths) {
         summary,
         shadows:shadowTargets.map(selector => ({ selector, value:styles(document.querySelector(selector)).boxShadow })),
         income:{ header:rect(incomeHeader), export:rect(exportButton) },
-        navigator:{ box:navigatorBox, topbar:topbarBox, bottomClearance:topbarBox.bottom - navigatorBox.bottom, workspace:workspaceBox, workspaceGap:workspaceBox.top - navigatorBox.bottom, controls:[...navigator.querySelectorAll(":scope > .month-nav-button, :scope > .month-control, :scope > .month-status-chip")].map(node => [rect(node).width,rect(node).height]) },
+        navigator:{ box:navigatorBox, topbar:topbarBox, displayCenterDelta:Math.abs((monthDisplayBox.left + monthDisplayBox.right) / 2 - innerWidth / 2), bottomClearance:topbarBox.bottom - navigatorBox.bottom, workspace:workspaceBox, workspaceGap:workspaceBox.top - navigatorBox.bottom, controls:[...navigator.querySelectorAll(":scope > .month-nav-button, :scope > .month-control, :scope > .month-status-chip")].map(node => [rect(node).width,rect(node).height]) },
         overflow:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth) > innerWidth + 1
       };
     });
@@ -176,6 +178,7 @@ for (const width of widths) {
     expect(metrics.income.export.right).toBeLessThanOrEqual(metrics.income.header.right + 1);
     expect(metrics.navigator.box.left).toBeGreaterThanOrEqual(-1);
     expect(metrics.navigator.box.right).toBeLessThanOrEqual(width + 1);
+    expect(metrics.navigator.displayCenterDelta).toBeLessThanOrEqual(1);
     expect(metrics.navigator.box.bottom).toBeLessThanOrEqual(metrics.navigator.topbar.bottom - 1);
     expect(metrics.navigator.bottomClearance).toBeGreaterThanOrEqual(2);
     expect(metrics.navigator.bottomClearance).toBeLessThanOrEqual(8);

@@ -263,6 +263,42 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
   });
 }
 
+test("Dashboard centers the phone month navigator with or without Current/status", async ({ page }) => {
+  await openDashboard(page, { width:393, height:852 });
+
+  const measureMonthNavigator = () => page.evaluate(() => {
+    const navigator = document.querySelector(".month-navigator");
+    const display = document.querySelector("#monthDisplayButton");
+    const previous = document.querySelector("#previousMonthButton");
+    const next = document.querySelector("#nextMonthButton");
+    const navigatorRect = navigator.getBoundingClientRect();
+    const displayRect = display.getBoundingClientRect();
+    return {
+      displayCenterDelta:Math.abs((displayRect.left + displayRect.right) / 2 - innerWidth / 2),
+      navigatorContained:navigatorRect.left >= -1 && navigatorRect.right <= innerWidth + 1,
+      controlSizes:[previous, next].map(node => [node.getBoundingClientRect().width, node.getBoundingClientRect().height]),
+      pageOverflow:document.documentElement.scrollWidth > innerWidth + 1
+    };
+  });
+
+  let geometry = await measureMonthNavigator();
+  expect(geometry.displayCenterDelta).toBeLessThanOrEqual(1);
+  expect(geometry.navigatorContained).toBe(true);
+  expect(geometry.controlSizes).toEqual([[35,35],[35,35]]);
+  expect(geometry.pageOverflow).toBe(false);
+
+  await page.evaluate(() => {
+    document.querySelector("#currentMonthButton").hidden = true;
+    document.querySelector("#monthStatusChip").hidden = true;
+  });
+
+  geometry = await measureMonthNavigator();
+  expect(geometry.displayCenterDelta).toBeLessThanOrEqual(1);
+  expect(geometry.navigatorContained).toBe(true);
+  expect(geometry.controlSizes).toEqual([[35,35],[35,35]]);
+  expect(geometry.pageOverflow).toBe(false);
+});
+
 test("normal Dashboard views ignore stale card spans while Customize mode preserves them", async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem("simple-finance-project-records-v2-dashboard-phase4", JSON.stringify({

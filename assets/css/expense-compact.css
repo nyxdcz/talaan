@@ -2085,3 +2085,48 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     margin-bottom:8px !important;
   }
 }
+
+/* V15.2.33 · Center the phone month controls independently of Current/status. */
+@media (max-width:700px) {
+  html body .topbar-actions .month-navigator {
+    justify-content:center !important;
+    align-content:center !important;
+  }
+
+  /* When the optional right-side action is hidden, use a centered three-track
+     core for previous, month, and next. */
+  html body .topbar-actions .month-navigator:not(:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden]))) {
+    grid-template-columns:
+      var(--talaan-phone-control-size, 35px)
+      minmax(0, 1fr)
+      var(--talaan-phone-control-size, 35px) !important;
+  }
+
+  /* When Current/status is visible, mirror its outer lane on the left so the
+     month display remains centered while the action stays inside the viewport. */
+  html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) {
+    grid-template-columns:
+      minmax(0, 1fr)
+      var(--talaan-phone-control-size, 35px)
+      minmax(0, 2fr)
+      var(--talaan-phone-control-size, 35px)
+      minmax(0, 1fr) !important;
+  }
+
+  html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) > #previousMonthButton {
+    grid-column:2 !important;
+  }
+
+  html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) > .month-control {
+    grid-column:3 !important;
+  }
+
+  html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) > #nextMonthButton {
+    grid-column:4 !important;
+  }
+
+  html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) > :is(.month-current-button, .month-status-chip) {
+    grid-column:5 !important;
+    justify-self:stretch !important;
+  }
+}
