@@ -247,7 +247,9 @@
   function persistCurrentData(source, action = "Finance data updated") {
     if (!canWrite()) return false;
     const normalized = typeof normalizeData === "function" ? normalizeData(clone(source)) : clone(source);
-    localStorage.setItem(profileDataKey(), JSON.stringify(normalized));
+    const serialized = JSON.stringify(normalized);
+    if (localStorage.getItem(profileDataKey()) === serialized) return true;
+    localStorage.setItem(profileDataKey(), serialized);
     appendLocalAudit(action, { checksumHint:String(JSON.stringify(normalized).length) });
     return true;
   }

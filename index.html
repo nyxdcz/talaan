@@ -2395,7 +2395,8 @@
         showToast("This Viewer profile is read-only", "warning");
         return false;
       }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const serialized = JSON.stringify(data);
+      if (localStorage.getItem(STORAGE_KEY) !== serialized) localStorage.setItem(STORAGE_KEY, serialized);
       window.dispatchEvent(new CustomEvent("finance:data-persisted", { detail:{ action, data:cloneData(data) } }));
       return true;
     }
@@ -5491,7 +5492,7 @@
       const before = cloneData(data);
       try {
         ensureCurrentDevice();
-        createRecoverySnapshot("Before starting empty workspace", before);
+        await createRecoverySnapshot("Before starting empty workspace", before);
         pushUndo("Start empty workspace");
         data = createEmptyWorkspaceData();
         if (!saveData("Empty workspace ready")) {
@@ -7679,7 +7680,7 @@
       event.preventDefault();
       closeSampleResetDialog();
     });
-    sampleResetForm.addEventListener("submit", event => {
+    sampleResetForm.addEventListener("submit", async event => {
       event.preventDefault();
       if (normalizedSampleResetPhrase() !== SAMPLE_RESET_PHRASE || confirmSampleResetButton.disabled) {
         validateSampleResetPhrase();
@@ -7693,7 +7694,7 @@
 
       try {
         ensureCurrentDevice();
-        createRecoverySnapshot("Before sample data reset", data);
+        await createRecoverySnapshot("Before sample data reset", data);
         pushUndo("Reset all records");
         data = normalizeData(createSampleData());
         if (saveData("Sample data restored")) setSampleDataState("sample", "manual-reset");
@@ -7964,7 +7965,7 @@
     const LEGACY_BACKUP_KEY = "simple-finance-project-records-v11-backup";
     const DEVICE_ID_KEY = "simple-finance-project-records-v12-device-id";
     const FINANCE_DB_NAME = "simple-finance-project-records-v12-db";
-    const FINANCE_DB_VERSION = 1;
+    const FINANCE_DB_VERSION = 2;
     const FINANCE_CHANNEL_NAME = "simple-finance-project-records-v12-channel";
     let deferredInstallPrompt = null;
     let braveDetectionPromise = null;
@@ -8150,8 +8151,11 @@
       writeMeta();
     }
 
-    function createRecoverySnapshot(label, sourceData = data) {
+    async function createRecoverySnapshot(label, sourceData = data) {
+      const recoveryStorage = window.FinancePrivacyLock?.recoveryStorage;
+      if (typeof recoveryStorage?.save === "function") return recoveryStorage.save(label, cloneData(sourceData));
       const snapshot = {
+        kind: "finance-recovery",
         id: uid(),
         label,
         createdAt: new Date().toISOString(),
@@ -8246,6 +8250,7 @@
           if (!db.objectStoreNames.contains("accountSnapshots")) db.createObjectStore("accountSnapshots", { keyPath: "id" });
           if (!db.objectStoreNames.contains("pdfPacks")) db.createObjectStore("pdfPacks", { keyPath: "id" });
           if (!db.objectStoreNames.contains("reminderIndex")) db.createObjectStore("reminderIndex", { keyPath: "id" });
+          if (!db.objectStoreNames.contains("recoverySnapshots")) db.createObjectStore("recoverySnapshots", { keyPath: "id" });
         };
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error || new Error("Could not open offline database"));
@@ -8452,10 +8457,10 @@
       showAppDialog("syncReviewDialog", "#cancelSyncImportButton");
     }
 
-    function applyPendingSyncImport(mode, conflictPolicy = "current") {
+    async function applyPendingSyncImport(mode, conflictPolicy = "current") {
       if (!pendingSyncImport) return;
       const before = cloneData(data);
-      createRecoverySnapshot(`Before ${mode} import`, before);
+      await createRecoverySnapshot(`Before ${mode} import`, before);
       pushUndo("Import sync bundle");
       if (mode === "replace") data = normalizeData(pendingSyncImport.data);
       else data = mergeImportedData(pendingSyncImport.data, conflictPolicy);
@@ -8710,7 +8715,7 @@
       body.innerHTML = history.length ? history.map(item => `<tr><td>${escapeHtml(formatDateTime(item.timestamp))}</td><td>${escapeHtml(item.deviceName || "Device")}</td><td>${escapeHtml(item.action || "Sync")}</td><td><span class="status-chip ${item.status === "success" ? "success" : item.status === "conflict" ? "warning" : item.status === "failed" ? "danger" : "info"}">${escapeHtml(item.status || "info")}</span></td></tr>`).join("") : `<tr><td colspan="4"><div class="system-empty">No local sync events yet.</div></td></tr>`;
     }
 
-    function renderMigrationStatus() {
+    async function renderMigrationStatus() {
       const migration = appMeta.migration || {};
       const chip = document.getElementById("migrationStatusChip");
       const status = migration.status || "pending";
@@ -8727,7 +8732,17 @@
         progressBar.setAttribute("aria-label", `Migration progress: ${progress}%`);
       } else progressBar.removeAttribute("value");
       document.getElementById("migrationProgressText").textContent = hasKnownProgress ? `${progress}% · ${status}` : "Checking migration status";
-      document.getElementById("legacyBackupStatus").textContent = localStorage.getItem(LEGACY_BACKUP_KEY) ? "Stored locally" : "Not available";
+      let legacyAvailable = Boolean(localStorage.getItem(LEGACY_BACKUP_KEY));
+      let legacyStorage = legacyAvailable ? "Stored locally" : "Not available";
+      try {
+        const recoveryStorage = window.FinancePrivacyLock?.recoveryStorage;
+        if (typeof recoveryStorage?.getLegacyBackup === "function") {
+          const legacy = await recoveryStorage.getLegacyBackup();
+          legacyAvailable = Boolean(legacy);
+          legacyStorage = legacyAvailable ? (legacy.storage === "indexeddb-v2" ? "Protected in recovery storage" : "Stored locally") : "Not available";
+        }
+      } catch (error) {}
+      document.getElementById("legacyBackupStatus").textContent = legacyStorage;
       document.getElementById("migrationValidationStatus").textContent = migration.validation || "Not run";
       const history = appMeta.migrationHistory || [];
       document.getElementById("migrationHistoryBody").innerHTML = history.length ? history.map(item => `<tr><td>${escapeHtml(formatDateTime(item.timestamp))}</td><td>${escapeHtml(`${item.from || "Legacy"} → ${item.to || "Finance Schema 12"}`)}</td><td><span class="status-chip ${item.status === "success" ? "success" : "danger"}">${escapeHtml(item.status || "info")}</span><br><span style="color:var(--muted)">${escapeHtml(item.message || "")}</span></td></tr>`).join("") : `<tr><td colspan="3"><div class="system-empty">No migration history.</div></td></tr>`;
@@ -9001,26 +9016,33 @@
       showToast("Device name saved", "success");
     }
 
-    function downloadLegacyBackup() {
-      const raw = localStorage.getItem(LEGACY_BACKUP_KEY);
-      if (!raw) return showToast("No legacy recovery copy is available", "warning");
-      downloadFile(`finance-legacy-recovery-${new Date().toISOString().slice(0, 10)}.json`, raw, "application/json");
+    async function downloadLegacyBackup() {
+      let backup = null;
+      try { backup = await window.FinancePrivacyLock?.recoveryStorage?.getLegacyBackup?.(); } catch (error) {}
+      if (!backup) {
+        try { backup = JSON.parse(localStorage.getItem(LEGACY_BACKUP_KEY) || "null"); } catch (error) {}
+      }
+      if (!backup) return showToast("No legacy recovery copy is available", "warning");
+      downloadFile(`finance-legacy-recovery-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(backup, null, 2), "application/json");
       showToast("Legacy recovery copy downloaded", "success");
     }
 
-    function restoreLegacyBackup() {
-      const raw = localStorage.getItem(LEGACY_BACKUP_KEY);
-      if (!raw) return showToast("No legacy recovery copy is available", "warning");
+    async function restoreLegacyBackup() {
+      let backup = null;
+      try { backup = await window.FinancePrivacyLock?.recoveryStorage?.getLegacyBackup?.(); } catch (error) {}
+      if (!backup) {
+        try { backup = JSON.parse(localStorage.getItem(LEGACY_BACKUP_KEY) || "null"); } catch (error) {}
+      }
+      if (!backup) return showToast("No legacy recovery copy is available", "warning");
       if (!confirm("Restore the stored legacy data? Talaan will create a recovery snapshot of the current records first.")) return;
       try {
-        const bundle = JSON.parse(raw);
-        createRecoverySnapshot("Before legacy rollback", data);
+        await createRecoverySnapshot("Before legacy rollback", data);
         pushUndo("Restore legacy recovery copy");
-        data = normalizeData(bundle.data || bundle);
+        data = normalizeData(backup.data || backup);
         if (saveData("Legacy recovery copy restored into Talaan")) setSampleDataState("local", "legacy-restore");
-        addSyncHistory("Restore legacy recovery copy", "success", { sourceChecksum: bundle.checksum || "" });
+        addSyncHistory("Restore legacy recovery copy", "success", { sourceChecksum: backup.checksum || "" });
       } catch (error) {
-        showToast("The legacy recovery copy could not be restored", "warning");
+        throw error;
       }
     }
 
@@ -9147,7 +9169,7 @@
       });
       document.getElementById("laterUpdateButton").addEventListener("click", () => { document.getElementById("pwaUpdateBanner").hidden = true; document.getElementById("pwaUpdateStatus").textContent = "Update postponed"; });
       document.getElementById("downloadLegacyBackupButton").addEventListener("click", downloadLegacyBackup);
-      document.getElementById("restoreLegacyBackupButton").addEventListener("click", restoreLegacyBackup);
+      document.getElementById("restoreLegacyBackupButton").addEventListener("click", () => restoreLegacyBackup().catch(() => showToast("The legacy recovery copy could not be restored", "warning")));
       document.querySelectorAll('[data-history-action="undo"]').forEach(button => button.addEventListener("click", () => {
         setTimeout(() => { lastPersistedData = cloneData(data); addSyncHistory("Undo last change", "success", { summary: dataSummary(data) }); renderFinanceSettings(); }, 0);
       }));
@@ -9256,12 +9278,12 @@
   <script src="./sync-config.js?v=2.5.0-talaan1"></script>
   <script src="./sync-runtime-compat.js?v=2.5.0-talaan1"></script>
   <script src="./privacy-lock.js?v=2.5.0-talaan1"></script>
-  <script src="./finance-transaction-diagnostics.js?v=2.5.0-account-f8f0804a8684"></script>
+  <script src="./finance-transaction-diagnostics.js?v=2.5.0-account-7ad92fc0427b"></script>
   <script src="./security-profiles.js?v=2.5.0-talaan1"></script>
   <script src="./cloud-conflict-review.js?v=2.5.0-talaan1"></script>
-  <script src="./cloud-conflict-resolution.js?v=2.5.0-talaan1"></script><script src="./cloud-sync-lifecycle.js?v=2.5.0-account-f8f0804a8684"></script><script src="./cloud-sync.js?v=2.5.0-account-f8f0804a8684"></script>
-  <script src="./finance-integrity.js?v=2.5.0-account-f8f0804a8684"></script>
-  <script src="./account-ledger.js?v=2.5.0-account-f8f0804a8684"></script>
+  <script src="./cloud-conflict-resolution.js?v=2.5.0-talaan1"></script><script src="./cloud-sync-lifecycle.js?v=2.5.0-account-7ad92fc0427b"></script><script src="./cloud-sync.js?v=2.5.0-account-7ad92fc0427b"></script>
+  <script src="./finance-integrity.js?v=2.5.0-account-7ad92fc0427b"></script>
+  <script src="./account-ledger.js?v=2.5.0-account-7ad92fc0427b"></script>
   <script src="./budget-planning.js?v=2.5.0-talaan1"></script>
   <script src="./reports-insights.js?v=2.5.0-talaan1"></script>
   <script src="./net-worth.js?v=2.5.0-talaan1"></script>

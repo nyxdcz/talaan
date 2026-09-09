@@ -73,8 +73,10 @@ test("manual payment survives active finance-copy quota pressure", async ({ page
     const profileId = window.FinanceProfileArchitecture.activeProfileId();
     const profileKey = `simple-finance-profile-data-v1:${profileId}`;
     const auditKey = `simple-finance-profile-audit-v1:${profileId}`;
+    const productivityUndoKey = "simple-finance-productivity-undo-history-v1";
     localStorage.setItem(redoKey, JSON.stringify({ disposable:true }));
     localStorage.setItem(auditKey, JSON.stringify([{ id:"audit-pressure" }]));
+    localStorage.setItem(productivityUndoKey, JSON.stringify([{ id:"productivity-audit-pressure", data:{ expenses:Array(20).fill({ amount:1 }) } }]));
 
     const originalSetItem = Storage.prototype.setItem;
     let failures = 0;
@@ -98,6 +100,7 @@ test("manual payment survives active finance-copy quota pressure", async ({ page
         failures,
         redoRemoved:localStorage.getItem(redoKey) == null,
         pressureAuditRemoved:!audit.some(item => item?.id === "audit-pressure"),
+        productivityUndoRemoved:localStorage.getItem(productivityUndoKey) == null,
         paid:Boolean(savedExpense?.paid),
         localBalance:Number(local.accounts?.[account]),
         profileBalance:Number(profile.accounts?.[account]),
@@ -113,6 +116,7 @@ test("manual payment survives active finance-copy quota pressure", async ({ page
   expect(result.payment.ok).toBe(true);
   expect(result.redoRemoved).toBe(true);
   expect(result.pressureAuditRemoved).toBe(true);
+  expect(result.productivityUndoRemoved).toBe(true);
   expect(result.paid).toBe(true);
   expect(result.localBalance).toBe(result.runtimeBalance);
   expect(result.profileBalance).toBe(result.runtimeBalance);
@@ -129,8 +133,10 @@ test("manual payment survives active profile-copy quota pressure", async ({ page
     const profileId = window.FinanceProfileArchitecture.activeProfileId();
     const profileKey = `simple-finance-profile-data-v1:${profileId}`;
     const auditKey = `simple-finance-profile-audit-v1:${profileId}`;
+    const productivityUndoKey = "simple-finance-productivity-undo-history-v1";
     localStorage.setItem(redoKey, JSON.stringify({ disposable:true }));
     localStorage.setItem(auditKey, JSON.stringify([{ id:"profile-audit-pressure" }]));
+    localStorage.setItem(productivityUndoKey, JSON.stringify([{ id:"productivity-profile-pressure", data:{ expenses:Array(20).fill({ amount:1 }) } }]));
 
     const originalSetItem = Storage.prototype.setItem;
     let failures = 0;
@@ -154,6 +160,7 @@ test("manual payment survives active profile-copy quota pressure", async ({ page
         failures,
         redoRemoved:localStorage.getItem(redoKey) == null,
         pressureAuditRemoved:!audit.some(item => item?.id === "profile-audit-pressure"),
+        productivityUndoRemoved:localStorage.getItem(productivityUndoKey) == null,
         paid:Boolean(savedExpense?.paid),
         localBalance:Number(local.accounts?.[account]),
         profileBalance:Number(profile.accounts?.[account]),
@@ -169,6 +176,7 @@ test("manual payment survives active profile-copy quota pressure", async ({ page
   expect(result.payment.ok).toBe(true);
   expect(result.redoRemoved).toBe(true);
   expect(result.pressureAuditRemoved).toBe(true);
+  expect(result.productivityUndoRemoved).toBe(true);
   expect(result.paid).toBe(true);
   expect(result.localBalance).toBe(result.runtimeBalance);
   expect(result.profileBalance).toBe(result.runtimeBalance);

@@ -329,26 +329,34 @@
     return { activeDetached, affectedLocalIds };
   }
 
-  function preserveActiveLocalDataBeforeDelete(profile) {
+  async function preserveActiveLocalDataBeforeDelete(profile) {
     const id = profileId(profile);
     if (String(architecture()?.cloudProfileId?.() || "") !== id) return;
     try {
       if (typeof data !== "undefined") architecture()?.persistCurrentData?.(data, "Local data preserved before Cloud Profile deletion");
     } catch (error) {}
+    if (typeof data === "undefined") return;
+    const backup = {
+      format:"my-finance-cloud-profile-delete-recovery-v1",
+      profileId:id,
+      profileName:String(profile?.name || "Cloud finances"),
+      createdAt:new Date().toISOString(),
+      schemaVersion:12,
+      cloudSchemaVersion:3,
+      data:JSON.parse(JSON.stringify(data))
+    };
+    const recoveryStorage = window.FinancePrivacyLock?.recoveryStorage;
     try {
-      if (typeof data !== "undefined") {
-        const backup = {
-          format:"my-finance-cloud-profile-delete-recovery-v1",
-          profileId:id,
-          profileName:String(profile?.name || "Cloud finances"),
-          createdAt:new Date().toISOString(),
-          schemaVersion:12,
-          cloudSchemaVersion:3,
-          data:JSON.parse(JSON.stringify(data))
-        };
-        localStorage.setItem(`simple-finance-cloud-recovery-${Date.now()}`, JSON.stringify(backup));
+      if (typeof recoveryStorage?.saveAuxiliary === "function") {
+        await recoveryStorage.saveAuxiliary(backup, "cloud-profile-delete-recovery");
+        return;
       }
-    } catch (error) {}
+    } catch (error) { console.warn("Could not save the Cloud Profile deletion recovery point in IndexedDB", error); }
+    try {
+      localStorage.setItem(`simple-finance-cloud-recovery-${Date.now()}`, JSON.stringify(backup));
+    } catch (error) {
+      throw new Error("The local Cloud Profile recovery copy could not be saved. Free browser storage or export a recovery bundle before deleting this profile.");
+    }
   }
 
   function managementDialog() {
@@ -452,7 +460,7 @@
       if (mode === "delete") {
         const confirmation = String(document.getElementById("cloudProfileDeleteConfirm")?.value || "");
         if (confirmation !== String(profile.name || "Cloud finances")) throw new Error("Type the Cloud Profile name exactly to delete it.");
-        preserveActiveLocalDataBeforeDelete(profile);
+        await preserveActiveLocalDataBeforeDelete(profile);
         await managementRpc("finance_v3_delete_profile", { p_profile_id:id, p_confirm_name:confirmation });
         const detach = detachCloudProfileLocally(id);
         knownProfiles = knownProfiles.filter(item => profileId(item) !== id);

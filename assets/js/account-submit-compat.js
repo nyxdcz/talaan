@@ -20,9 +20,9 @@
  *
  * Storage-pressure compatibility protects large real-world datasets from browser
  * localStorage quota failures. Only disposable local history is released during a
- * quota retry: Redo first, profile audit logs second, and Undo only as a final
- * fallback. Finance records, account ledger history, balances, profiles, and Cloud
- * data are never removed by this recovery path.
+ * quota retry: Redo, profile audit logs, and Productivity undo history first, then
+ * core Undo only as a final fallback. Finance records, account ledger history,
+ * balances, profiles, and Cloud data are never removed by this recovery path.
  */
 (function installAccountSubmitCompat(root) {
   if (!root?.document || root.FinanceAccountSubmitCompat?.installed) return;
@@ -30,8 +30,9 @@
   const ACTIVE_DATA_KEY = "simple-finance-project-records-v2";
   const REDO_KEY = `${ACTIVE_DATA_KEY}-redo`;
   const UNDO_KEY = `${ACTIVE_DATA_KEY}-undo`;
+  const PRODUCTIVITY_UNDO_KEY = "simple-finance-productivity-undo-history-v1";
   const PROFILE_AUDIT_PREFIX = "simple-finance-profile-audit-v1:";
-  const STORAGE_FULL_MESSAGE = "This device's local storage is full. Talaan kept the previous finance state. Free some browser storage or remove unused local profiles, then try again.";
+  const STORAGE_FULL_MESSAGE = "This browser's Talaan storage is full. Talaan kept the previous finance state. Export a recovery bundle, then remove unused profiles or optional offline files and try again.";
   let lastPaymentFailure = null;
 
   function activeLedgerVersion() {
@@ -106,8 +107,17 @@
     if (removeStorageKey(REDO_KEY)) removed.push("redo");
     const auditCount = removeProfileAuditLogs();
     if (auditCount) removed.push(`audit:${auditCount}`);
+    if (removeStorageKey(PRODUCTIVITY_UNDO_KEY)) removed.push("productivity-undo");
     if (includeUndo && removeStorageKey(UNDO_KEY)) removed.push("undo");
     return removed;
+  }
+
+  function startRecoveryStorageCompaction() {
+    try {
+      const compact = root.FinancePrivacyLock?.recoveryStorage?.compact;
+      if (typeof compact !== "function") return;
+      Promise.resolve(compact()).catch(error => console.warn("Could not compact browser recovery storage after a quota failure", error));
+    } catch (error) {}
   }
 
   function storageFullError(error) {
@@ -120,6 +130,7 @@
     try { return operation(); }
     catch (error) {
       if (!isStorageQuotaError(error)) throw error;
+      startRecoveryStorageCompaction();
       releaseTransientStorage({ includeUndo:false });
       try { return operation(); }
       catch (retryError) {

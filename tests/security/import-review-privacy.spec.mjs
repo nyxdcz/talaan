@@ -35,6 +35,9 @@ test("recovery import controls and quota-safe storage are wired through the priv
   expect(privacySource).toContain('const RECOVERY_DB_VERSION = 2');
   expect(privacySource).toContain('const RECOVERY_STORE = "recoverySnapshots"');
   expect(privacySource).toContain("compactLegacyRecoverySnapshots");
+  expect(privacySource).toContain("migrateLegacyBackup");
+  expect(privacySource).toContain("migrateCloudRecoveryPoints");
+  expect(privacySource).toContain("saveAuxiliary");
   expect(privacySource).toContain("persistRecoverySnapshot");
   expect(serviceWorkerSource).toContain('const DB_VERSION = 2');
   expect(serviceWorkerSource).toContain('createObjectStore("recoverySnapshots"');
@@ -194,4 +197,56 @@ test("large legacy recovery metadata is compacted and import survives a simulate
   await page.reload({ waitUntil:"networkidle" });
   await waitForStableRuntime(page);
   await expect.poll(() => page.evaluate(name => window.buildBundle().data.accounts?.[name] ?? null, importedName)).toBe(importedAmount);
+});
+
+test("legacy and cloud recovery copies are moved out of localStorage", async ({ page }) => {
+  await page.goto(appUrl, { waitUntil:"networkidle" });
+  await waitForStableRuntime(page);
+
+  const cloudKey = `simple-finance-cloud-recovery-test-${Date.now()}`;
+  const result = await page.evaluate(async cloudKey => {
+    const legacyKey = "simple-finance-project-records-v11-backup";
+    const legacy = {
+      format:"my-finance-v11-recovery",
+      createdAt:new Date().toISOString(),
+      data:{ accounts:{ Legacy:42 }, expenses:[] }
+    };
+    const cloud = {
+      format:"my-finance-cloud-recovery-v3",
+      createdAt:new Date().toISOString(),
+      data:{ accounts:{ Cloud:84 }, expenses:[] },
+      pending:{ sample:true }
+    };
+    localStorage.setItem(legacyKey, JSON.stringify(legacy));
+    localStorage.setItem(cloudKey, JSON.stringify(cloud));
+    const compacted = await window.FinancePrivacyLock.recoveryStorage.compact();
+    const storedLegacy = await window.FinancePrivacyLock.recoveryStorage.getLegacyBackup();
+    const db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open("simple-finance-project-records-v12-db", 2);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const records = await new Promise((resolve, reject) => {
+      const transaction = db.transaction("recoverySnapshots", "readonly");
+      const request = transaction.objectStore("recoverySnapshots").getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+    db.close();
+    return {
+      compacted,
+      legacyKeyPresent:localStorage.getItem(legacyKey) !== null,
+      cloudKeyPresent:localStorage.getItem(cloudKey) !== null,
+      legacyStorage:storedLegacy?.storage || "",
+      cloudRecord:records.find(record => record?.sourceKey === cloudKey) || null
+    };
+  }, cloudKey);
+
+  expect(result.legacyKeyPresent).toBe(false);
+  expect(result.cloudKeyPresent).toBe(false);
+  expect(result.legacyStorage).toBe("indexeddb-v2");
+  expect(result.cloudRecord?.kind).toBe("cloud-recovery");
+  expect(result.cloudRecord?.pending?.sample).toBe(true);
+  expect(result.compacted.legacyBackup).toBeGreaterThanOrEqual(1);
+  expect(result.compacted.cloudRecovery).toBeGreaterThanOrEqual(1);
 });

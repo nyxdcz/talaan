@@ -16,7 +16,7 @@
   font-size:25px;
   font-weight:700;
   line-height:1;
-  color:#FFFFFF;
+  color:var(--text);
 }
 
 /* Keep the requested brand typography authoritative over legacy visual layers. */
@@ -25,34 +25,34 @@ html body #sidebar.sidebar .brand > strong {
   font-weight:700 !important;
   line-height:1 !important;
   letter-spacing:0 !important;
-  color:#FFFFFF !important;
+  color:var(--text) !important;
 }
 
 /* Keep the approved dark sidebar authoritative over the later Liquid Glass light-mode layer. */
 html body #sidebar.sidebar {
-  background:#172B28 !important;
+  background:var(--nav) !important;
   background-image:none !important;
-  color:#FFFFFF !important;
+  color:var(--text) !important;
   border-right:0 !important;
   -webkit-backdrop-filter:none !important;
   backdrop-filter:none !important;
 }
 
 html body #sidebar.sidebar .sidebar-close-button {
-  color:#FFFFFF !important;
+  color:var(--text) !important;
 }
 
 html body #sidebar.sidebar .nav-button {
   background:transparent !important;
   border-color:transparent !important;
-  border-radius:7px !important;
+  border-radius:var(--talaan-control-radius) !important;
   box-shadow:none !important;
-  color:#D9E5E2 !important;
+  color:var(--muted) !important;
 }
 
 html body #sidebar.sidebar .nav-icon {
   background:transparent !important;
-  color:#D9E5E2 !important;
+  color:var(--muted) !important;
 }
 
 html body #sidebar.sidebar .nav-icon-image {
@@ -61,7 +61,7 @@ html body #sidebar.sidebar .nav-icon-image {
 }
 
 html body #sidebar.sidebar .nav-label {
-  color:#D9E5E2 !important;
+  color:var(--muted) !important;
   font-size:12px !important;
   font-weight:700 !important;
 }
@@ -82,13 +82,13 @@ html body #sidebar.sidebar .nav-button.active,
 html body #sidebar.sidebar .nav-button:hover .nav-label,
 html body #sidebar.sidebar .nav-button:focus-visible .nav-label,
 html body #sidebar.sidebar .nav-button.active .nav-label {
-  color:#FFFFFF !important;
+  color:var(--text) !important;
 }
 
 html body #sidebar.sidebar .nav-button.active .nav-icon {
-  background:#356FD1 !important;
-  color:#FFFFFF !important;
-  border-radius:7px !important;
+  background:var(--primary) !important;
+  color:var(--primary-contrast) !important;
+  border-radius:var(--talaan-control-radius) !important;
 }
 
 html body #sidebar.sidebar .nav-button.active .nav-icon-image {
@@ -116,8 +116,8 @@ html body #sidebar.sidebar .sidebar-settings-bottom {
     min-width:var(--sidebar-rail-width) !important;
     max-width:var(--sidebar-rail-width) !important;
     padding:10px 6px !important;
-    background:#172B28 !important;
-    color:#FFFFFF !important;
+    background:var(--nav) !important;
+    color:var(--text) !important;
     transform:none !important;
     overflow:visible !important;
     box-shadow:7px 0 20px rgba(16,24,40,.11) !important;
@@ -236,7 +236,7 @@ html body #sidebar.sidebar .sidebar-settings-bottom {
     font-weight:700 !important;
     line-height:1 !important;
     letter-spacing:0 !important;
-    color:#FFFFFF !important;
+    color:var(--text) !important;
   }
 
   html body .sidebar .sidebar-navigation,
@@ -256,7 +256,7 @@ html body #sidebar.sidebar .sidebar-settings-bottom {
     padding:8px 10px !important;
     gap:9px !important;
     overflow:visible !important;
-    color:#D9E5E2 !important;
+    color:var(--muted) !important;
   }
 
   html body .sidebar.desktop-open .nav-button,
@@ -297,7 +297,7 @@ html body #sidebar.sidebar .sidebar-settings-bottom {
     transform:none !important;
     font-size:12px !important;
     font-weight:700 !important;
-    color:#D9E5E2 !important;
+    color:var(--muted) !important;
   }
 
   html body .sidebar.desktop-open .nav-label,
@@ -318,14 +318,14 @@ html body #sidebar.sidebar .sidebar-settings-bottom {
   html[data-theme="dark"] body .sidebar .nav-button.active,
   html body .sidebar.desktop-open .nav-button.active,
   html body .sidebar.sidebar-pinned .nav-button.active {
-    color:#FFFFFF !important;
+    color:var(--text) !important;
   }
 
   html body .sidebar .nav-button:hover .nav-label,
   html body .sidebar .nav-button:focus-visible .nav-label,
   html body .sidebar .nav-button.active .nav-label,
   html[data-theme="dark"] body .sidebar .nav-button.active .nav-label {
-    color:#FFFFFF !important;
+    color:var(--text) !important;
   }
 
   /* Keep Insights available in both collapsed and expanded states. */
@@ -352,9 +352,9 @@ html body #sidebar.sidebar .sidebar-settings-bottom {
   html body .sidebar.sidebar-pinned .nav-button.active .nav-icon {
     display:grid !important;
     place-items:center !important;
-    background:#356FD1 !important;
-    color:#FFFFFF !important;
-    border-radius:7px !important;
+    background:var(--primary) !important;
+    color:var(--primary-contrast) !important;
+    border-radius:var(--talaan-control-radius) !important;
   }
 
   html body .sidebar .nav-button.active .nav-icon-image,
@@ -375,9 +375,9 @@ html body #sidebar.sidebar .sidebar-settings-bottom {
     transform:translate(5px,-50%) !important;
     padding:7px 10px !important;
     border:1px solid rgba(255,255,255,.18) !important;
-    border-radius:7px !important;
+    border-radius:var(--talaan-control-radius) !important;
     background:#1F2937 !important;
-    color:#FFFFFF !important;
+    color:var(--text) !important;
     box-shadow:0 8px 22px rgba(15,23,42,.28) !important;
     font-size:13px !important;
     font-weight:700 !important;
@@ -422,7 +422,7 @@ html body #sidebar.sidebar .sidebar-settings-bottom {
     font-weight:700 !important;
     line-height:1 !important;
     letter-spacing:0 !important;
-    color:#FFFFFF !important;
+    color:var(--text) !important;
   }
 
   html body #sidebar.sidebar .sidebar-navigation {
@@ -434,7 +434,7 @@ html body #sidebar.sidebar .sidebar-settings-bottom {
     min-height:48px !important;
     padding:10px !important;
     gap:10px !important;
-    border-radius:7px !important;
+    border-radius:var(--talaan-control-radius) !important;
   }
 
   html body #sidebar.sidebar .nav-icon {
@@ -474,7 +474,7 @@ html[data-theme="dark"] body #sidebar.sidebar {
 
 html[data-theme="light"] body #sidebar.sidebar {
   background:#FFFFFF !important;
-  color:#080B10 !important;
+  color:var(--text) !important;
 }
 
 html[data-theme="dark"] body #sidebar.sidebar {
@@ -496,7 +496,7 @@ html[data-theme="dark"] body #sidebar.sidebar.sidebar-pinned .brand > strong {
 
 html[data-theme="light"] body #sidebar.sidebar .brand > strong,
 html[data-theme="light"] body #sidebar.sidebar .sidebar-close-button {
-  color:#080B10 !important;
+  color:var(--text) !important;
 }
 
 html[data-theme="dark"] body #sidebar.sidebar .brand > strong,
@@ -516,7 +516,7 @@ html[data-theme="dark"] body #sidebar.sidebar :is(.sidebar-close-button,.nav-but
 
 html[data-theme="light"] body #sidebar.sidebar .nav-button,
 html[data-theme="light"] body #sidebar.sidebar .nav-label {
-  color:#080B10 !important;
+  color:var(--text) !important;
 }
 
 html[data-theme="dark"] body #sidebar.sidebar .nav-button,
@@ -537,7 +537,7 @@ html[data-theme="dark"] body #sidebar.sidebar .nav-icon {
 }
 
 html[data-theme="light"] body #sidebar.sidebar .nav-icon {
-  color:#080B10 !important;
+  color:var(--text) !important;
 }
 
 html[data-theme="dark"] body #sidebar.sidebar .nav-icon {
@@ -560,7 +560,7 @@ html[data-theme="light"] body #sidebar.sidebar .nav-button.active,
 html[data-theme="light"] body #sidebar.sidebar .nav-button:hover .nav-label,
 html[data-theme="light"] body #sidebar.sidebar .nav-button:focus-visible .nav-label,
 html[data-theme="light"] body #sidebar.sidebar .nav-button.active .nav-label {
-  color:#080B10 !important;
+  color:var(--text) !important;
 }
 
 html[data-theme="dark"] body #sidebar.sidebar .nav-button:hover,
@@ -576,9 +576,9 @@ html[data-theme="light"] body #sidebar.sidebar .nav-button.active .nav-icon,
 html[data-theme="dark"] body #sidebar.sidebar .nav-button.active .nav-icon {
   display:grid !important;
   place-items:center !important;
-  background:#356FD1 !important;
-  color:#FFFFFF !important;
-  border-radius:7px !important;
+  background:var(--primary) !important;
+  color:var(--primary-contrast) !important;
+  border-radius:var(--talaan-control-radius) !important;
 }
 
 html[data-theme="light"] body #sidebar.sidebar .nav-button.active .nav-icon-image,

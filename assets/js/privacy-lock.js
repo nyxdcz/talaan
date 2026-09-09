@@ -6,6 +6,11 @@
   const RECOVERY_DB_NAME = "simple-finance-project-records-v12-db";
   const RECOVERY_DB_VERSION = 2;
   const RECOVERY_STORE = "recoverySnapshots";
+  const LEGACY_BACKUP_KEY = "simple-finance-project-records-v11-backup";
+  const LEGACY_BACKUP_ID = "legacy-v11-backup";
+  const CLOUD_RECOVERY_PREFIX = "simple-finance-cloud-recovery-";
+  const FINANCE_RECOVERY_KIND = "finance-recovery";
+  const MAX_AUXILIARY_RECOVERY_RECORDS = 6;
   const MAX_RECOVERY_SNAPSHOTS = 12;
   let recoveryStorageReadyPromise = null;
   let recoveryImportBusy = false;
@@ -170,7 +175,7 @@
     });
   }
 
-  async function recoveryGetAll(){
+  async function recoveryGetAllRecords(){
     const db=await openRecoveryDb();
     return new Promise((resolve,reject)=>{
       const tx=db.transaction(RECOVERY_STORE,"readonly");
@@ -180,6 +185,11 @@
       tx.oncomplete=()=>db.close();
       tx.onabort=()=>{ db.close(); reject(tx.error || new Error("Recovery read was aborted")); };
     });
+  }
+
+  async function recoveryGetAll(){
+    const records=await recoveryGetAllRecords();
+    return records.filter(item=>!item?.kind || item.kind===FINANCE_RECOVERY_KIND);
   }
 
 
@@ -239,6 +249,29 @@
     };
   }
 
+  function localStorageKeys(prefix){
+    const keys=[];
+    try {
+      for(let index=0;index<localStorage.length;index+=1){
+        const key=localStorage.key(index);
+        if(key?.startsWith(prefix)) keys.push(key);
+      }
+    } catch(error){}
+    return keys;
+  }
+
+  function readLocalJson(key){
+    try {
+      const raw=localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch(error){ return null; }
+  }
+
+  function removeLocalKey(key){
+    try { localStorage.removeItem(key); return true; }
+    catch(error){ return false; }
+  }
+
   function persistRecoveryMeta(meta){
     try {
       if(typeof appMeta!=="undefined" && meta===appMeta && typeof writeMeta==="function") {
@@ -276,7 +309,7 @@
     let migrated=0;
     for(const snapshot of snapshots){
       if(!snapshot?.id || !snapshot?.data) continue;
-      await recoveryPut(cloneValue(snapshot));
+      await recoveryPut({ ...cloneValue(snapshot), kind:snapshot.kind || FINANCE_RECOVERY_KIND });
       migrated+=1;
     }
     if(migrated){
@@ -286,9 +319,68 @@
     return { migrated, total:meta.recoverySnapshots?.length || 0 };
   }
 
+  async function migrateLegacyBackup(){
+    const raw=localStorage.getItem(LEGACY_BACKUP_KEY);
+    if(!raw){
+      const existing=await recoveryGet(LEGACY_BACKUP_ID).catch(()=>null);
+      return { migrated:0, available:Boolean(existing?.data) };
+    }
+    let backup;
+    try { backup=JSON.parse(raw); }
+    catch(error){ return { migrated:0, available:false }; }
+    if(!backup?.data || typeof backup.data!=="object") return { migrated:0, available:false };
+    const record={ ...cloneValue(backup), id:LEGACY_BACKUP_ID, kind:"legacy-backup", storage:"indexeddb-v2" };
+    await recoveryPut(record);
+    if(!removeLocalKey(LEGACY_BACKUP_KEY)) throw new Error("Could not remove the migrated legacy recovery copy");
+    const meta=recoveryMetaObject();
+    if(meta){
+      meta.migration={ ...(meta.migration || {}), v11Backup:true, legacyBackupStorage:"indexeddb-v2" };
+      try { persistRecoveryMeta(meta); } catch(error) { console.warn("Legacy recovery copy migrated but metadata refresh failed",error); }
+    }
+    return { migrated:1, available:true };
+  }
+
+  async function migrateCloudRecoveryPoints(){
+    const keys=localStorageKeys(CLOUD_RECOVERY_PREFIX);
+    let migrated=0;
+    for(const key of keys){
+      const backup=readLocalJson(key);
+      if(!backup?.data || typeof backup.data!=="object") continue;
+      await recoveryPut({ ...cloneValue(backup), id:key, kind:"cloud-recovery", sourceKey:key, storage:"indexeddb-v2" });
+      if(removeLocalKey(key)) migrated+=1;
+    }
+    await trimAuxiliaryRecoveryRecords("cloud-recovery");
+    return { migrated };
+  }
+
+  async function trimAuxiliaryRecoveryRecords(kind){
+    const records=(await recoveryGetAllRecords()).filter(item=>item?.kind===kind);
+    records.sort((left,right)=>String(right?.createdAt || "").localeCompare(String(left?.createdAt || "")));
+    for(const stale of records.slice(MAX_AUXILIARY_RECOVERY_RECORDS)) await recoveryDelete(stale.id);
+    return Math.max(0,records.length-MAX_AUXILIARY_RECOVERY_RECORDS);
+  }
+
+  async function compactLegacyStorage(){
+    const result={ snapshots:0, legacyBackup:0, cloudRecovery:0, total:0 };
+    try {
+      const snapshots=await compactLegacyRecoverySnapshots();
+      result.snapshots=Number(snapshots.migrated || 0);
+      result.total=Number(snapshots.total || 0);
+    } catch(error){ console.warn("Could not compact legacy recovery snapshots",error); }
+    try {
+      const legacy=await migrateLegacyBackup();
+      result.legacyBackup=Number(legacy.migrated || 0);
+    } catch(error){ console.warn("Could not migrate the legacy recovery copy",error); }
+    try {
+      const cloud=await migrateCloudRecoveryPoints();
+      result.cloudRecovery=Number(cloud.migrated || 0);
+    } catch(error){ console.warn("Could not migrate cloud recovery points",error); }
+    return result;
+  }
+
   function ensureRecoveryStorageReady(){
     if(!recoveryStorageReadyPromise){
-      recoveryStorageReadyPromise=compactLegacyRecoverySnapshots().catch(error=>{
+      recoveryStorageReadyPromise=compactLegacyStorage().catch(error=>{
         recoveryStorageReadyPromise=null;
         throw error;
       });
@@ -296,11 +388,13 @@
     return recoveryStorageReadyPromise;
   }
 
-  async function persistRecoverySnapshot(label,sourceData){
+  async function persistRecoverySnapshot(label,sourceData,details={}){
     await ensureRecoveryStorageReady();
     const source=cloneValue(sourceData);
     const snapshot={
+      ...cloneValue(details || {}),
       id:financeUid(),
+      kind:FINANCE_RECOVERY_KIND,
       label:String(label || "Before import"),
       createdAt:new Date().toISOString(),
       sourceDeviceId:currentDeviceId(),
@@ -320,6 +414,32 @@
     persistRecoveryMeta(meta);
     await Promise.allSettled(removed.map(recoveryDelete));
     return snapshotMetadata(snapshot);
+  }
+
+  async function persistAuxiliaryRecoveryRecord(record,kind="auxiliary-recovery"){
+    await ensureRecoveryStorageReady();
+    const source=cloneValue(record || {});
+    const stored={
+      ...source,
+      id:String(source.id || `${kind}-${financeUid()}`),
+      kind:String(kind || "auxiliary-recovery"),
+      storage:"indexeddb-v2"
+    };
+    await recoveryPut(stored);
+    await trimAuxiliaryRecoveryRecords(stored.kind);
+    return stored;
+  }
+
+  async function getLegacyBackup(){
+    await ensureRecoveryStorageReady();
+    const stored=await recoveryGet(LEGACY_BACKUP_ID).catch(()=>null);
+    if(stored?.data) return cloneValue(stored);
+    const local=readLocalJson(LEGACY_BACKUP_KEY);
+    return local?.data ? cloneValue(local) : null;
+  }
+
+  async function hasLegacyBackup(){
+    return Boolean(await getLegacyBackup().catch(()=>readLocalJson(LEGACY_BACKUP_KEY)));
   }
 
   function setImportButtonsBusy(active,activeButton=null){
@@ -383,7 +503,7 @@
       }
 
       if(typeof window.applyPendingSyncImport!=="function") throw new Error("Import action is unavailable");
-      window.applyPendingSyncImport(action[0],action[1]);
+      await window.applyPendingSyncImport(action[0],action[1]);
       importApplied=true;
       if(dialog?.open) throw new Error("Import review expired. Choose the backup again.");
       const appliedReport=integrity.scan(currentFinanceData(),{includeStorage:false});
@@ -737,6 +857,9 @@
       compact:async()=>{ recoveryStorageReadyPromise=null; return ensureRecoveryStorageReady(); },
       list:recoveryGetAll,
       save:persistRecoverySnapshot,
+      saveAuxiliary:persistAuxiliaryRecoveryRecord,
+      getLegacyBackup,
+      hasLegacyBackup,
       version:RECOVERY_DB_VERSION,
       store:RECOVERY_STORE
     },

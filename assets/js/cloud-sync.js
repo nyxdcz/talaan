@@ -1182,7 +1182,22 @@
     renderCloudStats();
   }
 
-  function recoveryPoint(label) { const backup = { format:"my-finance-cloud-recovery-v3", label, createdAt:nowIso(), appVersion:appVersion(), schemaVersion:12, cloudSchemaVersion:3, data:clone(data), pending:clone(pending) }; try { localStorage.setItem(`simple-finance-cloud-recovery-${Date.now()}`,JSON.stringify(backup)); } catch (error) {} return backup; }
+  async function recoveryPoint(label) {
+    const backup = { format:"my-finance-cloud-recovery-v3", label, createdAt:nowIso(), appVersion:appVersion(), schemaVersion:12, cloudSchemaVersion:3, data:clone(data), pending:clone(pending) };
+    const recoveryStorage = window.FinancePrivacyLock?.recoveryStorage;
+    try {
+      if (typeof recoveryStorage?.saveAuxiliary === "function") {
+        await recoveryStorage.saveAuxiliary(backup, "cloud-recovery");
+        return backup;
+      }
+    } catch (error) { console.warn("Could not save the cloud recovery point in IndexedDB", error); }
+    try {
+      localStorage.setItem(`simple-finance-cloud-recovery-${Date.now()}`,JSON.stringify(backup));
+      return backup;
+    } catch (error) {
+      throw new Error("The cloud recovery point could not be saved on this device. Free browser storage or export a recovery bundle before continuing.");
+    }
+  }
   function changesBetween(remoteStore, desiredMap) { const changes = []; const keys = new Set([...Object.keys(remoteStore || {}), ...Object.keys(desiredMap || {})]); keys.forEach(key => { const remote = remoteStore[key], desired = desiredMap[key], desiredDeleted = !desired; if (remote && Boolean(remote.deletedAt) === desiredDeleted && same(remote.payload,desired?.payload || remote.payload) && Number(remote.sortIndex || 0) === Number(desired?.sortIndex || 0)) return; if (!remote && desiredDeleted) return; const [collection,recordId] = remote ? [remote.collection,remote.recordId] : [desired.collection,desired.recordId]; changes.push({ collection, recordId, payload:clone(desired?.payload || remote?.payload || {}), sortIndex:Number(desired?.sortIndex || 0), deleted:desiredDeleted, baseRevision:Number(remote?.revision || 0), minWriterVersionCode:APP_VERSION_CODE }); }); return changes; }
 
   async function commitRawChanges(changes,{ migratedFromV2=false, operations=[] } = {}) {
@@ -1204,7 +1219,7 @@
 
   async function initializeFirstSync(mode) {
     if (!cloudUser) throw new Error("Sign in first."); if (!navigator.onLine) throw new Error("Connect to the internet for the first cloud synchronization.");
-    setStatus("Preparing Cloud Sync 3.0", "Creating a recovery point before cloud-first synchronization…", "info"); recoveryPoint("Before cloud-first synchronization");
+    setStatus("Preparing Cloud Sync 3.0", "Creating a recovery point before cloud-first synchronization…", "info"); await recoveryPoint("Before cloud-first synchronization");
     const snap = await snapshot(); if (snap.status === "revoked") return; const remoteStore = storeFromSnapshotRows(snap.records || []), localMap = toRecordMap(data), cloudExists = Object.keys(remoteStore).length > 0;
     mode = cloudExists ? "download" : "upload";
     if (mode === "download") { seedBaseFromSnapshot(Object.values(remoteStore)); pending = {}; conflicts = []; applyEffectiveRecords("Current cloud records downloaded to this device"); }
@@ -1224,7 +1239,7 @@
     if (!navigator.onLine) throw new Error("Connect to the internet before replacing the cloud copy.");
     requireCloudProfile({ write:true });
     const desiredData = clone(data);
-    recoveryPoint("Before replacing cloud from this device");
+    await recoveryPoint("Before replacing cloud from this device");
     syncing = true;
     setStatus("Updating cloud copy", "A recovery point was saved. Writing this device’s current records with cloud revision checks…", "warning");
     try {
@@ -1520,7 +1535,7 @@
     document.getElementById("cloudSignOut")?.addEventListener("click",()=>signOut().catch(error=>showToast(error.message,"warning")));
     document.getElementById("cloudAutoSync")?.addEventListener("change",event=>{state.autoSync=Boolean(event.target.checked);persist();if(state.autoSync){requestLifecycleSync("auto-sync-enabled",100);ensureRealtime().catch(()=>scheduleRealtimeRecovery("CHANNEL_ERROR"));}else{clearForegroundPoll();clearRealtimeRetry();}renderCloudStats();});
     document.getElementById("cloudInitialConfirm")?.addEventListener("click",async()=>{const mode=document.querySelector('input[name="cloudInitialMode"]:checked')?.value||"upload";try{await initializeFirstSync(mode);}catch(error){setStatus("Cloud initialization failed",error.message,"danger");}});
-    document.getElementById("cloudExportBeforeFirst")?.addEventListener("click",()=>downloadJson(`my-finance-before-cloud-v3-${new Date().toISOString().slice(0,10)}.json`,recoveryPoint("Manual pre-cloud-v3 export")));
+    document.getElementById("cloudExportBeforeFirst")?.addEventListener("click",async()=>{try{const backup=await recoveryPoint("Manual pre-cloud-v3 export");downloadJson(`my-finance-before-cloud-v3-${new Date().toISOString().slice(0,10)}.json`,backup);}catch(error){if(typeof showToast==="function")showToast(error.message||"Could not create the recovery point","warning");}});
     document.getElementById("cloudSaveDeviceName")?.addEventListener("click",async()=>{const value=document.getElementById("cloudDeviceName").value.trim().slice(0,60);if(!value)return showToast("Enter a device name.","warning");state.currentDeviceName=value;persist();try{const id=currentDeviceId();if(typeof appMeta!=="undefined"&&appMeta.devices?.[id]){appMeta.devices[id].name=value;if(typeof writeMeta==="function")writeMeta();}}catch(error){}try{await registerDevice();await loadDevices();setStatus("Device renamed",value,"success");}catch(error){setStatus("Rename needs sync",error.message,"warning");}});
     document.getElementById("cloudDevicesBody")?.addEventListener("click",event=>{const button=event.target.closest("[data-revoke-cloud-device]");if(!button)return;if(!confirm("Sign out this device remotely? It will be blocked from future Cloud Sync 3.0 commits and will clear its cloud session the next time it connects."))return;revokeDevice(button.dataset.revokeCloudDevice,button.dataset.revokeCloudUser).catch(error=>showToast(error.message,"warning"));});
     document.getElementById("cloudPendingList")?.addEventListener("click",handlePendingClick);
