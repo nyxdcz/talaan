@@ -263,17 +263,33 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
   });
 }
 
-test("Dashboard centers the phone month navigator with or without Current/status", async ({ page }) => {
+test("Dashboard centers the phone month field and inner contents with or without Current/status", async ({ page }) => {
   await openDashboard(page, { width:393, height:852 });
 
   const measureMonthNavigator = () => page.evaluate(() => {
     const navigator = document.querySelector(".month-navigator");
     const display = document.querySelector("#monthDisplayButton");
+    const monthControl = document.querySelector("#monthControl, .month-control");
     const previous = document.querySelector("#previousMonthButton");
     const next = document.querySelector("#nextMonthButton");
     const navigatorRect = navigator.getBoundingClientRect();
     const displayRect = display.getBoundingClientRect();
+    const monthControlRect = monthControl.getBoundingClientRect();
+    const contentRects = [...display.children]
+      .filter(node => getComputedStyle(node).display !== "none")
+      .map(node => node.getBoundingClientRect())
+      .filter(rect => rect.width > 0 && rect.height > 0);
+    const contentRect = {
+      left:Math.min(...contentRects.map(rect => rect.left)),
+      right:Math.max(...contentRects.map(rect => rect.right)),
+      top:Math.min(...contentRects.map(rect => rect.top)),
+      bottom:Math.max(...contentRects.map(rect => rect.bottom))
+    };
     return {
+      monthControlCenterDeltaX:Math.abs((monthControlRect.left + monthControlRect.right) / 2 - innerWidth / 2),
+      monthControlCenterDeltaY:Math.abs((monthControlRect.top + monthControlRect.bottom) / 2 - (navigatorRect.top + navigatorRect.bottom) / 2),
+      innerCenterDeltaX:Math.abs((contentRect.left + contentRect.right) / 2 - (monthControlRect.left + monthControlRect.right) / 2),
+      innerCenterDeltaY:Math.abs((contentRect.top + contentRect.bottom) / 2 - (monthControlRect.top + monthControlRect.bottom) / 2),
       displayCenterDelta:Math.abs((displayRect.left + displayRect.right) / 2 - innerWidth / 2),
       navigatorContained:navigatorRect.left >= -1 && navigatorRect.right <= innerWidth + 1,
       controlSizes:[previous, next].map(node => [node.getBoundingClientRect().width, node.getBoundingClientRect().height]),
@@ -282,6 +298,10 @@ test("Dashboard centers the phone month navigator with or without Current/status
   });
 
   let geometry = await measureMonthNavigator();
+  expect(geometry.monthControlCenterDeltaX).toBeLessThanOrEqual(1);
+  expect(geometry.monthControlCenterDeltaY).toBeLessThanOrEqual(1);
+  expect(geometry.innerCenterDeltaX).toBeLessThanOrEqual(1);
+  expect(geometry.innerCenterDeltaY).toBeLessThanOrEqual(1);
   expect(geometry.displayCenterDelta).toBeLessThanOrEqual(1);
   expect(geometry.navigatorContained).toBe(true);
   expect(geometry.controlSizes).toEqual([[35,35],[35,35]]);
@@ -293,6 +313,10 @@ test("Dashboard centers the phone month navigator with or without Current/status
   });
 
   geometry = await measureMonthNavigator();
+  expect(geometry.monthControlCenterDeltaX).toBeLessThanOrEqual(1);
+  expect(geometry.monthControlCenterDeltaY).toBeLessThanOrEqual(1);
+  expect(geometry.innerCenterDeltaX).toBeLessThanOrEqual(1);
+  expect(geometry.innerCenterDeltaY).toBeLessThanOrEqual(1);
   expect(geometry.displayCenterDelta).toBeLessThanOrEqual(1);
   expect(geometry.navigatorContained).toBe(true);
   expect(geometry.controlSizes).toEqual([[35,35],[35,35]]);

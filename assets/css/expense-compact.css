@@ -2086,15 +2086,14 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   }
 }
 
-/* V15.2.33 · Center the phone month controls independently of Current/status. */
+/* V15.2.33 · Center only the phone month field and its inner contents. */
 @media (max-width:700px) {
   html body .topbar-actions .month-navigator {
-    justify-content:center !important;
-    align-content:center !important;
+    position:relative !important;
   }
 
-  /* When the optional right-side action is hidden, use a centered three-track
-     core for previous, month, and next. */
+  /* Keep the outer arrows in their existing columns; the month field is
+     centered independently so the whole navigator does not move. */
   html body .topbar-actions .month-navigator:not(:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden]))) {
     grid-template-columns:
       var(--talaan-phone-control-size, 35px)
@@ -2102,31 +2101,67 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
       var(--talaan-phone-control-size, 35px) !important;
   }
 
-  /* When Current/status is visible, mirror its outer lane on the left so the
-     month display remains centered while the action stays inside the viewport. */
+  /* Reserve the visible status lane without changing the outer arrow rhythm. */
   html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) {
     grid-template-columns:
+      var(--talaan-phone-control-size, 35px)
       minmax(0, 1fr)
       var(--talaan-phone-control-size, 35px)
-      minmax(0, 2fr)
-      var(--talaan-phone-control-size, 35px)
-      minmax(0, 1fr) !important;
+      64px !important;
   }
 
-  html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) > #previousMonthButton {
-    grid-column:2 !important;
+  html body .topbar-actions .month-navigator > #previousMonthButton {
+    grid-column:1 !important;
   }
 
-  html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) > .month-control {
+  html body .topbar-actions .month-navigator > #nextMonthButton {
     grid-column:3 !important;
   }
 
-  html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) > #nextMonthButton {
+  html body .topbar-actions .month-navigator > :is(.month-current-button, .month-status-chip) {
     grid-column:4 !important;
+    width:100% !important;
+    max-width:64px !important;
+    justify-self:stretch !important;
   }
 
-  html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) > :is(.month-current-button, .month-status-chip) {
-    grid-column:5 !important;
-    justify-self:stretch !important;
+  /* The gray month field is centered on the navigator's own midpoint, and
+     remains between the 35px arrows at the supported phone widths. */
+  html body .topbar-actions .month-navigator > .month-control {
+    position:absolute !important;
+    top:50% !important;
+    left:50% !important;
+    transform:translate(-50%, -50%) !important;
+    width:min(100%, calc(100% - 78px)) !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    z-index:1 !important;
+  }
+
+  html body .topbar-actions .month-navigator:has(> .month-current-button:not([hidden]), > .month-status-chip:not([hidden])) > .month-control {
+    width:min(100%, calc(100% - 208px)) !important;
+  }
+
+  /* Center Month, the divider, and the short YYYY-MM display as one group. */
+  html body .topbar-actions .month-navigator .month-display-button {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:5px !important;
+    padding-inline:3px !important;
+    text-align:center !important;
+  }
+
+  html body .topbar-actions .month-navigator .month-display-label,
+  html body .topbar-actions .month-navigator .month-display-separator,
+  html body .topbar-actions .month-navigator .month-display-value {
+    flex:0 0 auto !important;
+  }
+
+  html body .topbar-actions .month-navigator .month-display-value {
+    min-width:0 !important;
+    max-width:100% !important;
+    text-align:center !important;
   }
 }
