@@ -2044,3 +2044,44 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     pointer-events:auto !important;
   }
 }
+
+/* V15.2.32 · Keep phone month navigation and finance tabs in one connected flow. */
+@media (max-width:700px) {
+  /* The optional Current/status control must never create an intrinsic-width
+     column that pushes the month navigator beyond the phone viewport. */
+  html body .topbar-actions .month-navigator {
+    box-sizing:border-box !important;
+    grid-template-columns:
+      var(--talaan-phone-control-size, 35px)
+      minmax(0, 1fr)
+      var(--talaan-phone-control-size, 35px)
+      minmax(0, 64px) !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  html body .topbar-actions .month-navigator > .month-control {
+    width:auto !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    overflow:hidden !important;
+  }
+
+  html body .topbar-actions .month-navigator > :is(.month-current-button, .month-status-chip) {
+    min-width:0 !important;
+    max-width:64px !important;
+    justify-self:stretch !important;
+    overflow:hidden !important;
+  }
+
+  /* .content adds 12px of generic phone padding. Finance pages already begin
+     with their workspace switcher, so reclaim that padding to avoid a
+     detached blank band between the month toolbar and the tabs. */
+  html body .content > :is(#income, #money, #paid-expenses) > .finance-workspace-marquee-row {
+    margin-top:-8px !important;
+    margin-bottom:8px !important;
+  }
+}

@@ -48,6 +48,13 @@ async function loadFixture(page, width) {
     </header>
     <main class="main"><div class="content">
       <section class="page active" id="income">
+        <div class="finance-workspace-marquee-row">
+          <div class="workspace-switcher money-workspace-switcher">
+            <button class="workspace-switcher-button">Planning</button>
+            <button class="workspace-switcher-button">Budget</button>
+            <button class="workspace-switcher-button">Paid</button>
+          </div>
+        </div>
         <article class="card budget-planner-card" id="monthlyBudgetPlannerCard">
           <div class="card-header budget-planner-header"><div class="budget-planner-heading-copy"><h3>Monthly budget plan</h3><p>Plan categories, compare actual spending, and forecast month-end cash.</p></div><div class="budget-planner-actions"><button class="button button-secondary button-small">Build from expenses</button><button class="button button-secondary button-small">Copy previous month</button><div class="overflow-menu"><button class="button button-secondary button-small overflow-menu-trigger">More</button></div><button class="button button-primary button-small">+ Add category…</button><button class="budget-planner-toggle budget-panel-collapse" id="monthlyBudgetPlannerToggle"><svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg></button></div></div>
           <div class="budget-planner-body"><div class="budget-planner-summary"><div class="budget-plan-kpi"><span>Planned budget</span><strong>₱34,282.00</strong></div><div class="budget-plan-kpi"><span>Actual spent</span><strong>₱16,090.00</strong></div><div class="budget-plan-kpi"><span>Committed</span><strong>₱33,982.00</strong></div></div>
@@ -104,6 +111,10 @@ for (const width of widths) {
       const exportButton = document.querySelector("#exportIncomeCsv");
       const navigator = document.querySelector(".month-navigator");
       const topbar = document.querySelector(".topbar");
+      const workspaceRow = document.querySelector(".finance-workspace-marquee-row");
+      const navigatorBox = rect(navigator);
+      const topbarBox = rect(topbar);
+      const workspaceBox = rect(workspaceRow);
       const summary = [...document.querySelectorAll("#money .legend-item, #money #moneySummary .summary-item")].map(node => ({ width:rect(node).width, left:rect(node).left, right:rect(node).right }));
       const shadowTargets = [".topbar", ".month-navigator", ".month-control", "#money", "#availableMoneySection", "#availableMoneySection .card-header", "#addAccountButton", "#availableMoneySection [data-collapse-toggle]"];
       return {
@@ -114,7 +125,7 @@ for (const width of widths) {
         summary,
         shadows:shadowTargets.map(selector => ({ selector, value:styles(document.querySelector(selector)).boxShadow })),
         income:{ header:rect(incomeHeader), export:rect(exportButton) },
-        navigator:{ box:rect(navigator), topbar:rect(topbar), controls:[...navigator.querySelectorAll(":scope > .month-nav-button, :scope > .month-control, :scope > .month-status-chip")].map(node => [rect(node).width,rect(node).height]) },
+        navigator:{ box:navigatorBox, topbar:topbarBox, bottomClearance:topbarBox.bottom - navigatorBox.bottom, workspace:workspaceBox, workspaceGap:workspaceBox.top - navigatorBox.bottom, controls:[...navigator.querySelectorAll(":scope > .month-nav-button, :scope > .month-control, :scope > .month-status-chip")].map(node => [rect(node).width,rect(node).height]) },
         overflow:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth) > innerWidth + 1
       };
     });
@@ -163,8 +174,15 @@ for (const width of widths) {
 
     expect(metrics.income.export.height).toBeCloseTo(35, 0);
     expect(metrics.income.export.right).toBeLessThanOrEqual(metrics.income.header.right + 1);
+    expect(metrics.navigator.box.left).toBeGreaterThanOrEqual(-1);
     expect(metrics.navigator.box.right).toBeLessThanOrEqual(width + 1);
     expect(metrics.navigator.box.bottom).toBeLessThanOrEqual(metrics.navigator.topbar.bottom - 1);
+    expect(metrics.navigator.bottomClearance).toBeGreaterThanOrEqual(2);
+    expect(metrics.navigator.bottomClearance).toBeLessThanOrEqual(8);
+    expect(metrics.navigator.workspaceGap).toBeGreaterThanOrEqual(3);
+    expect(metrics.navigator.workspaceGap).toBeLessThanOrEqual(10);
+    expect(metrics.navigator.workspace.left).toBeGreaterThanOrEqual(-1);
+    expect(metrics.navigator.workspace.right).toBeLessThanOrEqual(width + 1);
     metrics.navigator.controls.forEach(([controlWidth,controlHeight]) => {
       expect(controlWidth).toBeGreaterThan(0);
       expect(controlHeight).toBeLessThanOrEqual(35.5);
