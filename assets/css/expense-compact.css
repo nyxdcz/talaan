@@ -2136,6 +2136,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     height:35px !important;
     min-height:35px !important;
     max-height:35px !important;
+    padding:0 !important;
     z-index:1 !important;
   }
 
