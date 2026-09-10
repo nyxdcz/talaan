@@ -2166,3 +2166,13 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     text-align:center !important;
   }
 }
+
+/* V15.2.34 · Connect the phone Dashboard tabs to the topbar divider. */
+@media (max-width:700px) {
+  /* The Dashboard tabs are the first visible content below the sticky topbar.
+     Cancel only the generic content top inset so the two border lines do not
+     appear as a detached blank band. */
+  html body .content > #dashboard > .dashboard-view-tabs {
+    margin-top:-12px !important;
+  }
+}

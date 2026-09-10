@@ -272,9 +272,13 @@ test("Dashboard centers the phone month field and inner contents with or without
     const monthControl = document.querySelector("#monthControl, .month-control");
     const previous = document.querySelector("#previousMonthButton");
     const next = document.querySelector("#nextMonthButton");
+    const topbar = document.querySelector(".topbar");
+    const tabs = document.querySelector("#dashboard .dashboard-view-tabs");
     const navigatorRect = navigator.getBoundingClientRect();
     const displayRect = display.getBoundingClientRect();
     const monthControlRect = monthControl.getBoundingClientRect();
+    const topbarRect = topbar.getBoundingClientRect();
+    const tabsRect = tabs.getBoundingClientRect();
     const contentRects = [...display.children]
       .filter(node => getComputedStyle(node).display !== "none")
       .map(node => node.getBoundingClientRect())
@@ -291,6 +295,7 @@ test("Dashboard centers the phone month field and inner contents with or without
       innerCenterDeltaX:Math.abs((contentRect.left + contentRect.right) / 2 - (monthControlRect.left + monthControlRect.right) / 2),
       innerCenterDeltaY:Math.abs((contentRect.top + contentRect.bottom) / 2 - (monthControlRect.top + monthControlRect.bottom) / 2),
       displayCenterDelta:Math.abs((displayRect.left + displayRect.right) / 2 - innerWidth / 2),
+      dashboardTabsTopGap:tabsRect.top - topbarRect.bottom,
       navigatorContained:navigatorRect.left >= -1 && navigatorRect.right <= innerWidth + 1,
       controlSizes:[previous, next].map(node => [node.getBoundingClientRect().width, node.getBoundingClientRect().height]),
       pageOverflow:document.documentElement.scrollWidth > innerWidth + 1
@@ -303,6 +308,8 @@ test("Dashboard centers the phone month field and inner contents with or without
   expect(geometry.innerCenterDeltaX).toBeLessThanOrEqual(1);
   expect(geometry.innerCenterDeltaY).toBeLessThanOrEqual(1);
   expect(geometry.displayCenterDelta).toBeLessThanOrEqual(1);
+  expect(geometry.dashboardTabsTopGap).toBeGreaterThanOrEqual(-1);
+  expect(geometry.dashboardTabsTopGap).toBeLessThanOrEqual(1);
   expect(geometry.navigatorContained).toBe(true);
   expect(geometry.controlSizes).toEqual([[35,35],[35,35]]);
   expect(geometry.pageOverflow).toBe(false);
@@ -318,6 +325,8 @@ test("Dashboard centers the phone month field and inner contents with or without
   expect(geometry.innerCenterDeltaX).toBeLessThanOrEqual(1);
   expect(geometry.innerCenterDeltaY).toBeLessThanOrEqual(1);
   expect(geometry.displayCenterDelta).toBeLessThanOrEqual(1);
+  expect(geometry.dashboardTabsTopGap).toBeGreaterThanOrEqual(-1);
+  expect(geometry.dashboardTabsTopGap).toBeLessThanOrEqual(1);
   expect(geometry.navigatorContained).toBe(true);
   expect(geometry.controlSizes).toEqual([[35,35],[35,35]]);
   expect(geometry.pageOverflow).toBe(false);
