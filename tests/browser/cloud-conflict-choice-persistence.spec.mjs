@@ -19,9 +19,10 @@ test("orphaned queued conflict opens the versions review", async ({ page }) => {
   }, { key, baseKey, queueKey, conflictKey });
 
   await page.goto(`${APP_URL}/?page=settings&settings=sync`, { waitUntil:"domcontentloaded" });
-  await page.waitForFunction(() => Boolean(window.FinanceCloudConflictReview?.open));
-  await page.addStyleTag({ content:"body.finance-signed-out #settings #cloudConnectedSection,body.finance-signed-out #settings #cloudPendingCard,#settings.page,#settings-panel-cloud,#cloudConnectedSection{display:block!important}" });
+  await page.waitForFunction(() => Boolean(window.FinanceCloudConflictReview?.open && window.FinancePrivacyLock?.setAuthenticated));
+  await page.addStyleTag({ content:"#settings.page,#settings-panel-cloud,#cloudConnectedSection{display:block!important}" });
   await page.evaluate(() => {
+    window.FinancePrivacyLock.setAuthenticated(true, { email:"sync-fixture@example.com" });
     document.getElementById("settings")?.classList.add("active");
     document.querySelector('[data-settings-panel="sync"]')?.removeAttribute("hidden");
     document.getElementById("cloudConnectedSection")?.removeAttribute("hidden");
