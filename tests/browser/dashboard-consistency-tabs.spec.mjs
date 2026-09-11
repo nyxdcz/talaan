@@ -2,12 +2,15 @@ import { expect, test } from "@playwright/test";
 
 const APP_URL = "http://127.0.0.1:3000";
 
-async function openDashboard(page, viewport) {
+async function openDashboard(page, viewport, options = {}) {
   await page.setViewportSize(viewport);
   await page.goto(`${APP_URL}/?page=dashboard`, { waitUntil:"networkidle" });
   await page.waitForFunction(() => Boolean(window.FinancePrivacyLock));
   await page.evaluate(() => window.FinancePrivacyLock.setAuthenticated(true));
   await expect(page.locator("#dashboard .dashboard-view-tabs")).toBeVisible();
+  if (options.hideSampleNotice) {
+    await page.locator("#sampleDataNotice").evaluate(notice => { notice.hidden = true; });
+  }
 }
 
 async function openFinance(page, viewport) {
@@ -264,7 +267,7 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
 }
 
 test("Dashboard centers the phone month field and inner contents with or without Current/status", async ({ page }) => {
-  await openDashboard(page, { width:393, height:852 });
+  await openDashboard(page, { width:393, height:852 }, { hideSampleNotice:true });
 
   const measureMonthNavigator = () => page.evaluate(() => {
     const navigator = document.querySelector(".month-navigator");
