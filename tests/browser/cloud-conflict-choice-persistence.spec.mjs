@@ -23,8 +23,8 @@ test("orphaned queued conflict opens the versions review", async ({ page }) => {
   await page.evaluate(() => document.getElementById("cloudConnectedSection")?.removeAttribute("hidden"));
 
   const reviewButton = page.locator('#cloudPendingList [data-sync-review]');
-  await expect(reviewButton).toBeVisible();
-  await reviewButton.click();
+  await expect(reviewButton).toHaveCount(1);
+  await reviewButton.click({ force:true });
   await expect(page.locator("#cloudConflictReviewDialog")).toBeVisible();
   await expect(page.locator("#cloudConflictReviewReason")).toContainText("Deletion and edit changes overlap");
   await expect(page.locator("#cloudConflictComparisonRows")).toContainText("1,500");

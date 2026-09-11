@@ -33,6 +33,8 @@ assert(cloud.includes("Safely merged non-overlapping changes from another device
 assert(!cloud.includes("function adoptExistingCloudConflicts()"), "old auto-discard conflict recovery is still present");
 assert(cloud.includes("function recoverStoredConflicts()"), "stored conflicts are not preserved across upgrade");
 assert(cloud.includes("function recoverPendingConflicts()"), "orphaned queued conflicts are not reconstructed for review");
+assert(cloud.includes("function recoverPendingConflictFromCloud"), "orphaned queued conflicts cannot reload a missing cloud snapshot");
+assert(cloud.includes("Cloud snapshot returned"), "cloud snapshot recovery does not report an unsuccessful read");
 assert(cloud.includes("This queued conflict is missing its cloud snapshot."), "incomplete queued conflicts do not explain why review cannot continue");
 assert(cloud.includes('function keepLocal(key) { return resolveConflict(key,"device"); }'), "Use this device does not select the device version");
 assert(cloud.includes("onUseDevice:token=>keepLocal(keyFromToken(token))"), "conflict review still routes Use this device to cloud");

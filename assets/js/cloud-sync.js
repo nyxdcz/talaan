@@ -603,6 +603,33 @@
     return recovered;
   }
 
+  async function recoverPendingConflictFromCloud(key) {
+    const normalizedKey = String(key || ""), item = pending[normalizedKey];
+    if (!item || item.status !== "conflict" || conflictForKey(normalizedKey)) return Boolean(conflictForKey(normalizedKey));
+    if (!cloudReadiness().ready) return false;
+    const result = await snapshot();
+    if (result.status !== "ok") throw new Error(`Cloud snapshot returned ${result.status || "an unknown status"}.`);
+    const remoteStore = storeFromSnapshotRows(result.records || []);
+    let remote = remoteStore[normalizedKey];
+    if (!remote) {
+      const [collection,recordId] = splitKey(normalizedKey);
+      remote = {
+        collection:String(item.collection || collection || ""), recordId:String(item.recordId || recordId || ""),
+        payload:clone(item.basePayload || {}), sortIndex:Number(item.baseSortIndex || 0), revision:Number(item.baseRevision || 0),
+        deletedAt:nowIso(), updatedAt:nowIso(), updatedByDevice:"cloud", appVersion:"", appVersionCode:0,
+        minWriterVersionCode:APP_VERSION_CODE
+      };
+    }
+    baseRecords[normalizedKey] = remote;
+    const conflict = conflictFromPending(normalizedKey,item,remote);
+    if (!conflict) return false;
+    conflicts = conflicts.filter(entry => entry.key !== normalizedKey);
+    conflicts.unshift(conflict);
+    conflicts = conflicts.slice(0,MAX_CONFLICTS);
+    persist({ reclaimFirst:true });
+    return true;
+  }
+
   function cloudReadiness() {
     if (!configStatus().ok) return { key:"cloud-off", label:"Cloud off", detail:"Cloud sync is not configured on this device.", ready:false };
     if (!cloudUser && authDiagnostics.phase === "restoring") return { key:"restoring", label:"Restoring session…", detail:"Checking saved authentication.", ready:false };
@@ -1522,13 +1549,26 @@
     node.innerHTML=unresolved.length ? unresolved.map(item => `<article class="cloud-pending-item" data-status="conflict"><div><strong>${escape(recordLabel(item.collection,item.localPayload,item.recordId))}</strong><small>${escape(item.reason || "Both cloud and this device changed this record.")}</small>${item.paths?.length ? `<small>Changed fields: ${escape(item.paths.join(", "))}</small>` : ""}</div><div class="cloud-pending-actions"><button class="button button-primary button-small" type="button" data-review-cloud-conflict="${escape(keyToken(item.key))}">Review versions</button></div></article>`).join("") : `<div class="system-empty">No unresolved record conflicts.</div>`;
   }
   function conflictForKey(key) { return conflicts.find(item=>item.key===key&&!item.resolved) || null; }
-  function openConflictReview(key) {
+  async function openConflictReview(key) {
     const normalizedKey=String(key || "");
-    recoverPendingConflicts();
-    const item=conflictForKey(normalizedKey), review=window.FinanceCloudConflictReview;
+    let item;
+    try {
+      recoverPendingConflicts();
+      item=conflictForKey(normalizedKey);
+      if (!item && pending[normalizedKey]?.status === "conflict") {
+        await recoverPendingConflictFromCloud(normalizedKey);
+        item=conflictForKey(normalizedKey);
+      }
+    } catch (error) {
+      const message=String(error?.message || "Could not reload the cloud version for this conflict. Try syncing again.");
+      setStatus("Sync needs attention",message,"warning");
+      showToast(message,"warning");
+      return false;
+    }
+    const review=window.FinanceCloudConflictReview;
     if (!item) {
       const message=pending[normalizedKey]?.status === "conflict"
-        ? "This queued conflict is missing its cloud snapshot. Sync again to reload both versions before choosing."
+        ? "This queued conflict is missing its cloud snapshot. Connect Cloud Sync, then try Review versions again."
         : "This sync conflict is no longer available. Reload Talaan and sync again.";
       setStatus("Sync needs attention",message,"warning");
       showToast(message,"warning");
@@ -1619,7 +1659,14 @@
     if (!target) return;
     const retry=target.closest("[data-sync-retry]"),discard=target.closest("[data-sync-discard]"),review=target.closest("[data-sync-review]");
     try {
-      if(review)return openConflictReview(keyFromToken(review.dataset.syncReview));
+      if(review) {
+        openConflictReview(keyFromToken(review.dataset.syncReview)).catch(error => {
+          const message=String(error?.message || "Could not open the conflict review. Reload Talaan and try again.");
+          setStatus("Sync needs attention",message,"warning");
+          showToast(message,"warning");
+        });
+        return;
+      }
       if(retry)retryRecord(keyFromToken(retry.dataset.syncRetry));
       if(discard&&confirm("Replace this device’s pending version with the current cloud-confirmed record?"))discardLocal(keyFromToken(discard.dataset.syncDiscard));
     } catch (error) {
