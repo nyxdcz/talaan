@@ -2176,10 +2176,10 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     display:none !important;
   }
 
-  /* .content contributes 12px of phone top padding. Reclaim it on the page
-     container, leaving the shared tab margin at 0 0 8px for Dashboard and
-     Finance style parity. */
+  /* Dashboard-specific content styling contributes an 18px phone top inset.
+     Reclaim it on the page container, leaving the shared tab margin at 0 0
+     8px for Dashboard and Finance style parity. */
   html body .content > #dashboard {
-    margin-top:-12px !important;
+    margin-top:-18px !important;
   }
 }
