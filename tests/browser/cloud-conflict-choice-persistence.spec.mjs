@@ -20,11 +20,15 @@ test("orphaned queued conflict opens the versions review", async ({ page }) => {
 
   await page.goto(`${APP_URL}/?page=settings&settings=sync`, { waitUntil:"domcontentloaded" });
   await page.waitForFunction(() => Boolean(window.FinanceCloudConflictReview?.open));
-  await page.evaluate(() => document.getElementById("cloudConnectedSection")?.removeAttribute("hidden"));
+  await page.addStyleTag({ content:"#settings-panel-cloud[hidden],#cloudConnectedSection[hidden]{display:block!important}" });
+  await page.evaluate(() => {
+    document.querySelector('[data-settings-panel="sync"]')?.removeAttribute("hidden");
+    document.getElementById("cloudConnectedSection")?.removeAttribute("hidden");
+  });
 
   const reviewButton = page.locator('#cloudPendingList [data-sync-review]');
-  await expect(reviewButton).toHaveCount(1);
-  await reviewButton.evaluate(button => button.click());
+  await expect(reviewButton).toBeVisible();
+  await reviewButton.click();
   await expect(page.locator("#cloudConflictReviewDialog")).toBeVisible();
   await expect(page.locator("#cloudConflictReviewReason")).toContainText("Deletion and edit changes overlap");
   await expect(page.locator("#cloudConflictComparisonRows")).toContainText("1,500");
