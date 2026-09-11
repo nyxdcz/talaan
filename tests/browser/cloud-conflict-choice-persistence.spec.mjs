@@ -3,6 +3,34 @@ import { expect, test } from "@playwright/test";
 const APP_URL = "http://127.0.0.1:3000";
 const IPHONE_14_PRO = { width:393, height:852 };
 
+test("orphaned queued conflict opens the versions review", async ({ page }) => {
+  const separator = "\u001f";
+  const key = `accountLedger${separator}ledger-opening-v1-Wallet`;
+  const baseKey = "simple-finance-cloud-record-base-v3:profile-personal";
+  const queueKey = "simple-finance-cloud-record-queue-v3:profile-personal";
+  const conflictKey = "simple-finance-cloud-record-conflicts-v3:profile-personal";
+
+  await page.addInitScript(({ key, baseKey, queueKey, conflictKey }) => {
+    const cloudPayload = { id:"ledger-opening-v1-Wallet", operationId:"ledger-opening-v1-Wallet", account:"Wallet", type:"opening-balance", amount:1300, date:"2026-09-01", description:"Opening balance migrated from V12.19.1" };
+    const devicePayload = { ...cloudPayload, amount:1500 };
+    localStorage.setItem(baseKey, JSON.stringify({ [key]: { collection:"accountLedger", recordId:"ledger-opening-v1-Wallet", payload:cloudPayload, sortIndex:0, revision:4, deletedAt:"", updatedAt:"2026-09-01T00:00:00.000Z" } }));
+    localStorage.setItem(queueKey, JSON.stringify({ [key]: { key, collection:"accountLedger", recordId:"ledger-opening-v1-Wallet", payload:devicePayload, sortIndex:0, deleted:false, baseRevision:0, basePayload:{ ...cloudPayload, amount:1000 }, baseSortIndex:0, status:"conflict", attempts:0, nextAttemptAt:0, updatedAt:"2026-09-01T00:05:00.000Z", lastError:"Deletion and edit changes overlap. Review the cloud and device versions." } }));
+    localStorage.setItem(conflictKey, JSON.stringify([]));
+  }, { key, baseKey, queueKey, conflictKey });
+
+  await page.goto(`${APP_URL}/?page=settings`, { waitUntil:"domcontentloaded" });
+  await page.waitForFunction(() => Boolean(window.FinanceCloudConflictReview?.open));
+  await page.evaluate(() => document.getElementById("cloudConnectedSection")?.removeAttribute("hidden"));
+
+  const reviewButton = page.locator('#cloudPendingList [data-sync-review]');
+  await expect(reviewButton).toBeVisible();
+  await reviewButton.click();
+  await expect(page.locator("#cloudConflictReviewDialog")).toBeVisible();
+  await expect(page.locator("#cloudConflictReviewReason")).toContainText("Deletion and edit changes overlap");
+  await expect(page.locator("#cloudConflictComparisonRows")).toContainText("1,500");
+  await expect(page.locator("#cloudConflictComparisonRows")).toContainText("1,300");
+});
+
 test("Use cloud version survives a nonessential sync metadata write failure", async ({ page }) => {
   await page.setViewportSize(IPHONE_14_PRO);
   await page.goto(`${APP_URL}/?page=settings`, { waitUntil:"domcontentloaded" });

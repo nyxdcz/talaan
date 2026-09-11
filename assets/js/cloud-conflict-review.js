@@ -136,14 +136,16 @@
   function open({ item, keyToken, title }) {
     ensure();
     const dialog = document.getElementById("cloudConflictReviewDialog");
-    if (!item || !dialog) return;
+    if (!item || !dialog) return false;
     dialog.dataset.keyToken = keyToken;
     dialog.dataset.conflictId = item.id;
     document.getElementById("cloudConflictReviewTitle").textContent = title;
     document.getElementById("cloudConflictReviewReason").textContent = item.reason || "Both devices changed this record.";
     document.getElementById("cloudConflictComparisonRows").innerHTML = comparisonRows(item).map(row => `<div class="cloud-conflict-comparison-row" role="row"><strong role="rowheader">${escapeHtml(row.label)}</strong><span role="cell" data-label="This device">${escapeHtml(row.local)}</span><span role="cell" data-label="Cloud version">${escapeHtml(row.remote)}</span></div>`).join("");
     setActionState(dialog, null);
+    if (dialog.open) dialog.close();
     dialog.showModal();
+    return true;
   }
 
   window.FinanceCloudConflictReview = { bind, close, ensure, open, comparisonRows, runResolutionAction };

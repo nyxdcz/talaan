@@ -32,11 +32,14 @@ assert(cloud.includes('local.status = "conflict"'), "overlapping changes are not
 assert(cloud.includes("Safely merged non-overlapping changes from another device."), "safe merge state is not recorded");
 assert(!cloud.includes("function adoptExistingCloudConflicts()"), "old auto-discard conflict recovery is still present");
 assert(cloud.includes("function recoverStoredConflicts()"), "stored conflicts are not preserved across upgrade");
+assert(cloud.includes("function recoverPendingConflicts()"), "orphaned queued conflicts are not reconstructed for review");
+assert(cloud.includes("This queued conflict is missing its cloud snapshot."), "incomplete queued conflicts do not explain why review cannot continue");
 assert(cloud.includes('function keepLocal(key) { return resolveConflict(key,"device"); }'), "Use this device does not select the device version");
 assert(cloud.includes("onUseDevice:token=>keepLocal(keyFromToken(token))"), "conflict review still routes Use this device to cloud");
 assert(!cloud.includes("onUseDevice:token=>discardLocal"), "legacy Use this device discard path remains");
 assert(resolution.includes("choice === \"device\""), "resolution helper cannot rebase a chosen device record");
 assert(review.includes('data-conflict-review-action="device"'), "conflict review has no Use this device action");
+assert(review.includes("if (dialog.open) dialog.close();"), "conflict review cannot safely reopen an already open dialog");
 assert(cloud.includes("function replaceCloudWithThisDevice()"), "protected device-to-cloud recovery action is missing");
 assert(cloud.includes('recoveryPoint("Before replacing cloud from this device")'), "device-to-cloud recovery does not create a recovery point first");
 assert(cloud.includes("Make this device the current cloud copy"), "device-to-cloud recovery control is missing");

@@ -231,8 +231,10 @@
     if (!isObject(value)) return output;
     Object.entries(value).forEach(([key, item]) => {
       if (!item || !item.collection || !item.recordId) return;
-      output[key] = {
-        ...item, payload:sanitizeRecordPayload(String(item.collection),String(item.recordId),item.payload),
+      const normalizedKey = String(key || item.key || "");
+      if (!normalizedKey) return;
+      output[normalizedKey] = {
+        ...item, key:normalizedKey, payload:sanitizeRecordPayload(String(item.collection),String(item.recordId),item.payload),
         basePayload:item.basePayload == null ? null : sanitizeRecordPayload(String(item.collection),String(item.recordId),item.basePayload),
         baseRevision:Number(item.baseRevision || 0), sortIndex:Number(item.sortIndex || 0), baseSortIndex:Number(item.baseSortIndex || 0), deleted:Boolean(item.deleted),
         attempts:Number(item.attempts || 0), nextAttemptAt:Number(item.nextAttemptAt || 0),
@@ -562,6 +564,45 @@
   function pendingCount() { return Object.keys(pending).length; }
   function conflictCount() { return conflicts.filter(item => !item.resolved).length; }
 
+  function conflictFromPending(key, item, base) {
+    if (!item || item.status !== "conflict" || !base) return null;
+    const [keyCollection,keyRecordId] = splitKey(key);
+    const collection = String(item.collection || base.collection || keyCollection || "");
+    const recordId = String(item.recordId || base.recordId || keyRecordId || "");
+    if (!collection || !recordId) return null;
+    const remotePayload = sanitizeRecordPayload(collection,recordId,base.payload ?? item.basePayload ?? {});
+    const paths = [];
+    try { threeWayMerge(item.basePayload ?? {}, item.payload ?? {}, remotePayload, "", paths); } catch (error) {}
+    return {
+      id:uid("conflict"), key, collection, recordId,
+      reason:String(item.lastError || item.reason || "Both cloud and this device changed this record.").slice(0,160),
+      createdAt:item.updatedAt || nowIso(), resolved:false,
+      localPayload:sanitizeRecordPayload(collection,recordId,item.payload),
+      localSortIndex:Number(item.sortIndex || 0), localDeleted:Boolean(item.deleted),
+      remotePayload, remoteRevision:Number(base.revision || item.baseRevision || 0),
+      remoteDeletedAt:base.deletedAt || "", remoteSortIndex:Number(base.sortIndex || item.baseSortIndex || 0),
+      remoteMissing:Boolean(base.deletedAt), basePayload:item.basePayload == null ? null : sanitizeRecordPayload(collection,recordId,item.basePayload),
+      paths:paths.slice(0,80)
+    };
+  }
+
+  function recoverPendingConflicts() {
+    let recovered = 0;
+    Object.entries(pending).forEach(([mapKey,item]) => {
+      const key = String(item?.key || mapKey || "");
+      if (!key || item?.status !== "conflict" || conflictForKey(key)) return;
+      const conflict = conflictFromPending(key,item,baseRecords[key]);
+      if (!conflict) return;
+      conflicts = conflicts.filter(entry => entry.key !== key);
+      conflicts.unshift(conflict);
+      recovered += 1;
+    });
+    if (!recovered) return 0;
+    conflicts = conflicts.slice(0,MAX_CONFLICTS);
+    persist({ reclaimFirst:true });
+    return recovered;
+  }
+
   function cloudReadiness() {
     if (!configStatus().ok) return { key:"cloud-off", label:"Cloud off", detail:"Cloud sync is not configured on this device.", ready:false };
     if (!cloudUser && authDiagnostics.phase === "restoring") return { key:"restoring", label:"Restoring session…", detail:"Checking saved authentication.", ready:false };
@@ -838,6 +879,7 @@
   }
 
   function renderSyncHealth() {
+    recoverPendingConflicts();
     const set = (id,value) => { const node=document.getElementById(id); if(node) node.textContent=String(value); };
     set("cloudAuditCursor", Number(state.lastAuditId || 0)); set("cloudLastPull", formatDateTime(state.lastPullAt)); set("cloudLastPush", formatDateTime(state.lastPushAt)); set("cloudHealthPending", pendingCount()); set("cloudHealthConflicts", conflictCount()); set("cloudHealthAppVersion", `V${appVersion()}`); set("cloudHealthRequiredVersion", versionFromCode(state.requiredAppVersionCode || APP_VERSION_CODE));
     const protocol = document.getElementById("cloudProtocolChip"); if (protocol) { protocol.textContent = `Cloud Schema V${state.cloudSchemaVersion || 2}`; protocol.className = `status-chip ${(state.requiredAppVersionCode || 0) > APP_VERSION_CODE ? "danger" : "success"}`; }
@@ -1481,11 +1523,33 @@
   }
   function conflictForKey(key) { return conflicts.find(item=>item.key===key&&!item.resolved) || null; }
   function openConflictReview(key) {
-    const item=conflictForKey(key), review=window.FinanceCloudConflictReview;
-    if (!item) return false;
-    if (!review?.open) throw new Error("Conflict review is unavailable. Reload the latest app version and try again.");
-    review.open({ item, keyToken:keyToken(key), title:recordLabel(item.collection,item.localPayload,item.recordId) });
-    return true;
+    const normalizedKey=String(key || "");
+    recoverPendingConflicts();
+    const item=conflictForKey(normalizedKey), review=window.FinanceCloudConflictReview;
+    if (!item) {
+      const message=pending[normalizedKey]?.status === "conflict"
+        ? "This queued conflict is missing its cloud snapshot. Sync again to reload both versions before choosing."
+        : "This sync conflict is no longer available. Reload Talaan and sync again.";
+      setStatus("Sync needs attention",message,"warning");
+      showToast(message,"warning");
+      return false;
+    }
+    if (!review?.open) {
+      const message="Conflict review is unavailable. Reload the latest Talaan version and try again.";
+      setStatus("Sync needs attention",message,"warning");
+      showToast(message,"warning");
+      return false;
+    }
+    try {
+      const opened=review.open({ item, keyToken:keyToken(normalizedKey), title:recordLabel(item.collection,item.localPayload,item.recordId) });
+      if (opened === false) throw new Error("Could not open the conflict review. Reload Talaan and try again.");
+      return true;
+    } catch (error) {
+      const message=String(error?.message || "Could not open the conflict review. Reload Talaan and try again.");
+      setStatus("Sync needs attention",message,"warning");
+      showToast(message,"warning");
+      return false;
+    }
   }
   function retryRecord(key) { const item=pending[key]; if (!item) return; item.status="pending"; item.attempts=0; item.nextAttemptAt=0; item.lastError="Cloud will be checked before retrying this device change."; persist(); renderCloudStats(); scheduleSync(80); }
   function refreshAfterConflictChoice(message) { try { applyEffectiveRecords(message); } catch (error) { console.error("Conflict choice was saved but the interface could not refresh.",error); try { showToast("Choice saved. Reload the app to refresh the interface.","warning"); } catch (toastError) {} } try { renderCloudStats(); } catch (error) { console.error("Could not refresh Cloud Sync status.",error); } }
@@ -1550,7 +1614,20 @@
     window.addEventListener("finance:profile-unlocked",()=>{if(cloudUser)ensureSignedInReady({force:true}).catch(error=>setStatus("Sync needs attention",friendlyAuthError(error,"sync"),"danger"));});
   }
 
-  function handlePendingClick(event) { const retry=event.target.closest("[data-sync-retry]"),discard=event.target.closest("[data-sync-discard]"),review=event.target.closest("[data-sync-review]"); if(review)return openConflictReview(keyFromToken(review.dataset.syncReview)); if(retry)retryRecord(keyFromToken(retry.dataset.syncRetry)); if(discard&&confirm("Replace this device’s pending version with the current cloud-confirmed record?"))discardLocal(keyFromToken(discard.dataset.syncDiscard)); }
+  function handlePendingClick(event) {
+    const target=event.target?.closest ? event.target : event.target?.parentElement;
+    if (!target) return;
+    const retry=target.closest("[data-sync-retry]"),discard=target.closest("[data-sync-discard]"),review=target.closest("[data-sync-review]");
+    try {
+      if(review)return openConflictReview(keyFromToken(review.dataset.syncReview));
+      if(retry)retryRecord(keyFromToken(retry.dataset.syncRetry));
+      if(discard&&confirm("Replace this device’s pending version with the current cloud-confirmed record?"))discardLocal(keyFromToken(discard.dataset.syncDiscard));
+    } catch (error) {
+      const message=String(error?.message || "Could not update this queued device change. Reload Talaan and try again.");
+      setStatus("Sync needs attention",message,"warning");
+      showToast(message,"warning");
+    }
+  }
 
   async function initialize() {
     if(initialized)return; initialized=true; setPrivacyAuthentication(false); persist(); injectV2Ui(); wrapSaveData(); bindEvents();
