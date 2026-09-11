@@ -18,7 +18,7 @@ test("orphaned queued conflict opens the versions review", async ({ page }) => {
     localStorage.setItem(conflictKey, JSON.stringify([]));
   }, { key, baseKey, queueKey, conflictKey });
 
-  await page.goto(`${APP_URL}/?page=settings`, { waitUntil:"domcontentloaded" });
+  await page.goto(`${APP_URL}/?page=settings&settings=sync`, { waitUntil:"domcontentloaded" });
   await page.waitForFunction(() => Boolean(window.FinanceCloudConflictReview?.open));
   await page.evaluate(() => document.getElementById("cloudConnectedSection")?.removeAttribute("hidden"));
 
