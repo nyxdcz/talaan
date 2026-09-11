@@ -2167,12 +2167,19 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   }
 }
 
-/* V15.2.34 · Connect the phone Dashboard tabs to the topbar divider. */
+/* V15.2.35 · Connect the phone Dashboard tabs without changing tab geometry. */
 @media (max-width:700px) {
-  /* The Dashboard tabs are the first visible content below the sticky topbar.
-     Cancel only the generic content top inset so the two border lines do not
-     appear as a detached blank band. */
-  html body .content > #dashboard > .dashboard-view-tabs {
+  /* The phone Dashboard starts with hidden presentation-only content. Keep
+     those nodes out of layout even before the runtime enhancement stylesheet
+     is inserted, so the tabs are the first rendered content below the topbar. */
+  html body .content > #dashboard > :is(#dashboardWeekMarquee, .page-heading) {
+    display:none !important;
+  }
+
+  /* .content contributes 12px of phone top padding. Reclaim it on the page
+     container, leaving the shared tab margin at 0 0 8px for Dashboard and
+     Finance style parity. */
+  html body .content > #dashboard {
     margin-top:-12px !important;
   }
 }
