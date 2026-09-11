@@ -2183,3 +2183,14 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     margin-top:-18px !important;
   }
 }
+
+/* V15.2.36 · Keep the Dashboard phone seam to one visible divider. */
+@media (max-width:700px) {
+  /* The shared Dashboard tabs already provide the connected top edge. Remove
+     only the Dashboard topbar's duplicate bottom rule and preserve its outer
+     height with one pixel of equivalent padding. */
+  html body.dashboard-view .topbar {
+    border-bottom:0 !important;
+    padding-bottom:6px !important;
+  }
+}

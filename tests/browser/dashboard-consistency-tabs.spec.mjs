@@ -298,6 +298,7 @@ test("Dashboard centers the phone month field and inner contents with or without
       innerCenterDeltaX:Math.abs((contentRect.left + contentRect.right) / 2 - (monthControlRect.left + monthControlRect.right) / 2),
       innerCenterDeltaY:Math.abs((contentRect.top + contentRect.bottom) / 2 - (monthControlRect.top + monthControlRect.bottom) / 2),
       displayCenterDelta:Math.abs((displayRect.left + displayRect.right) / 2 - innerWidth / 2),
+      topbarBottomBorderWidth:parseFloat(getComputedStyle(topbar).borderBottomWidth),
       dashboardTabsTopGap:tabsRect.top - topbarRect.bottom,
       navigatorContained:navigatorRect.left >= -1 && navigatorRect.right <= innerWidth + 1,
       controlSizes:[previous, next].map(node => [node.getBoundingClientRect().width, node.getBoundingClientRect().height]),
@@ -311,6 +312,7 @@ test("Dashboard centers the phone month field and inner contents with or without
   expect(geometry.innerCenterDeltaX).toBeLessThanOrEqual(1);
   expect(geometry.innerCenterDeltaY).toBeLessThanOrEqual(1);
   expect(geometry.displayCenterDelta).toBeLessThanOrEqual(1);
+  expect(geometry.topbarBottomBorderWidth).toBe(0);
   expect(geometry.dashboardTabsTopGap).toBeGreaterThanOrEqual(-1);
   expect(geometry.dashboardTabsTopGap).toBeLessThanOrEqual(1);
   expect(geometry.navigatorContained).toBe(true);
@@ -328,6 +330,7 @@ test("Dashboard centers the phone month field and inner contents with or without
   expect(geometry.innerCenterDeltaX).toBeLessThanOrEqual(1);
   expect(geometry.innerCenterDeltaY).toBeLessThanOrEqual(1);
   expect(geometry.displayCenterDelta).toBeLessThanOrEqual(1);
+  expect(geometry.topbarBottomBorderWidth).toBe(0);
   expect(geometry.dashboardTabsTopGap).toBeGreaterThanOrEqual(-1);
   expect(geometry.dashboardTabsTopGap).toBeLessThanOrEqual(1);
   expect(geometry.navigatorContained).toBe(true);
