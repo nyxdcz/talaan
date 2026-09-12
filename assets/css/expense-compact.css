@@ -2360,3 +2360,93 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     text-overflow:ellipsis !important;
   }
 }
+
+/* V15.2.41 · Match the reference phone header arrangement on every page. */
+@media (max-width:700px) {
+  /* Keep the title row clear, then place the month controls, sync, and tools
+     in one left-to-right action row. The 64px status lane is retained inside
+     the month navigator so the existing Current chip stays readable. */
+  html body .topbar {
+    grid-template-columns:
+      var(--talaan-phone-control-size, 35px)
+      minmax(0, 1fr)
+      var(--talaan-phone-control-size, 35px)
+      minmax(0, 64px)
+      var(--talaan-phone-control-size, 35px)
+      var(--talaan-phone-control-size, 35px) !important;
+    grid-template-areas:
+      "title title title title title title"
+      "month month month month sync tools" !important;
+    column-gap:5px !important;
+    row-gap:6px !important;
+  }
+
+  html body .topbar-left {
+    grid-area:title !important;
+  }
+
+  html body .topbar-actions .month-navigator {
+    grid-area:month !important;
+  }
+
+  /* Use the navigator's middle lane for every page. This removes the older
+     absolute-centering rule that could reduce the month field to a sliver
+     when sync and tools share the same phone row. */
+  html body .topbar-actions .month-navigator > .month-control {
+    position:relative !important;
+    top:auto !important;
+    left:auto !important;
+    transform:none !important;
+    grid-column:2 !important;
+    grid-row:1 !important;
+    justify-self:stretch !important;
+    align-self:center !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+  }
+
+  /* The base phone rule hides non-month actions. Re-enable only the two
+     reference actions, preserving their existing accessible labels and
+     popover behavior. */
+  html body .topbar-actions > .cloud-sync-toolbar-button,
+  html body .topbar-actions > #cloudSyncStatusButton {
+    display:grid !important;
+    grid-area:sync !important;
+    align-self:center !important;
+    justify-self:stretch !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    padding:0 !important;
+    place-items:center !important;
+  }
+
+  html body .topbar-actions > .topbar-tools-menu {
+    display:block !important;
+    grid-area:tools !important;
+    align-self:center !important;
+    justify-self:stretch !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+  }
+
+  html body .topbar-actions > .topbar-tools-menu > .topbar-tools-trigger {
+    display:grid !important;
+    place-items:center !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    padding:0 !important;
+  }
+}
