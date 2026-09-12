@@ -19,7 +19,7 @@ assert.equal(version.schemaVersion, 12);
 assert.equal(version.cloudSchemaVersion, 3);
 assert.match(index, /<title>Talaan<\/title>/);
 assert.doesNotMatch(index, /<title>[^<]*V\d+\.\d+\.\d+[^<]*<\/title>/);
-assert.match(index, /content="width=device-width, initial-scale=1\.0, viewport-fit=cover"/);
+assert.match(index, /content="width=device-width, initial-scale=1\.0, maximum-scale=1\.0, user-scalable=no, viewport-fit=cover"/);
 assert.ok(index.includes(`./mobile.css?v=${query}`));
 assert.ok(worker.includes(`./mobile.css?v=${query}`));
 assert.ok(index.includes(`./liquid-glass.css?v=${query}`), "liquid-glass.css must be loaded statically by the document");
