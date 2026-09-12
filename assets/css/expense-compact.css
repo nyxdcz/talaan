@@ -2393,11 +2393,35 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
 
   html body .topbar-actions .month-navigator {
     grid-area:month !important;
+    display:grid !important;
+    grid-template-columns:
+      var(--talaan-phone-control-size, 35px)
+      minmax(0, 1fr)
+      var(--talaan-phone-control-size, 35px)
+      minmax(0, 64px) !important;
+    grid-template-rows:35px !important;
+    align-items:center !important;
+    gap:5px !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    padding:0 !important;
+    overflow:visible !important;
   }
 
-  /* Use the navigator's middle lane for every page. This removes the older
-     absolute-centering rule that could reduce the month field to a sliver
-     when sync and tools share the same phone row. */
+  html body .topbar-actions .month-navigator > .month-nav-button {
+    box-sizing:border-box !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    padding:0 !important;
+  }
+
+  /* Keep the month field in the navigator's middle lane. Explicit placement
+     prevents fixture and shell-only actions from creating implicit grid rows. */
   html body .topbar-actions .month-navigator > .month-control {
     position:relative !important;
     top:auto !important;
@@ -2407,9 +2431,42 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     grid-row:1 !important;
     justify-self:stretch !important;
     align-self:center !important;
+    width:100% !important;
+    min-width:100% !important;
+    max-width:none !important;
+  }
+
+  html body .topbar-actions .month-navigator > :is(.month-current-button,.month-status-chip) {
+    grid-column:4 !important;
+    grid-row:1 !important;
+    box-sizing:border-box !important;
     width:auto !important;
     min-width:0 !important;
-    max-width:none !important;
+    max-width:64px !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    padding-inline:6px !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+  }
+
+  html body .topbar-actions .month-navigator > #previousMonthButton {
+    grid-column:1 !important;
+    grid-row:1 !important;
+  }
+
+  html body .topbar-actions .month-navigator > #nextMonthButton {
+    grid-column:3 !important;
+    grid-row:1 !important;
+  }
+
+  /* The add action is intentionally omitted from the compact reference row.
+     Hide it explicitly because fixture shells may omit its hidden attribute,
+     which otherwise creates an implicit track outside the seven-column rail. */
+  html body .topbar-actions > :is(.topbar-add-button,#quickAddExpense) {
+    display:none !important;
   }
 
   /* The base phone rule hides non-month actions. Re-enable only the two
@@ -2454,5 +2511,17 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     min-height:35px !important;
     max-height:35px !important;
     padding:0 !important;
+  }
+}
+
+/* V15.2.42 · Reconcile one-row header height with safe-area consumers. */
+@media (max-width:700px) {
+  :root {
+    /* top padding + one 35px row + bottom padding + topbar divider */
+    --mobile-topbar-offset:calc(max(5px, env(safe-area-inset-top)) + 41px) !important;
+  }
+
+  html body .topbar {
+    grid-template-rows:35px !important;
   }
 }

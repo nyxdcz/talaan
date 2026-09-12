@@ -136,7 +136,7 @@ for (const width of widths) {
         summary,
         shadows:shadowTargets.map(selector => ({ selector, value:styles(document.querySelector(selector)).boxShadow })),
         income:{ header:rect(incomeHeader), export:rect(exportButton) },
-        navigator:{ box:navigatorBox, topbar:topbarBox, displayCenterDelta:Math.abs((monthDisplayBox.left + monthDisplayBox.right) / 2 - innerWidth / 2), monthControlCenterDeltaX:Math.abs((monthControlBox.left + monthControlBox.right) / 2 - innerWidth / 2), monthControlCenterDeltaY:Math.abs((monthControlBox.top + monthControlBox.bottom) / 2 - (navigatorBox.top + navigatorBox.bottom) / 2), innerCenterDeltaX:Math.abs((monthContentBox.left + monthContentBox.right) / 2 - (monthControlBox.left + monthControlBox.right) / 2), innerCenterDeltaY:Math.abs((monthContentBox.top + monthContentBox.bottom) / 2 - (monthControlBox.top + monthControlBox.bottom) / 2), bottomClearance:topbarBox.bottom - navigatorBox.bottom, workspace:workspaceBox, workspaceGap:workspaceBox.top - navigatorBox.bottom, controls:[...navigator.querySelectorAll(":scope > .month-nav-button, :scope > .month-control, :scope > .month-status-chip")].map(node => [rect(node).width,rect(node).height]) },
+        navigator:{ box:navigatorBox, topbar:topbarBox, displayCenterDelta:Math.abs((monthDisplayBox.left + monthDisplayBox.right) / 2 - (monthControlBox.left + monthControlBox.right) / 2), monthControlCenterDeltaY:Math.abs((monthControlBox.top + monthControlBox.bottom) / 2 - (navigatorBox.top + navigatorBox.bottom) / 2), innerCenterDeltaX:Math.abs((monthContentBox.left + monthContentBox.right) / 2 - (monthControlBox.left + monthControlBox.right) / 2), innerCenterDeltaY:Math.abs((monthContentBox.top + monthContentBox.bottom) / 2 - (monthControlBox.top + monthControlBox.bottom) / 2), bottomClearance:topbarBox.bottom - navigatorBox.bottom, workspace:workspaceBox, workspaceGap:workspaceBox.top - navigatorBox.bottom, controls:[...navigator.querySelectorAll(":scope > .month-nav-button, :scope > .month-control, :scope > .month-status-chip")].map(node => [rect(node).width,rect(node).height]) },
         overflow:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth) > innerWidth + 1
       };
     });
@@ -187,7 +187,6 @@ for (const width of widths) {
     expect(metrics.income.export.right).toBeLessThanOrEqual(metrics.income.header.right + 1);
     expect(metrics.navigator.box.left).toBeGreaterThanOrEqual(-1);
     expect(metrics.navigator.box.right).toBeLessThanOrEqual(width + 1);
-    expect(metrics.navigator.monthControlCenterDeltaX).toBeLessThanOrEqual(1);
     expect(metrics.navigator.monthControlCenterDeltaY).toBeLessThanOrEqual(1);
     expect(metrics.navigator.innerCenterDeltaX).toBeLessThanOrEqual(1);
     expect(metrics.navigator.innerCenterDeltaY).toBeLessThanOrEqual(1);
