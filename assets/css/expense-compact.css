@@ -2363,26 +2363,32 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
 
 /* V15.2.41 · Match the reference phone header arrangement on every page. */
 @media (max-width:700px) {
-  /* Keep the title row clear, then place the month controls, sync, and tools
-     in one left-to-right action row. The 64px status lane is retained inside
-     the month navigator so the existing Current chip stays readable. */
+  /* Keep the phone header to one action row: menu, month controls, sync, and
+     tools. The 64px status lane is retained inside the month navigator so the
+     existing Current chip stays readable. */
   html body .topbar {
     grid-template-columns:
+      var(--talaan-phone-control-size, 35px)
       var(--talaan-phone-control-size, 35px)
       minmax(0, 1fr)
       var(--talaan-phone-control-size, 35px)
       minmax(0, 64px)
       var(--talaan-phone-control-size, 35px)
       var(--talaan-phone-control-size, 35px) !important;
-    grid-template-areas:
-      "title title title title title title"
-      "month month month month sync tools" !important;
+    grid-template-areas:"menu month month month month sync tools" !important;
     column-gap:5px !important;
-    row-gap:6px !important;
+    row-gap:0 !important;
   }
 
   html body .topbar-left {
-    grid-area:title !important;
+    grid-area:menu !important;
+    width:35px !important;
+    min-width:35px !important;
+    max-width:35px !important;
+  }
+
+  html body .topbar-left > div {
+    display:none !important;
   }
 
   html body .topbar-actions .month-navigator {

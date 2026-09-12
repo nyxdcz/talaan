@@ -25,6 +25,7 @@ test("phone headers use the reference control order on every workspace page", as
         const monthNavigator = document.querySelector(".month-navigator");
         const cloud = document.querySelector("#cloudSyncStatusButton");
         const controls = [
+          rect("#menuButton"),
           rect("#previousMonthButton"),
           rect("#monthControl"),
           rect("#nextMonthButton"),
@@ -43,8 +44,8 @@ test("phone headers use the reference control order on every workspace page", as
           titleRowArea:getComputedStyle(document.querySelector(".topbar-left")).gridArea,
           cloudDisplay:getComputedStyle(cloud).display,
           toolsDisplay:getComputedStyle(document.querySelector("#topbarToolsMenu")).display,
+          titleDisplay:getComputedStyle(document.querySelector(".topbar-left > div")).display,
           controlHeights:controls.map(item => Math.round((item?.height || 0) * 100) / 100),
-          menuHeight:height("#menuButton"),
           toolsHeight:height("#topbarToolsTrigger"),
           allInside,
           ordered,
@@ -52,16 +53,15 @@ test("phone headers use the reference control order on every workspace page", as
         };
       });
 
-      expect(geometry.areas).toContain("title title title title title title");
-      expect(geometry.areas).toContain("month month month month sync tools");
-      expect(geometry.titleRowArea).toBe("title");
+      expect(geometry.areas).toContain("menu month month month month sync tools");
+      expect(geometry.titleRowArea).toBe("menu");
       expect(geometry.monthArea).toBe("month");
       expect(geometry.cloudArea).toBe("sync");
       expect(geometry.toolsArea).toBe("tools");
       expect(geometry.cloudDisplay).toBe("grid");
       expect(geometry.toolsDisplay).toBe("block");
-      expect(geometry.controlHeights).toEqual([35, 35, 35, 35, 35, 35]);
-      expect(geometry.menuHeight).toBe(35);
+      expect(geometry.titleDisplay).toBe("none");
+      expect(geometry.controlHeights).toEqual([35, 35, 35, 35, 35, 35, 35]);
       expect(geometry.toolsHeight).toBe(35);
       expect(geometry.allInside).toBe(true);
       expect(geometry.ordered).toBe(true);
