@@ -80,13 +80,14 @@
   function syncDashboardToolbarAction() {
     const dashboard = document.getElementById("dashboard");
     const button = document.getElementById("customizeDashboardButton");
-    const toolsMenu = document.getElementById("topbarToolsMenu");
-    if (!dashboard || !button || !toolsMenu) return;
-    if (button.parentElement !== toolsMenu.parentElement || button.nextElementSibling !== toolsMenu) toolsMenu.before(button);
+    if (!dashboard || !button) return;
     button.dataset.dashboardToolbarAction = "true";
     button.setAttribute("aria-label", "Customize dashboard");
     button.title = "Customize dashboard";
-    button.hidden = !dashboard.classList.contains("active");
+    button.hidden = true;
+    button.setAttribute("aria-hidden", "true");
+    button.tabIndex = -1;
+    button.style.setProperty("display", "none", "important");
   }
 
   function bindDashboardToolbarAction() {

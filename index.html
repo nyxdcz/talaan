@@ -3865,7 +3865,10 @@
         document.querySelectorAll(".dashboard-detail-card.is-dashboard-resizing").forEach(card => card.classList.remove("is-dashboard-resizing"));
         document.body.classList.remove("dashboard-pointer-resizing");
         dashboardDragController?.cancel();
-        if (returnFocus) document.getElementById("customizeDashboardButton")?.focus();
+        if (returnFocus) {
+          const returnTarget = document.getElementById("topbarToolsTrigger") || document.getElementById("customizeDashboardButton");
+          returnTarget?.focus();
+        }
       }
     }
 

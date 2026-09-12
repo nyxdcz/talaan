@@ -109,20 +109,30 @@ test("Customize Dashboard still works when invoked from another page", async ({ 
   await expect.poll(() => page.evaluate(() => window.__customizeClicks)).toBeGreaterThan(0);
 });
 
-test("phone More Tools keeps the same menu ownership and accessible dynamic items", async ({ page }) => {
+test("phone Finance and Work headers keep customization inside More Tools", async ({ page }) => {
   await page.setViewportSize({ width:390, height:844 });
-  await page.goto("http://127.0.0.1:3000/index.html?page=money", { waitUntil:"networkidle" });
-  await unlock(page, "header-tools-phone@example.invalid");
-  await openTools(page);
+  for (const pageId of ["money", "projects"]) {
+    await page.goto(`http://127.0.0.1:3000/index.html?page=${pageId}`, { waitUntil:"networkidle" });
+    await unlock(page, `header-tools-phone-${pageId}@example.invalid`);
+    await openTools(page);
 
-  const directButtons = await page.locator("#topbarToolsPanel > button").evaluateAll(nodes => nodes.map(node => node.id));
-  expect(directButtons).toEqual(expectedOrder);
-  await expect(page.locator("#quickEntryMenuButton")).toHaveCount(1);
-  await expect(page.locator("#customizeDashboardMenuButton")).toHaveCount(1);
-  await expect(page.locator("#quickEntryMenuButton")).toHaveAttribute("role", "menuitem");
-  await expect(page.locator("#customizeDashboardMenuButton")).toHaveAttribute("role", "menuitem");
-  await expect(page.locator("#mobileAddExpenseButton")).toBeHidden();
+    const directButtons = await page.locator("#topbarToolsPanel > button").evaluateAll(nodes => nodes.map(node => node.id));
+    expect(directButtons).toEqual(expectedOrder);
+    await expect(page.locator("#quickEntryMenuButton")).toHaveCount(1);
+    await expect(page.locator("#customizeDashboardMenuButton")).toHaveCount(1);
+    await expect(page.locator("#quickEntryMenuButton")).toHaveAttribute("role", "menuitem");
+    await expect(page.locator("#customizeDashboardMenuButton")).toHaveAttribute("role", "menuitem");
+    await expect(page.locator("#mobileAddExpenseButton")).toBeHidden();
 
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
-  expect(overflow).toBe(false);
+    const customizeSource = await page.locator("#customizeDashboardButton").evaluate(node => ({
+      hidden:node.hidden,
+      inTopbar:Boolean(node.closest(".topbar-actions")),
+      ariaHidden:node.getAttribute("aria-hidden"),
+      tabIndex:node.tabIndex
+    }));
+    expect(customizeSource).toEqual({ hidden:true, inTopbar:false, ariaHidden:"true", tabIndex:-1 });
+
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
+    expect(overflow).toBe(false);
+  }
 });
