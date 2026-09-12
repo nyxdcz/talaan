@@ -2304,11 +2304,12 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   }
 }
 
-/* V15.2.39 · Normalize phone workspace tab sizing. */
+/* V15.2.40 · Keep phone workspace rails at 35px while tightening tab buttons. */
 @media (max-width:700px) {
-  /* These segmented controls share one mobile rhythm. The stronger selector
-     also overrides the legacy Budget-only 44px minimum without touching the
-     desktop or coarse-pointer tablet layout. */
+  /* These segmented controls keep their 35px rail, while each tab button is
+     30px and centered inside it. The stronger selector also overrides the
+     legacy Budget-only 44px minimum without touching other phone controls,
+     desktop geometry, or coarse-pointer tablet layout. */
   html body :is(
     .finance-workspace-marquee-row > .money-workspace-switcher,
     #money .money-workspace-switcher,
@@ -2323,6 +2324,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     height:35px !important;
     min-height:35px !important;
     max-height:35px !important;
+    align-items:center !important;
     grid-template-columns:repeat(3,minmax(0,1fr)) !important;
     gap:0 !important;
     padding:0 !important;
@@ -2347,9 +2349,9 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     box-sizing:border-box !important;
     width:100% !important;
     min-width:0 !important;
-    height:35px !important;
-    min-height:35px !important;
-    max-height:35px !important;
+    height:30px !important;
+    min-height:30px !important;
+    max-height:30px !important;
     padding:4px 5px !important;
     font-size:.7rem !important;
     line-height:1.1 !important;

@@ -199,7 +199,7 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
 }
 
 for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }]) {
-  test(`Dashboard keeps its 12px cards, 12px workspace tabs, and contained tabs at ${viewport.width}px`, async ({ page }) => {
+  test(`Dashboard keeps its 12px cards, 35px workspace rail, and contained tabs at ${viewport.width}px`, async ({ page }) => {
     await openDashboard(page, viewport);
 
     const contract = await page.evaluate(() => {
@@ -258,7 +258,7 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
       expect(contract.tabHeight).toBe(35);
       expect(contract.tabPadding).toBe(0);
       expect(contract.tabGap).toBe(0);
-      expect(contract.tabButtonHeights).toEqual([35, 35, 35]);
+      expect(contract.tabButtonHeights).toEqual([30, 30, 30]);
       expect(contract.activeTabRadius).toBe(12);
       expect(contract.calendarLayoutColumns).toBe(1);
       expect(contract.calendarDayMinHeight).toBeGreaterThanOrEqual(56);

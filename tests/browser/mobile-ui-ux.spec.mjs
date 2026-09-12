@@ -62,7 +62,7 @@ for (const width of widths) {
     // The compact topbar keeps the standard +80px offset; with the 5px
     // safe-area floor, the workspace begins around 85px without a detached gap.
     expect(parseFloat(metrics.workspaceTop)).toBeLessThanOrEqual(90);
-    expect(metrics.workspaceButton).toBe(35);
+    expect(metrics.workspaceButton).toBe(30);
     expect(metrics.drawerCloseW).toBe(35);
     expect(metrics.drawerCloseH).toBe(35);
     expect(metrics.toastDismissW).toBe(35);

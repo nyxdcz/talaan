@@ -106,7 +106,7 @@ test("iPhone account balance correction updates the card and persisted finance d
   expect(result.reconciliationDifference).toBe(result.expectedDifference);
 });
 
-test("iPhone transaction totals remain in flow with 35px workspace controls", async ({ page }) => {
+test("iPhone transaction totals remain in flow with 30px workspace buttons", async ({ page }) => {
   await openAuthenticated(page, "money");
   await page.waitForFunction(() => Boolean(document.getElementById("monthlyBudgetPlannerCard") && document.getElementById("transactionTotals-expense")));
 
@@ -132,7 +132,7 @@ test("iPhone transaction totals remain in flow with 35px workspace controls", as
   expect(contract.plannerBeforeIncomeSummary).toBe(true);
   expect(contract.plannerInMoney).toBe(false);
   expect(contract.tabShellHeight).toBe(35);
-  expect(contract.tabHeight).toBe(35);
+  expect(contract.tabHeight).toBe(30);
   expect(contract.tabShellShadow).toBe("none");
   expect(contract.pageOverflow).toBe(false);
 });

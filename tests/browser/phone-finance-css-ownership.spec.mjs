@@ -63,7 +63,7 @@ for (const width of widths) {
       };
     });
 
-    expect(metrics.financeTab).toBe(35);
+    expect(metrics.financeTab).toBe(30);
     expect(metrics.plannerToggle).toBe(35);
     expect(metrics.addAccountWidth).toBe(35);
     expect(metrics.addAccountHeight).toBe(35);
