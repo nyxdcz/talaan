@@ -58,10 +58,10 @@ for (const width of widths) {
         horizontalOverflow:document.documentElement.scrollWidth > innerWidth + 1
       };
     });
-    expect(parseFloat(metrics.workspaceTop)).toBeGreaterThanOrEqual(80);
-    // The compact topbar keeps the standard +80px offset; with the 5px
-    // safe-area floor, the workspace begins around 85px without a detached gap.
-    expect(parseFloat(metrics.workspaceTop)).toBeLessThanOrEqual(90);
+    // The phone header is one 35px row; with the 5px safe-area floor and
+    // divider clearance, the workspace begins at the 46px compact offset.
+    expect(parseFloat(metrics.workspaceTop)).toBeGreaterThanOrEqual(45);
+    expect(parseFloat(metrics.workspaceTop)).toBeLessThanOrEqual(50);
     expect(metrics.workspaceButton).toBe(30);
     expect(metrics.drawerCloseW).toBe(35);
     expect(metrics.drawerCloseH).toBe(35);

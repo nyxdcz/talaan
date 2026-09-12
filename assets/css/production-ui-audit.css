@@ -119,7 +119,7 @@
     --talaan-phone-control-size: 35px;
     --talaan-phone-gap: 8px;
     --talaan-phone-card-padding: 10px;
-    --mobile-topbar-offset: calc(max(5px, env(safe-area-inset-top)) + 80px);
+    --mobile-topbar-offset: calc(max(5px, env(safe-area-inset-top)) + 41px);
   }
 
   html body .topbar {

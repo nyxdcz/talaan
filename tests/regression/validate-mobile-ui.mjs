@@ -45,7 +45,7 @@ assert.match(mobile, /#income \.income-record-row/);
 assert.match(mobile, /#paid-expenses \[data-paid-expense-row\]/);
 assert.match(shell, /100dvh - 170px/);
 assert.match(shell, /100dvh - 190px/);
-assert.match(production, /--mobile-topbar-offset:\s*calc\(max\(5px, env\(safe-area-inset-top\)\) \+ 80px\)/);
+assert.match(production, /--mobile-topbar-offset:\s*calc\(max\(5px, env\(safe-area-inset-top\)\) \+ 41px\)/);
 assert.match(production, /V15\.2\.26 · iPhone 14 Pro phone audit contract/);
 assert.match(production, /html body button,[\s\S]*height: var\(--talaan-phone-control-size\) !important/);
 assert.match(production, /#money \.period-header[\s\S]*min-height: 50px !important/);
