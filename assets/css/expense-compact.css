@@ -2303,3 +2303,58 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     padding:0 !important;
   }
 }
+
+/* V15.2.39 · Normalize phone workspace tab sizing. */
+@media (max-width:700px) {
+  /* These segmented controls share one mobile rhythm. The stronger selector
+     also overrides the legacy Budget-only 44px minimum without touching the
+     desktop or coarse-pointer tablet layout. */
+  html body :is(
+    .finance-workspace-marquee-row > .money-workspace-switcher,
+    #money .money-workspace-switcher,
+    #income .money-workspace-switcher,
+    #paid-expenses .money-workspace-switcher,
+    #dashboard .dashboard-view-tabs,
+    #projects .project-workspace-switcher
+  ) {
+    display:grid !important;
+    box-sizing:border-box !important;
+    width:100% !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+  }
+
+  html body :is(
+    .project-workspace-switcher,
+    #projects .project-workspace-switcher
+  ) {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  html body :is(
+    .finance-workspace-marquee-row > .money-workspace-switcher > .workspace-switcher-button,
+    #money .money-workspace-switcher > .workspace-switcher-button,
+    #income .money-workspace-switcher > .workspace-switcher-button,
+    #paid-expenses .money-workspace-switcher > .workspace-switcher-button,
+    #dashboard .dashboard-view-tabs > .workspace-switcher-button,
+    #projects .project-workspace-switcher > .workspace-switcher-button
+  ) {
+    box-sizing:border-box !important;
+    width:100% !important;
+    min-width:0 !important;
+    height:35px !important;
+    min-height:35px !important;
+    max-height:35px !important;
+    padding:4px 5px !important;
+    font-size:.7rem !important;
+    line-height:1.1 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+}
