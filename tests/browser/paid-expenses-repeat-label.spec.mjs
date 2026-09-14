@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.use({ serviceWorkers:"block" });
 
-test("paid expenses repeat controls keep readable labels, flat styling, and accessible states", async ({ page }) => {
+test("paid expenses repeat controls keep icon-only desktop styling and accessible states", async ({ page }) => {
   await page.setViewportSize({ width:1280, height:800 });
   await page.goto("http://127.0.0.1:3000/offline.html", { waitUntil:"networkidle" });
 
@@ -12,7 +12,6 @@ test("paid expenses repeat controls keep readable labels, flat styling, and acce
         <div class="record-actions desktop-record-actions">
           <button class="button button-saved button-small" data-toggle-saved="paid-example" title="Does not repeat monthly" aria-label="Repeat this expense monthly">
             <span class="saved-icon-container" aria-hidden="true"><span class="saved-icon">☆</span></span>
-            <span class="monthly-repeat-label">Repeat monthly</span>
           </button>
           <button class="button button-secondary button-small" data-undo-paid="paid-example">Move to unpaid</button>
           <button class="button button-secondary button-small" data-edit-expense="paid-example">Edit</button>
@@ -31,15 +30,15 @@ test("paid expenses repeat controls keep readable labels, flat styling, and acce
   const star = desktopButton.locator(".saved-icon");
 
   await expect(desktopButton).toHaveCSS("height", "30px");
+  await expect(desktopButton).toHaveCSS("width", "30px");
   await expect(icon).toHaveCSS("width", "30px");
   await expect(icon).toHaveCSS("height", "30px");
   await expect(icon).toHaveCSS("background-image", /repeat-monthly-off\.png/);
   await expect(star).toHaveCSS("opacity", "0");
-  await expect(desktopButton.locator(".monthly-repeat-label")).toHaveCSS("display", /^(?:inline-)?flex$/);
-  await expect(desktopButton.locator(".monthly-repeat-label")).toHaveText("Repeat monthly");
+  await expect(desktopButton.locator(".monthly-repeat-label")).toHaveCount(0);
   await expect(desktopButton).toHaveCSS("box-shadow", "none");
-  await expect(desktopButton).toHaveCSS("border-radius", "8px");
-  expect(await desktopButton.evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThan(110);
+  await expect(desktopButton).toHaveCSS("border-radius", "12px");
+  expect(await desktopButton.evaluate(element => element.getBoundingClientRect().width)).toBeCloseTo(30, 0);
   await expect(desktopButton).toHaveAttribute("aria-label", "Repeat this expense monthly");
   await expect(desktopButton).toHaveAttribute("title", "Does not repeat monthly");
 

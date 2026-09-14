@@ -1311,3 +1311,51 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] {
   overflow: visible !important;
   white-space: nowrap !important;
 }
+
+/* V15.2.27 · Desktop repeat action is an icon-only 30px control. */
+@media (min-width: 851px) {
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved],
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved]:hover,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved]:focus-visible,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved]:active,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved].active,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved].active:hover,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved],
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved]:hover,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved]:focus-visible,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved]:active,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved].active,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved].active:hover {
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 30px !important;
+    flex-shrink: 0 !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] > .monthly-repeat-label,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-button-text,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-button-text {
+    display: none !important;
+  }
+
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-button-text::before,
+  html body #money .record-row[data-expense-row] > .desktop-record-actions > [data-toggle-saved] .saved-button-text::after,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-button-text::before,
+  html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-button-text::after {
+    content: none !important;
+    display: none !important;
+  }
+}

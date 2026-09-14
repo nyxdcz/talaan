@@ -20,7 +20,6 @@ test("repeat monthly control uses replaceable PNG artwork and click bounce", asy
           <div class="desktop-record-actions">
             <button class="button button-saved button-small" data-toggle-saved="example" aria-label="Repeat this expense monthly">
               <span class="saved-icon-container" aria-hidden="true"><span class="saved-icon">☆</span></span>
-              <span class="monthly-repeat-label">Repeat monthly</span>
             </button>
           </div>
         </div>
