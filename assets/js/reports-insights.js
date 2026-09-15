@@ -8,10 +8,6 @@
   const FILTER_KEY = "simple-finance-report-insights-filter-v1";
   const originalRenderReports = renderReports;
   const originalRenderAll = renderAll;
-
-  const clone = value => {
-    try { return structuredClone(value); } catch (error) { return JSON.parse(JSON.stringify(value)); }
-  };
   const roundMoney = value => Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100;
   const pad = value => String(value).padStart(2, "0");
   const safeText = (value, max = 120) => String(value || "").trim().slice(0, max);
