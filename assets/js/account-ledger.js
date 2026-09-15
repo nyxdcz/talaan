@@ -1523,7 +1523,7 @@
     const fromBalance = Number(data.accounts?.[from] || 0);
     const preview = document.getElementById("transferPreview");
     if (!preview) return;
-    preview.innerHTML = `<div><span>Source balance</span><strong>${from ? money(fromBalance) : "N/A"}</strong></div><div><span>After transfer</span><strong class="${amount > fromBalance ? "text-red" : ""}">${from ? money(fromBalance - amount) : "N/A"}</strong></div><div><span>Destination receives</span><strong class="text-green">${to ? money(amount) : "N/A"}</strong></div>`;
+    preview.innerHTML = `<div><span>Source balance</span><strong>${from ? escapeHtml(money(fromBalance)) : "N/A"}</strong></div><div><span>After transfer</span><strong class="${amount > fromBalance ? "text-red" : ""}">${from ? escapeHtml(money(fromBalance - amount)) : "N/A"}</strong></div><div><span>Destination receives</span><strong class="text-green">${to ? escapeHtml(money(amount)) : "N/A"}</strong></div>`;
   }
 
   function submitTransfer() {

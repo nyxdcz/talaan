@@ -22,6 +22,8 @@ for (const token of [
   "reconciliationBatch:true"
 ]) assert(ledger.includes(token), `Missing centralized money ownership contract: ${token}`);
 
+assert(ledger.includes("escapeHtml(money(fromBalance))"), "updateTransferPreview must sanitize money output with escapeHtml");
+
 assert(productivity.includes("correctPaidExpenseAccounts"), "Paid-expense account correction must delegate to the ledger transaction owner");
 assert(!productivity.includes("FinanceAccountLedger.appendLedgerEntries"), "Paid-expense account correction may not append ledger entries directly");
 assert(household.includes("markExpensesPaidExternally"), "Household external payments must delegate to the ledger transaction owner");
