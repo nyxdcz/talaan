@@ -31,7 +31,6 @@
     "accountLedger", "accountReconciliations", "budgetTemplates", "expenseTemplates"
   ];
   const MAP_COLLECTIONS = ["monthlyReports", "monthlyChecklists", "monthlyBudgets", "iconLibrary"];
-  const FINANCIAL_COLLECTIONS = new Set(["expenses", "incomeRecords", "accounts", "accountLedger", "accountReconciliations", "monthlyBudgets", "budgetTemplates"]);
   const KNOWN_TOP_LEVEL = new Set([
     ...ARRAY_COLLECTIONS, ...MAP_COLLECTIONS,
     "accounts", "accountTypes", "accountOrder", "accountIcons",
