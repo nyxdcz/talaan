@@ -102,7 +102,7 @@ test("phone controls and content cards keep the approved compact rhythm", async 
         .filter(visible)
         .map(element => ({
           id:element.id || "",
-          text:(element.textContent || "").trim(),
+          text:(element.dataset.firstHalfOriginalText || element.dataset.otherExpensesOriginalText || element.getAttribute("aria-label") || element.textContent || "").trim(),
           clipped:element.scrollWidth > element.clientWidth + 1
         }));
       return {
