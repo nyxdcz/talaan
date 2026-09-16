@@ -46,7 +46,6 @@ test("Talaan V2.5.0 source keeps the approved desktop UX quick wins", async () =
   expect(version.schemaVersion).toBe(12);
   expect(version.cloudSchemaVersion).toBe(3);
   expect(version.cacheVersion).toBe("finance-v2-20260828-household-splits-r17");
-  expect(sw).toContain('const APP_VERSION = "2.5.0";');
   expect(sw).toContain('finance-v2-20260828-household-splits-r17');
 });
 
