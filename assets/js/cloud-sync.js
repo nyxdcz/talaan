@@ -6,7 +6,6 @@
   const APP_VERSION_FALLBACK = "2.5.0";
   const APP_VERSION_CODE = 130000;
   const CLOUD_SCHEMA_VERSION = 3;
-  const CORE_SCHEMA_VERSION = 12;
   const PROFILE_ARCH = () => window.FinanceProfileArchitecture || null;
   const LOCAL_PROFILE_ID = PROFILE_ARCH()?.activeProfileId?.() || "profile-personal";
   const META_KEY = `simple-finance-cloud-sync-v3:${LOCAL_PROFILE_ID}`;
