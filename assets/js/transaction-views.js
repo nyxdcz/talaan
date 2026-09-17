@@ -50,6 +50,12 @@
   }
   function read() { try{return normalize(JSON.parse(localStorage.getItem(storageKey())||"{}"));}catch{return normalize();} }
   let state=read(), activeWorkspace="expense", incomeSelection=new Set();
+  const filterElementCache=new Map();
+  function getFilterElement(id) {
+    let el=filterElementCache.get(id);
+    if(!el||!el.isConnected){el=document.getElementById(id);if(el)filterElementCache.set(id,el);}
+    return el;
+  }
   function write() { try{localStorage.setItem(storageKey(),JSON.stringify(state));}catch{} }
   function currentPageWorkspace() {
     const page=document.querySelector(".page.active")?.id;
@@ -63,19 +69,20 @@
     return String(row.dataset.expenseRow || row.dataset.paidExpenseRow || (name==="income" ? visibleIncome()[index]?.id : "") || "");
   }
   function visibleIncome() {
-    const search=document.getElementById("incomeSearch")?.value.trim().toLowerCase()||"";
-    const category=document.getElementById("incomeCategoryFilter")?.value||"";
+    const search=getFilterElement("incomeSearch")?.value.trim().toLowerCase()||"";
+    const category=getFilterElement("incomeCategoryFilter")?.value||"";
     const month=typeof selectedMonth==="function"?selectedMonth():"";
     return (data.incomeRecords||[]).filter(item=>String(item.date||"").startsWith(month)).filter(item=>!search||`${item.name} ${item.notes||""}`.toLowerCase().includes(search)).filter(item=>!category||item.category===category).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   }
   function rowEntries(name) {
     const byId=new Map(records(name).map(item=>[String(item.id),item]));
+    const cachedVisibleIncome=name==="income"?visibleIncome():null;
     const result=[];
     WORKSPACES[name].listIds.forEach(id=>{
       const list=document.getElementById(id); if(!list)return;
       [...list.querySelectorAll(WORKSPACES[name].rowSelector)].forEach((row,index)=>{
         if(row.classList.contains("productivity-record-filtered"))return;
-        const idValue=recordId(row,name,index), item=byId.get(idValue) || (name==="income"?visibleIncome()[index]:null);
+        const idValue=recordId(row,name,index), item=byId.get(idValue) || (name==="income"?cachedVisibleIncome[index]:null);
         if(item) { row.dataset.transactionRecordId=String(item.id); result.push({row,item,list}); }
       });
     });
@@ -142,12 +149,12 @@
     calendar.innerHTML=calendarGroups.length?calendarGroups.map(([date,items])=>`<section class="transaction-calendar-day"><h4>${date==="Unscheduled"?date:(typeof formatDate==="function"?formatDate(date):date)}</h4>${items.map(item=>{const label=String(item.name||"Record").trim()||"Record";const amount=typeof money==="function"?money(itemAmount(item,name)):itemAmount(item,name);return `<button type="button" class="transaction-calendar-entry" data-transaction-open="${esc(item.id)}" title="${esc(label)}" aria-label="${esc(`${label}: ${amount}`)}"><span>${esc(label)}</span><strong>${amount}</strong></button>`;}).join("")}</section>`).join(""):`<div class="empty-state"><strong>No visible records</strong>Change or clear the active filters.</div>`;
   }
   function captureFilters(name) {
-    const values={}; Object.entries(WORKSPACES[name].filters).forEach(([key,id])=>values[key]=document.getElementById(id)?.value||"");
+    const values={}; Object.entries(WORKSPACES[name].filters).forEach(([key,id])=>values[key]=getFilterElement(id)?.value||"");
     if(name!=="income") values.advanced=window.FinanceProductivityTools?.getFilters?.(name==="expense"?"expense":"paid")||null;
     return values;
   }
   function applyFilters(name,filters={}) {
-    Object.entries(WORKSPACES[name].filters).forEach(([key,id])=>{const control=document.getElementById(id);if(control&&Object.hasOwn(filters,key))control.value=filters[key];});
+    Object.entries(WORKSPACES[name].filters).forEach(([key,id])=>{const control=getFilterElement(id);if(control&&Object.hasOwn(filters,key))control.value=filters[key];});
     if(filters.advanced&&name!=="income") window.FinanceProductivityTools?.setFilters?.(name==="expense"?"expense":"paid",filters.advanced,false);
   }
   function renderToolbar(name) {
