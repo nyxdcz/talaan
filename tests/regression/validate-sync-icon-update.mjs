@@ -52,7 +52,7 @@ function runTestWithEnvironment(options = {}) {
         tagName: tag.toUpperCase(),
         dataset: {},
         style: { setProperty: () => {} },
-        setAttribute: (k, v) => {},
+        setAttribute: (_k, _v) => {},
         before: () => {},
         appendChild: () => {},
         closest: () => null,
