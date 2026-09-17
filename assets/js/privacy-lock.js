@@ -356,7 +356,7 @@
   async function trimAuxiliaryRecoveryRecords(kind){
     const records=(await recoveryGetAllRecords()).filter(item=>item?.kind===kind);
     records.sort((left,right)=>String(right?.createdAt || "").localeCompare(String(left?.createdAt || "")));
-    for(const stale of records.slice(MAX_AUXILIARY_RECOVERY_RECORDS)) await recoveryDelete(stale.id);
+    await Promise.all(records.slice(MAX_AUXILIARY_RECOVERY_RECORDS).map(stale=>recoveryDelete(stale.id)));
     return Math.max(0,records.length-MAX_AUXILIARY_RECOVERY_RECORDS);
   }
 
