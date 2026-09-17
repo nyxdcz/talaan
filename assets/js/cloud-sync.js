@@ -1348,7 +1348,7 @@
       if (result.status === "revoked") { await handleRevoked(result); return false; }
       if (result.status === "device_missing") { if (!await registerDevice()) return false; pages += 1; continue; }
       if (result.status !== "ok") throw new Error(`Cloud pull returned ${result.status || "an unknown status"}.`);
-      for (const encryptedEvent of result.events || []) { const event = await decryptRow(encryptedEvent); applyRemoteEvent(event); changed = true; state.lastAuditId = Math.max(Number(state.lastAuditId || 0),Number(event.id || 0)); }
+      const events = await decryptRows(result.events || []); for (const event of events) { applyRemoteEvent(event); changed = true; state.lastAuditId = Math.max(Number(state.lastAuditId || 0),Number(event.id || 0)); }
       state.lastAuditId = Math.max(Number(state.lastAuditId || 0),Number(result.latest_audit_id || 0)); hasMore = Boolean(result.has_more); pages += 1;
     }
     state.lastPullAt = nowIso(); persist(); if (changed) applyEffectiveRecords("Current cloud records written to this device"); return changed;
