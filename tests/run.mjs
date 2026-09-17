@@ -33,6 +33,7 @@ const testPlan = [
   { suite: "regression", file: "tests/regression/validate-production-ui.mjs" },
   { suite: "regression", file: "tests/regression/validate-project-interactions.mjs" },
   { suite: "regression", file: "tests/regression/validate-sync-config-separation.mjs" },
+  { suite: "regression", file: "tests/regression/validate-theme-icon-update.mjs" },
   { suite: "regression", file: "tests/regression/validate-transaction-workspace.mjs" },
   { suite: "regression", file: "tests/regression/validate-privacy-display.mjs" },
   { suite: "regression", file: "tests/regression/validate-payees-rules.mjs" },
