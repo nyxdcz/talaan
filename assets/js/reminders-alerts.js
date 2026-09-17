@@ -585,7 +585,21 @@
 
   function settingsFromForm() {
     const rules = {};
-    RULE_KEYS.forEach(key => { rules[key] = Boolean(document.getElementById(`financeAlertRule-${key}`)?.checked); });
+    const grid = document.querySelector(".finance-alert-rule-grid");
+    if (grid) {
+      const inputs = grid.getElementsByTagName("input");
+      for (let i = 0; i < inputs.length; i++) {
+        const input = inputs[i];
+        if (input.id.startsWith("financeAlertRule-")) {
+          rules[input.id.slice(17)] = Boolean(input.checked);
+        }
+      }
+    }
+    RULE_KEYS.forEach(key => {
+      if (rules[key] === undefined) {
+        rules[key] = Boolean(document.getElementById(`financeAlertRule-${key}`)?.checked);
+      }
+    });
     return normalizeReminderSettings({
       enabled:data.reminderSettings?.enabled,
       dailyDigest:document.getElementById("financeAlertDailyDigest")?.checked !== false,
