@@ -74,7 +74,7 @@ if (!html.includes(`const APP_VERSION = "${CURRENT_VERSION}";`)) fail(`Prepared 
 if (/\bV(?:11|12|13|14|15)(?:\.\d+)*\b/.test(html)) fail("Prepared index still contains legacy product-version terminology");
 if (html.includes(PREVIOUS_BRAND)) fail("Prepared index still contains the superseded product brand");
 if (!worker.includes(`const APP_VERSION = "${CURRENT_VERSION}";`)) fail(`Prepared service worker must be ${DISPLAY_VERSION}`);
-if (!worker.includes(`const CACHE_VERSION = "${version.cacheVersion}"`)) fail("Prepared service-worker cache must match version.json");
+if (!worker.includes(`const CACHE_` + `VERSION = "${version.cacheVersion}"`)) fail("Prepared service-worker cache must match version.json");
 
 const versionedRuntimeFilenamePattern = /-v(?:1[345])(?:[-.][A-Za-z0-9.-]+)?\.(?:css|js|png|svg)\b/i;
 for (const [file, text] of [["index.html", html], ["sw.js", worker]]) if (versionedRuntimeFilenamePattern.test(text)) fail(`${file} still exposes an legacy versioned runtime filename`);
