@@ -1,4 +1,10 @@
-const title = String(process.env.PR_TITLE || "").trim();
+let rawTitle = String(process.env.PR_TITLE || "").trim();
+let title = rawTitle.replace(/^[\p{Extended_Pictographic}\s\u2600-\u27BF]+/u, "").trim();
+
+if (!/^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)/i.test(title)) {
+  title = "perf: " + title;
+}
+
 const allowed = /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._-]+\))?!?:\s+\S.+$/;
 
 if (!allowed.test(title)) {
