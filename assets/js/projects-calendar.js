@@ -486,11 +486,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  function buildUi() {
-    const projectsPage = document.getElementById("projects");
-    const heading = projectsPage?.querySelector(".page-heading");
-    if (!projectsPage || !heading || document.getElementById("projectCalendarV13020")) return;
-
+  function createAgendaCard() {
     const card = document.createElement("article");
     card.className = "card project-calendar-v13020";
     card.id = "projectCalendarV13020";
@@ -510,8 +506,10 @@
       <div class="pc-agenda pc-agenda-preview"><div class="finance-kanban-board agenda-kanban-board" data-pc-board aria-label="Project Agenda workflow columns"></div></div>
       <p class="pc-message" data-pc-message aria-live="polite"></p>
     `;
-    heading.insertAdjacentElement("afterend", card);
+    return card;
+  }
 
+  function createEventDialog() {
     const dialog = document.createElement("dialog");
     dialog.id = "projectCalendarEventDialog";
     dialog.className = "app-dialog dialog-form dialog-standard";
@@ -538,8 +536,10 @@
         <div class="modal-footer form-action-footer"><span class="footer-spacer"></span><button type="button" class="button button-secondary" data-pc-close>Cancel</button><button type="submit" class="button button-primary">Save event</button></div>
       </form>
     `;
-    document.body.appendChild(dialog);
+    return dialog;
+  }
 
+  function createFullAgendaDialog() {
     const fullDialog = document.createElement("dialog");
     fullDialog.id = "projectAgendaFullDialog";
     fullDialog.className = "app-dialog dialog-utility dialog-extended pc-full-dialog";
@@ -548,8 +548,10 @@
       <div class="modal-header pc-full-header"><div><h3 id="projectAgendaFullDialogTitle">Project Agenda</h3><small data-pc-full-count>0 total</small></div><div><button type="button" class="button button-primary button-small" data-pc-full-add>+ Schedule event</button><button type="button" class="button button-secondary button-small" data-pc-full-close>Close</button></div></div>
       <div class="modal-body pc-full-body"><div class="finance-kanban-board agenda-kanban-board agenda-kanban-board-full" data-pc-full-board aria-label="Full Project Agenda workflow columns"></div></div>
       <div class="modal-footer"><button type="button" class="button button-secondary" data-pc-full-close>Close</button></div>`;
-    document.body.appendChild(fullDialog);
+    return fullDialog;
+  }
 
+  function attachAgendaEventListeners(card, fullDialog) {
     const handleAgendaAction = event => {
       const add = event.target.closest("[data-pc-add], [data-pc-full-add]");
       if (add) { closeFullAgenda(); return openDialog(); }
@@ -571,15 +573,18 @@
     card.addEventListener("click", handleAgendaAction);
     fullDialog.addEventListener("click", handleAgendaAction);
     fullDialog.querySelectorAll("[data-pc-full-close]").forEach(button => button.addEventListener("click", closeFullAgenda));
+  }
 
+  function attachEventDialogListeners(dialog) {
     dialog.querySelector("#projectCalendarEventForm").addEventListener("submit", saveEvent);
     ["pcEventTitle", "pcEventDate", "pcEventStart", "pcEventEnd"].forEach(id => {
       const input = dialog.querySelector(`#${id}`);
       ["input", "change"].forEach(type => input?.addEventListener(type, () => clearEventFieldError(input)));
     });
     dialog.querySelectorAll("[data-pc-close]").forEach(button => button.addEventListener("click", closeDialog));
+  }
 
-    // Add a Schedule button to each rendered project without modifying the core project renderer.
+  function observeProjectListScheduleButtons() {
     const observeProjects = () => {
       document.querySelectorAll("#projectKanbanBoard .project-record").forEach(row => {
         if (row.querySelector("[data-pc-project-schedule]")) return;
@@ -598,16 +603,36 @@
     };
     new MutationObserver(observeProjects).observe(document.getElementById("projects"), { subtree:true, childList:true });
     observeProjects();
+  }
 
-    // Keep the project selector current when projects are added/renamed.
+  function setupProjectSelectorSync() {
     document.addEventListener("click", () => {
       const select = document.getElementById("pcEventProject");
       if (select && !document.getElementById("projectCalendarEventDialog")?.open) select.innerHTML = projectOptions(select.value);
     });
+  }
+
+  function buildUi() {
+    const projectsPage = document.getElementById("projects");
+    const heading = projectsPage?.querySelector(".page-heading");
+    if (!projectsPage || !heading || document.getElementById("projectCalendarV13020")) return;
+
+    const card = createAgendaCard();
+    heading.insertAdjacentElement("afterend", card);
+
+    const dialog = createEventDialog();
+    document.body.appendChild(dialog);
+
+    const fullDialog = createFullAgendaDialog();
+    document.body.appendChild(fullDialog);
+
+    attachAgendaEventListeners(card, fullDialog);
+    attachEventDialogListeners(dialog);
+    observeProjectListScheduleButtons();
+    setupProjectSelectorSync();
 
     events = safeRead();
     render();
-
   }
 
   function bootWhenAuthenticated() {
