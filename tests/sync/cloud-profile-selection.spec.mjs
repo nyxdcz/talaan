@@ -13,103 +13,118 @@ const profileStats = {
 async function loadLifecycle(page, { activeId = "", available = profiles } = {}) {
   await page.goto("http://127.0.0.1:3000/offline.html", { waitUntil:"networkidle" });
   await page.evaluate(({ activeId, available, profileStats }) => {
-    document.body.innerHTML = `<main><section id="cloudSelectionHost"><article id="cloudFirstSyncCard" class="card"></article></section><section id="settings-panel-profiles"><article class="card profile-cloud-card"><div class="profile-actions"></div></article></section><article id="cloudSyncHealthCard" class="card"><div class="cloud-v3-health-grid"></div></article></main>`;
-    sessionStorage.clear();
-    localStorage.removeItem("simple-finance-cloud-profile-last-selected-v1");
-    window.__profileCalls = { list:0, connect:[], create:0, rpc:[], persist:0 };
-    window.__activeCloudProfileId = activeId;
-    window.__availableProfiles = available.map(profile => ({ ...profile }));
-    window.__profileStats = profileStats;
-    window.data = { accounts:{ Wallet:330 }, accountTypes:{ Wallet:"Cash" }, accountOrder:["Wallet"], expenses:[] };
-    window.showToast = () => {};
-
-    const localProfile = {
-      id:"profile-personal",
-      name:window.__availableProfiles.find(profile => profile.profile_id === activeId)?.name || "Local finance",
-      type:"personal",
-      role:"owner",
-      cloudProfileId:activeId,
-      createdAt:"2026-08-01T00:00:00Z",
-      updatedAt:"2026-08-17T00:00:00Z"
+    const initDomAndGlobals = () => {
+      document.body.innerHTML = `<main><section id="cloudSelectionHost"><article id="cloudFirstSyncCard" class="card"></article></section><section id="settings-panel-profiles"><article class="card profile-cloud-card"><div class="profile-actions"></div></article></section><article id="cloudSyncHealthCard" class="card"><div class="cloud-v3-health-grid"></div></article></main>`;
+      sessionStorage.clear();
+      localStorage.removeItem("simple-finance-cloud-profile-last-selected-v1");
+      window.__profileCalls = { list:0, connect:[], create:0, rpc:[], persist:0 };
+      window.__activeCloudProfileId = activeId;
+      window.__availableProfiles = available.map(profile => ({ ...profile }));
+      window.__profileStats = profileStats;
+      window.data = { accounts:{ Wallet:330 }, accountTypes:{ Wallet:"Cash" }, accountOrder:["Wallet"], expenses:[] };
+      window.showToast = () => {};
     };
-    localStorage.setItem("simple-finance-profiles-v1", JSON.stringify({ version:1, activeProfileId:"profile-personal", profiles:[localProfile] }));
-    localStorage.setItem("simple-finance-profile-data-v1:profile-personal", JSON.stringify(window.data));
-    localStorage.setItem("simple-finance-project-records-v2", JSON.stringify(window.data));
-    localStorage.setItem("simple-finance-cloud-sync-v3:profile-personal", JSON.stringify({ status:"Synced" }));
-    localStorage.setItem("simple-finance-cloud-record-base-v3:profile-personal", JSON.stringify({ sample:true }));
-    localStorage.setItem("simple-finance-cloud-record-queue-v3:profile-personal", JSON.stringify({ sample:true }));
-    localStorage.setItem("simple-finance-cloud-record-conflicts-v3:profile-personal", JSON.stringify([{ sample:true }]));
 
-    const query = table => {
-      const state = { profileId:"", collection:"" };
-      const api = {
-        select:() => api,
-        eq:(key, value) => { if (key === "profile_id") state.profileId = value; if (key === "collection") state.collection = value; return api; },
-        is:() => api,
-        then:(resolve, reject) => {
-          try {
-            const stats = window.__profileStats[state.profileId] || { accounts:0, devices:0 };
-            const count = table === "finance_v3_devices" ? stats.devices : state.collection === "accounts" ? stats.accounts : 0;
-            return Promise.resolve({ count, error:null }).then(resolve, reject);
-          } catch (error) { return Promise.reject(error).then(resolve, reject); }
+    const initLocalStorage = () => {
+      const localProfile = {
+        id:"profile-personal",
+        name:window.__availableProfiles.find(profile => profile.profile_id === activeId)?.name || "Local finance",
+        type:"personal",
+        role:"owner",
+        cloudProfileId:activeId,
+        createdAt:"2026-08-01T00:00:00Z",
+        updatedAt:"2026-08-17T00:00:00Z"
+      };
+      localStorage.setItem("simple-finance-profiles-v1", JSON.stringify({ version:1, activeProfileId:"profile-personal", profiles:[localProfile] }));
+      localStorage.setItem("simple-finance-profile-data-v1:profile-personal", JSON.stringify(window.data));
+      localStorage.setItem("simple-finance-project-records-v2", JSON.stringify(window.data));
+      localStorage.setItem("simple-finance-cloud-sync-v3:profile-personal", JSON.stringify({ status:"Synced" }));
+      localStorage.setItem("simple-finance-cloud-record-base-v3:profile-personal", JSON.stringify({ sample:true }));
+      localStorage.setItem("simple-finance-cloud-record-queue-v3:profile-personal", JSON.stringify({ sample:true }));
+      localStorage.setItem("simple-finance-cloud-record-conflicts-v3:profile-personal", JSON.stringify([{ sample:true }]));
+      return localProfile;
+    };
+
+    const createSupabaseQueryMock = () => {
+      return table => {
+        const state = { profileId:"", collection:"" };
+        const api = {
+          select:() => api,
+          eq:(key, value) => { if (key === "profile_id") state.profileId = value; if (key === "collection") state.collection = value; return api; },
+          is:() => api,
+          then:(resolve, reject) => {
+            try {
+              const stats = window.__profileStats[state.profileId] || { accounts:0, devices:0 };
+              const count = table === "finance_v3_devices" ? stats.devices : state.collection === "accounts" ? stats.accounts : 0;
+              return Promise.resolve({ count, error:null }).then(resolve, reject);
+            } catch (error) { return Promise.reject(error).then(resolve, reject); }
+          }
+        };
+        return api;
+      };
+    };
+
+    const createSupabaseRpcMock = () => {
+      return async (name, args = {}) => {
+        window.__profileCalls.rpc.push({ name, args:{ ...args } });
+        const target = window.__availableProfiles.find(profile => profile.profile_id === args.p_profile_id);
+        if (!target) return { data:null, error:{ message:"profile_not_found_or_owner" } };
+        if (target.role !== "owner") return { data:null, error:{ message:"owner_required" } };
+        if (name === "finance_v3_rename_profile") {
+          const next = String(args.p_name || "").trim();
+          if (!next || next.length > 80) return { data:null, error:{ message:"profile_name_required" } };
+          target.name = next;
+          target.updated_at = "2026-08-17T10:30:00Z";
+          return { data:{ status:"renamed", profile_id:target.profile_id, name:target.name, updated_at:target.updated_at }, error:null };
+        }
+        if (name === "finance_v3_delete_profile") {
+          if (String(args.p_confirm_name || "") !== target.name) return { data:null, error:{ message:"profile_name_confirmation_mismatch" } };
+          window.__availableProfiles = window.__availableProfiles.filter(profile => profile.profile_id !== target.profile_id);
+          return { data:{ status:"deleted", profile_id:target.profile_id, name:target.name }, error:null };
+        }
+        return { data:null, error:{ message:`unexpected_rpc:${name}` } };
+      };
+    };
+
+    const initMockServices = localProfile => {
+      window.FinanceCloudSyncInternals = {
+        loadClient: async () => ({
+          auth:{ getSession:async () => ({ data:{ session:{ user:{ id:"user-123", email:"Me@Example.com" } } } }) },
+          from:createSupabaseQueryMock(),
+          rpc:createSupabaseRpcMock()
+        })
+      };
+      window.FinanceProfileArchitecture = {
+        activeProfileId:() => "profile-personal",
+        cloudProfileId:() => window.__activeCloudProfileId,
+        activeProfile:() => {
+          const remote = window.__availableProfiles.find(profile => profile.profile_id === window.__activeCloudProfileId);
+          return { ...localProfile, name:remote?.name || localProfile.name, role:remote?.role || localProfile.role, cloudProfileId:window.__activeCloudProfileId };
+        },
+        persistCurrentData:source => {
+          window.__profileCalls.persist += 1;
+          localStorage.setItem("simple-finance-profile-data-v1:profile-personal", JSON.stringify(source));
+          return true;
+        },
+        listCloudProfiles:async () => {
+          window.__profileCalls.list += 1;
+          return { profiles:window.__availableProfiles };
+        },
+        connectCloudProfile:async (...args) => {
+          window.__profileCalls.connect.push(args);
+          window.__activeCloudProfileId = args[0];
+          return { cloudProfileId:args[0] };
+        },
+        createCloudProfile:async () => {
+          window.__profileCalls.create += 1;
+          return { profile_id:"new-cloud-profile" };
         }
       };
-      return api;
     };
 
-    const rpc = async (name, args = {}) => {
-      window.__profileCalls.rpc.push({ name, args:{ ...args } });
-      const target = window.__availableProfiles.find(profile => profile.profile_id === args.p_profile_id);
-      if (!target) return { data:null, error:{ message:"profile_not_found_or_owner" } };
-      if (target.role !== "owner") return { data:null, error:{ message:"owner_required" } };
-      if (name === "finance_v3_rename_profile") {
-        const next = String(args.p_name || "").trim();
-        if (!next || next.length > 80) return { data:null, error:{ message:"profile_name_required" } };
-        target.name = next;
-        target.updated_at = "2026-08-17T10:30:00Z";
-        return { data:{ status:"renamed", profile_id:target.profile_id, name:target.name, updated_at:target.updated_at }, error:null };
-      }
-      if (name === "finance_v3_delete_profile") {
-        if (String(args.p_confirm_name || "") !== target.name) return { data:null, error:{ message:"profile_name_confirmation_mismatch" } };
-        window.__availableProfiles = window.__availableProfiles.filter(profile => profile.profile_id !== target.profile_id);
-        return { data:{ status:"deleted", profile_id:target.profile_id, name:target.name }, error:null };
-      }
-      return { data:null, error:{ message:`unexpected_rpc:${name}` } };
-    };
-
-    window.FinanceCloudSyncInternals = {
-      loadClient: async () => ({
-        auth:{ getSession:async () => ({ data:{ session:{ user:{ id:"user-123", email:"Me@Example.com" } } } }) },
-        from:query,
-        rpc
-      })
-    };
-    window.FinanceProfileArchitecture = {
-      activeProfileId:() => "profile-personal",
-      cloudProfileId:() => window.__activeCloudProfileId,
-      activeProfile:() => {
-        const remote = window.__availableProfiles.find(profile => profile.profile_id === window.__activeCloudProfileId);
-        return { ...localProfile, name:remote?.name || localProfile.name, role:remote?.role || localProfile.role, cloudProfileId:window.__activeCloudProfileId };
-      },
-      persistCurrentData:source => {
-        window.__profileCalls.persist += 1;
-        localStorage.setItem("simple-finance-profile-data-v1:profile-personal", JSON.stringify(source));
-        return true;
-      },
-      listCloudProfiles:async () => {
-        window.__profileCalls.list += 1;
-        return { profiles:window.__availableProfiles };
-      },
-      connectCloudProfile:async (...args) => {
-        window.__profileCalls.connect.push(args);
-        window.__activeCloudProfileId = args[0];
-        return { cloudProfileId:args[0] };
-      },
-      createCloudProfile:async () => {
-        window.__profileCalls.create += 1;
-        return { profile_id:"new-cloud-profile" };
-      }
-    };
+    initDomAndGlobals();
+    const localProfile = initLocalStorage();
+    initMockServices(localProfile);
   }, { activeId, available, profileStats });
   await page.addScriptTag({ url:"http://127.0.0.1:3000/cloud-sync-lifecycle.js?v=profile-selection-test" });
   await expect.poll(async () => page.evaluate(() => Boolean(window.FinanceCloudProfileSelection)), { timeout:10000 }).toBe(true);
