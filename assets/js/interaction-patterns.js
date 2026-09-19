@@ -235,6 +235,69 @@
     return { showUndoToast };
   }
 
+  function createStructuredDragToastController({ toast, toastMessage, toastUndo, toastDismiss, announce }) {
+    let toastTimer = 0;
+    let toastDeadline = 0;
+    let toastRemaining = 5000;
+    let undoAction = null;
+
+    const hideUndoToast = () => {
+      clearTimeout(toastTimer);
+      toastTimer = 0;
+      undoAction = null;
+      if (toast) toast.hidden = true;
+    };
+
+    const scheduleUndoDismiss = (delay = 5000) => {
+      clearTimeout(toastTimer);
+      toastRemaining = Math.max(250, Number(delay) || 5000);
+      toastDeadline = Date.now() + toastRemaining;
+      toastTimer = setTimeout(hideUndoToast, toastRemaining);
+    };
+
+    const pauseUndoDismiss = () => {
+      if (!toastTimer) return;
+      toastRemaining = Math.max(250, toastDeadline - Date.now());
+      clearTimeout(toastTimer);
+      toastTimer = 0;
+    };
+
+    const resumeUndoDismiss = () => {
+      if (!toast || toast.hidden || toast.matches(":hover") || toast.contains(document.activeElement)) return;
+      scheduleUndoDismiss(toastRemaining);
+    };
+
+    const showUndoToast = result => {
+      if (!toast || !toastMessage || !toastUndo) return;
+      clearTimeout(toastTimer);
+      undoAction = typeof result.undo === "function" ? result.undo : null;
+      toastMessage.textContent = result.message || "Item moved.";
+      toastUndo.hidden = !undoAction;
+      toast.hidden = false;
+      scheduleUndoDismiss(5000);
+    };
+
+    toastUndo?.addEventListener("click", async () => {
+      if (!undoAction) return;
+      const action = undoAction;
+      toastUndo.disabled = true;
+      const restored = await action();
+      toastUndo.disabled = false;
+      undoAction = null;
+      toastUndo.hidden = true;
+      toastMessage.textContent = restored ? "Move undone. The item was restored." : "Undo is no longer available because another change was made.";
+      announce(toastMessage.textContent);
+      scheduleUndoDismiss(restored ? 2600 : 4200);
+    });
+    toastDismiss?.addEventListener("click", hideUndoToast);
+    toast?.addEventListener("mouseenter", pauseUndoDismiss);
+    toast?.addEventListener("mouseleave", resumeUndoDismiss);
+    toast?.addEventListener("focusin", pauseUndoDismiss);
+    toast?.addEventListener("focusout", () => requestAnimationFrame(resumeUndoDismiss));
+
+    return { showUndoToast };
+  }
+
   function setupStructuredDragTransitions() {
     if (document.documentElement.dataset.structuredDragReady === "true") return;
     document.documentElement.dataset.structuredDragReady = "true";
@@ -441,6 +504,8 @@
       active.keyboardIndex = (active.keyboardIndex + delta + zones.length) % zones.length;
       setTarget(zones[active.keyboardIndex]);
     });
+
+  }
 
   function emptyStateHtml(title, text, action = null) {
     const escape = value => String(value ?? "").replace(/[&<>"']/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" })[character]);
