@@ -131,139 +131,150 @@
     if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", start, { once:true }); else start();
   }
 
+  const KANBAN_EDGE_GAP = 8;
+  const KANBAN_TRIGGER_GAP = 6;
+
+  const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), Math.max(minimum, maximum));
+
+  const getKanbanMenuTrigger = menu => menu?.querySelector(":scope > .overflow-menu-trigger");
+
+  const getKanbanMenuPanel = (menu, docRef) => {
+    const trigger = getKanbanMenuTrigger(menu);
+    const id = trigger?.getAttribute("aria-controls");
+    return id ? docRef.getElementById(id) : null;
+  };
+
+  const resetKanbanPanelStyles = panel => {
+    if (!panel) return;
+    ["position", "left", "top", "right", "bottom", "z-index", "margin", "max-width", "max-height", "overflow-y", "visibility"].forEach(property => panel.style.removeProperty(property));
+    delete panel.dataset.viewportPlacement;
+  };
+
+  const resetKanbanMenuStyles = menu => {
+    if (!menu) return;
+    ["position", "left", "top", "right", "bottom", "width", "height", "z-index", "margin", "overflow", "-webkit-backdrop-filter", "backdrop-filter", "transform", "filter", "perspective", "contain", "clip-path", "will-change"].forEach(property => menu.style.removeProperty(property));
+    delete menu.dataset.viewportPortal;
+  };
+
+  const createKanbanMenuPlaceholder = (docRef, menu, rect) => {
+    const placeholder = docRef.createElement("span");
+    placeholder.className = "kanban-column-menu-portal-placeholder";
+    placeholder.setAttribute("aria-hidden", "true");
+    placeholder.style.width = `${Math.max(1, rect.width)}px`;
+    placeholder.style.height = `${Math.max(1, rect.height)}px`;
+    placeholder.style.flex = `0 0 ${Math.max(1, rect.width)}px`;
+    placeholder.style.display = "inline-block";
+    menu.parentNode?.insertBefore(placeholder, menu);
+    return placeholder;
+  };
+
+  const portalKanbanMenu = (docRef, menu) => {
+    if (!menu || menu.__financeKanbanPortal) return menu?.__financeKanbanPortal || null;
+    const trigger = getKanbanMenuTrigger(menu);
+    if (!trigger || !docRef.body) return null;
+    const rect = trigger.getBoundingClientRect();
+    const activeElement = menu.contains(docRef.activeElement) ? docRef.activeElement : null;
+    const placeholder = createKanbanMenuPlaceholder(docRef, menu, rect);
+    const state = {
+      placeholder,
+      originalParent:menu.parentNode,
+      activeElement
+    };
+    menu.__financeKanbanPortal = state;
+    docRef.body.appendChild(menu);
+    menu.dataset.viewportPortal = "true";
+    menu.style.setProperty("position", "fixed", "important");
+    menu.style.setProperty("left", `${Math.round(rect.left)}px`, "important");
+    menu.style.setProperty("top", `${Math.round(rect.top)}px`, "important");
+    menu.style.setProperty("right", "auto", "important");
+    menu.style.setProperty("bottom", "auto", "important");
+    menu.style.setProperty("width", `${Math.max(1, rect.width)}px`, "important");
+    menu.style.setProperty("height", `${Math.max(1, rect.height)}px`, "important");
+    menu.style.setProperty("margin", "0", "important");
+    menu.style.setProperty("z-index", "2600", "important");
+    menu.style.setProperty("overflow", "visible", "important");
+    menu.style.setProperty("-webkit-backdrop-filter", "none", "important");
+    menu.style.setProperty("backdrop-filter", "none", "important");
+    menu.style.setProperty("transform", "none", "important");
+    menu.style.setProperty("filter", "none", "important");
+    menu.style.setProperty("perspective", "none", "important");
+    menu.style.setProperty("contain", "none", "important");
+    menu.style.setProperty("clip-path", "none", "important");
+    menu.style.setProperty("will-change", "auto", "important");
+    if (activeElement?.isConnected) activeElement.focus();
+    return state;
+  };
+
+  const restoreKanbanMenu = (docRef, menu) => {
+    const state = menu?.__financeKanbanPortal;
+    if (!menu || !state) return;
+    const activeElement = menu.contains(docRef.activeElement) ? docRef.activeElement : null;
+    const placeholder = state.placeholder;
+    if (placeholder?.isConnected) placeholder.replaceWith(menu);
+    else if (state.originalParent?.isConnected) state.originalParent.appendChild(menu);
+    resetKanbanMenuStyles(menu);
+    placeholder?.remove();
+    delete menu.__financeKanbanPortal;
+    if (activeElement?.isConnected) activeElement.focus();
+  };
+
+  const anchorPortaledKanbanMenu = menu => {
+    const state = menu?.__financeKanbanPortal;
+    if (!state) return;
+    const rect = state.placeholder?.isConnected ? state.placeholder.getBoundingClientRect() : null;
+    if (!rect) return;
+    menu.style.setProperty("left", `${Math.round(rect.left)}px`, "important");
+    menu.style.setProperty("top", `${Math.round(rect.top)}px`, "important");
+    menu.style.setProperty("width", `${Math.max(1, rect.width)}px`, "important");
+    menu.style.setProperty("height", `${Math.max(1, rect.height)}px`, "important");
+  };
+
+  const positionKanbanMenu = (menu, docRef, rootRef) => {
+    const trigger = getKanbanMenuTrigger(menu);
+    const panel = getKanbanMenuPanel(menu, docRef);
+    if (!trigger || !panel) return;
+    if (!menu.classList.contains("is-open") || panel.hidden) {
+      resetKanbanPanelStyles(panel);
+      restoreKanbanMenu(docRef, menu);
+      return;
+    }
+    portalKanbanMenu(docRef, menu);
+    anchorPortaledKanbanMenu(menu);
+    const viewportWidth = Math.max(docRef.documentElement.clientWidth || 0, rootRef.innerWidth || 0);
+    const viewportHeight = Math.max(docRef.documentElement.clientHeight || 0, rootRef.innerHeight || 0);
+    const availableWidth = Math.max(0, viewportWidth - KANBAN_EDGE_GAP * 2);
+    const availableHeight = Math.max(0, viewportHeight - KANBAN_EDGE_GAP * 2);
+    panel.style.setProperty("position", "fixed", "important");
+    panel.style.setProperty("z-index", "2601", "important");
+    panel.style.setProperty("margin", "0", "important");
+    panel.style.setProperty("right", "auto", "important");
+    panel.style.setProperty("bottom", "auto", "important");
+    panel.style.setProperty("max-width", `${availableWidth}px`, "important");
+    panel.style.setProperty("max-height", `${availableHeight}px`, "important");
+    panel.style.setProperty("overflow-y", "auto", "important");
+    panel.style.setProperty("visibility", "hidden", "important");
+    panel.style.setProperty("left", `${KANBAN_EDGE_GAP}px`, "important");
+    panel.style.setProperty("top", `${KANBAN_EDGE_GAP}px`, "important");
+    const triggerRect = trigger.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+    const spaceBelow = viewportHeight - triggerRect.bottom - KANBAN_EDGE_GAP;
+    const spaceAbove = triggerRect.top - KANBAN_EDGE_GAP;
+    const openAbove = panelRect.height + KANBAN_TRIGGER_GAP > spaceBelow && spaceAbove > spaceBelow;
+    const idealTop = openAbove ? triggerRect.top - panelRect.height - KANBAN_TRIGGER_GAP : triggerRect.bottom + KANBAN_TRIGGER_GAP;
+    const top = clamp(idealTop, KANBAN_EDGE_GAP, viewportHeight - panelRect.height - KANBAN_EDGE_GAP);
+    const idealLeft = triggerRect.right - panelRect.width;
+    const left = clamp(idealLeft, KANBAN_EDGE_GAP, viewportWidth - panelRect.width - KANBAN_EDGE_GAP);
+    panel.style.setProperty("left", `${Math.round(left)}px`, "important");
+    panel.style.setProperty("top", `${Math.round(top)}px`, "important");
+    panel.style.removeProperty("visibility");
+    panel.dataset.viewportPlacement = openAbove ? "above" : "below";
+  };
+
   function installKanbanColumnMenuViewportPositioning() {
-    const edgeGap = 8;
-    const triggerGap = 6;
     let frame = 0;
-    const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), Math.max(minimum, maximum));
-    const menuTrigger = menu => menu?.querySelector(":scope > .overflow-menu-trigger");
-    const menuPanel = menu => {
-      const trigger = menuTrigger(menu);
-      const id = trigger?.getAttribute("aria-controls");
-      return id ? doc.getElementById(id) : null;
-    };
-    const resetPanel = panel => {
-      if (!panel) return;
-      ["position", "left", "top", "right", "bottom", "z-index", "margin", "max-width", "max-height", "overflow-y", "visibility"].forEach(property => panel.style.removeProperty(property));
-      delete panel.dataset.viewportPlacement;
-    };
-    const resetMenu = menu => {
-      if (!menu) return;
-      ["position", "left", "top", "right", "bottom", "width", "height", "z-index", "margin", "overflow", "-webkit-backdrop-filter", "backdrop-filter", "transform", "filter", "perspective", "contain", "clip-path", "will-change"].forEach(property => menu.style.removeProperty(property));
-      delete menu.dataset.viewportPortal;
-    };
-    const createPlaceholder = (menu, rect) => {
-      const placeholder = doc.createElement("span");
-      placeholder.className = "kanban-column-menu-portal-placeholder";
-      placeholder.setAttribute("aria-hidden", "true");
-      placeholder.style.width = `${Math.max(1, rect.width)}px`;
-      placeholder.style.height = `${Math.max(1, rect.height)}px`;
-      placeholder.style.flex = `0 0 ${Math.max(1, rect.width)}px`;
-      placeholder.style.display = "inline-block";
-      menu.parentNode?.insertBefore(placeholder, menu);
-      return placeholder;
-    };
-    const portalMenu = menu => {
-      if (!menu || menu.__financeKanbanPortal) return menu?.__financeKanbanPortal || null;
-      const trigger = menuTrigger(menu);
-      if (!trigger || !doc.body) return null;
-      const rect = trigger.getBoundingClientRect();
-      const activeElement = menu.contains(doc.activeElement) ? doc.activeElement : null;
-      const placeholder = createPlaceholder(menu, rect);
-      const state = {
-        placeholder,
-        originalParent:menu.parentNode,
-        activeElement
-      };
-      menu.__financeKanbanPortal = state;
-      doc.body.appendChild(menu);
-      menu.dataset.viewportPortal = "true";
-      menu.style.setProperty("position", "fixed", "important");
-      menu.style.setProperty("left", `${Math.round(rect.left)}px`, "important");
-      menu.style.setProperty("top", `${Math.round(rect.top)}px`, "important");
-      menu.style.setProperty("right", "auto", "important");
-      menu.style.setProperty("bottom", "auto", "important");
-      menu.style.setProperty("width", `${Math.max(1, rect.width)}px`, "important");
-      menu.style.setProperty("height", `${Math.max(1, rect.height)}px`, "important");
-      menu.style.setProperty("margin", "0", "important");
-      menu.style.setProperty("z-index", "2600", "important");
-      menu.style.setProperty("overflow", "visible", "important");
-      menu.style.setProperty("-webkit-backdrop-filter", "none", "important");
-      menu.style.setProperty("backdrop-filter", "none", "important");
-      menu.style.setProperty("transform", "none", "important");
-      menu.style.setProperty("filter", "none", "important");
-      menu.style.setProperty("perspective", "none", "important");
-      menu.style.setProperty("contain", "none", "important");
-      menu.style.setProperty("clip-path", "none", "important");
-      menu.style.setProperty("will-change", "auto", "important");
-      if (activeElement?.isConnected) activeElement.focus();
-      return state;
-    };
-    const restoreMenu = menu => {
-      const state = menu?.__financeKanbanPortal;
-      if (!menu || !state) return;
-      const activeElement = menu.contains(doc.activeElement) ? doc.activeElement : null;
-      const placeholder = state.placeholder;
-      if (placeholder?.isConnected) placeholder.replaceWith(menu);
-      else if (state.originalParent?.isConnected) state.originalParent.appendChild(menu);
-      resetMenu(menu);
-      placeholder?.remove();
-      delete menu.__financeKanbanPortal;
-      if (activeElement?.isConnected) activeElement.focus();
-    };
-    const anchorPortaledMenu = menu => {
-      const state = menu?.__financeKanbanPortal;
-      if (!state) return;
-      const rect = state.placeholder?.isConnected ? state.placeholder.getBoundingClientRect() : null;
-      if (!rect) return;
-      menu.style.setProperty("left", `${Math.round(rect.left)}px`, "important");
-      menu.style.setProperty("top", `${Math.round(rect.top)}px`, "important");
-      menu.style.setProperty("width", `${Math.max(1, rect.width)}px`, "important");
-      menu.style.setProperty("height", `${Math.max(1, rect.height)}px`, "important");
-    };
-    const positionMenu = menu => {
-      const trigger = menuTrigger(menu);
-      const panel = menuPanel(menu);
-      if (!trigger || !panel) return;
-      if (!menu.classList.contains("is-open") || panel.hidden) {
-        resetPanel(panel);
-        restoreMenu(menu);
-        return;
-      }
-      portalMenu(menu);
-      anchorPortaledMenu(menu);
-      const viewportWidth = Math.max(doc.documentElement.clientWidth || 0, root.innerWidth || 0);
-      const viewportHeight = Math.max(doc.documentElement.clientHeight || 0, root.innerHeight || 0);
-      const availableWidth = Math.max(0, viewportWidth - edgeGap * 2);
-      const availableHeight = Math.max(0, viewportHeight - edgeGap * 2);
-      panel.style.setProperty("position", "fixed", "important");
-      panel.style.setProperty("z-index", "2601", "important");
-      panel.style.setProperty("margin", "0", "important");
-      panel.style.setProperty("right", "auto", "important");
-      panel.style.setProperty("bottom", "auto", "important");
-      panel.style.setProperty("max-width", `${availableWidth}px`, "important");
-      panel.style.setProperty("max-height", `${availableHeight}px`, "important");
-      panel.style.setProperty("overflow-y", "auto", "important");
-      panel.style.setProperty("visibility", "hidden", "important");
-      panel.style.setProperty("left", `${edgeGap}px`, "important");
-      panel.style.setProperty("top", `${edgeGap}px`, "important");
-      const triggerRect = trigger.getBoundingClientRect();
-      const panelRect = panel.getBoundingClientRect();
-      const spaceBelow = viewportHeight - triggerRect.bottom - edgeGap;
-      const spaceAbove = triggerRect.top - edgeGap;
-      const openAbove = panelRect.height + triggerGap > spaceBelow && spaceAbove > spaceBelow;
-      const idealTop = openAbove ? triggerRect.top - panelRect.height - triggerGap : triggerRect.bottom + triggerGap;
-      const top = clamp(idealTop, edgeGap, viewportHeight - panelRect.height - edgeGap);
-      const idealLeft = triggerRect.right - panelRect.width;
-      const left = clamp(idealLeft, edgeGap, viewportWidth - panelRect.width - edgeGap);
-      panel.style.setProperty("left", `${Math.round(left)}px`, "important");
-      panel.style.setProperty("top", `${Math.round(top)}px`, "important");
-      panel.style.removeProperty("visibility");
-      panel.dataset.viewportPlacement = openAbove ? "above" : "below";
-    };
     const syncOpenMenus = () => {
       frame = 0;
-      doc.querySelectorAll(".kanban-column-menu").forEach(positionMenu);
+      doc.querySelectorAll(".kanban-column-menu").forEach(menu => positionKanbanMenu(menu, doc, root));
     };
     const scheduleSync = () => {
       if (frame) root.cancelAnimationFrame?.(frame);
