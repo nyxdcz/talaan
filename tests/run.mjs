@@ -5,6 +5,7 @@ const testPlan = [
   { suite: "finance", file: "tests/finance/validate-money-mutation-ownership.mjs" },
   { suite: "finance", file: "tests/finance/validate-finance-integrity.mjs" },
   { suite: "finance", file: "tests/finance/validate-savings-forecast-engine.mjs" },
+  { suite: "finance", file: "tests/finance/validate-account-submit-compat.mjs" },
   { suite: "sync", file: "tests/sync/validate-safe-multidevice-sync.mjs" },
   { suite: "sync", file: "tests/sync/validate-mobile-cloud-revert-safety.mjs" },
   { suite: "sync", file: "tests/sync/validate-account-reconciliation-sync.mjs" },
