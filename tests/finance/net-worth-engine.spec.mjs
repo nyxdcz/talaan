@@ -6,8 +6,37 @@ import { test } from "@playwright/test";
 
 test("manual net worth normalizes, calculates, evolves, and merges deterministically", () => {
   const context = vm.createContext({ console, structuredClone, Intl, Date, Math, JSON, Number, String, Object, Array, Set, Map, RegExp, Error, crypto:webcrypto, __FINANCE_NET_WORTH_TEST__:true });
-  vm.runInContext(fs.readFileSync("assets/js/net-worth.js", "utf8"), context);
+  let source = fs.readFileSync("assets/js/net-worth.js", "utf8");
+  source = source.replace("const API = { version:VERSION,", "const API = { clone, version:VERSION,");
+  vm.runInContext(source, context);
   const engine = context.FinanceNetWorth;
+
+  // Clone edge case tests (primitives, nullish values, structuredClone happy path, and JSON fallback)
+  assert.equal(engine.clone(null), null);
+  assert.equal(engine.clone(undefined), undefined);
+  assert.equal(engine.clone(42), 42);
+  assert.equal(engine.clone("talaan"), "talaan");
+  assert.equal(engine.clone(true), true);
+
+  const sampleObj = { name: "Asset", metadata: { currency: "PHP" } };
+  const clonedObj = engine.clone(sampleObj);
+  assert.deepEqual(clonedObj, sampleObj);
+  assert.notEqual(clonedObj, sampleObj);
+  assert.notEqual(clonedObj.metadata, sampleObj.metadata);
+
+  // Objects with functions fail structuredClone -> JSON fallback strips functions
+  const objWithFn = { name: "House", value: 5000000, calculate: () => 5000000 };
+  const clonedObjWithFn = engine.clone(objWithFn);
+  assert.deepEqual(clonedObjWithFn, { name: "House", value: 5000000 });
+  assert.equal(clonedObjWithFn.calculate, undefined);
+
+  // Objects with uncloneable DOM node / getters throw DataCloneError -> JSON fallback handles gracefully
+  const domNodeObj = { id: "item-dom", element: { nodeType: 1, nodeName: "DIV" } };
+  Object.defineProperty(domNodeObj.element, "ownerDocument", {
+    get() { throw new Error("DataCloneError: DOM node cannot be cloned"); }
+  });
+  const clonedDomNode = engine.clone(domNodeObj);
+  assert.deepEqual(clonedDomNode, { id: "item-dom", element: { nodeType: 1, nodeName: "DIV" } });
   const plain = value => JSON.parse(JSON.stringify(value));
   const stamp = "2026-08-27T00:00:00.000Z";
   const store = engine.normalizeStore({ staleAfterDays:30, items:[
