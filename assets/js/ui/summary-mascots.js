@@ -176,7 +176,7 @@
     });
   }
 
-  root.FinanceSummaryMascots = Object.freeze({ refresh:schedule, apply, assets:ASSETS, periodState });
+  root.FinanceSummaryMascots = Object.freeze({ refresh:schedule, apply, assets:ASSETS, periodState, manilaTodayKey });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once:true });
   else start();
 })();
