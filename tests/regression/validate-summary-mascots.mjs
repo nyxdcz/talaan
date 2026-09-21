@@ -6,21 +6,6 @@ const source = fs.readFileSync("assets/js/ui/summary-mascots.js", "utf8");
 
 function createMockContext(customIntl) {
   const listeners = {};
-  const createMockElement = () => ({
-    classList: { add() {}, remove() {}, contains() { return false; } },
-    dataset: {},
-    getAttribute() { return null; },
-    setAttribute() {},
-    removeAttribute() {},
-    querySelector() { return null; },
-    querySelectorAll() { return []; },
-    closest() { return null; },
-    after() {},
-    append() {},
-    nextElementSibling: null,
-    value: ""
-  });
-
   const mockDocument = {
     readyState: "complete",
     getElementById() { return null; },
