@@ -6,7 +6,7 @@ const source = fs.readFileSync("assets/js/ui/summary-mascots.js", "utf8");
 
 function createMockContext(customIntl) {
   const listeners = {};
-  const mockElement = {
+  const createMockElement = () => ({
     classList: { add() {}, remove() {}, contains() { return false; } },
     dataset: {},
     getAttribute() { return null; },
@@ -14,11 +14,16 @@ function createMockContext(customIntl) {
     removeAttribute() {},
     querySelector() { return null; },
     querySelectorAll() { return []; },
-    closest() { return null; }
-  };
+    closest() { return null; },
+    after() {},
+    append() {},
+    nextElementSibling: null,
+    value: ""
+  });
+
   const mockDocument = {
     readyState: "complete",
-    getElementById() { return mockElement; },
+    getElementById() { return null; },
     querySelectorAll() { return []; },
     addEventListener(event, fn) { listeners[event] = fn; }
   };
