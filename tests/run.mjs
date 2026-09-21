@@ -45,6 +45,7 @@ const testPlan = [
   { suite: "regression", file: "tests/regression/validate-import-formats.mjs" },
   { suite: "regression", file: "tests/regression/validate-net-worth.mjs" },
   { suite: "regression", file: "tests/regression/validate-household-splits.mjs" },
+  { suite: "regression", file: "tests/regression/validate-summary-mascots.mjs" },
 ];
 
 const supportedSuites = new Set(["all", ...testPlan.map(({ suite }) => suite)]);
