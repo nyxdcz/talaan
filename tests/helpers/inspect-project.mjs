@@ -25,8 +25,8 @@ const runtimeCssFiles = [
   "reminders-alerts.css", "reports-insights.css", "security-profiles.css", "summary-mascots.css", "ui-icon-alignment.css"
 ];
 const rootJsFiles = [
-  "account-ledger.js", "brand-icons.js", "budget-planning.js", "cloud-conflict-resolution.js", "cloud-conflict-review.js",
-  "cloud-sync-lifecycle.js", "cloud-sync.js", "form-inputs.js", "interaction-patterns.js", "privacy-lock.js", "productivity-tools.js",
+  "account-ledger.js", "account-submit-compat.js", "brand-icons.js", "budget-planning.js", "cloud-conflict-resolution.js", "cloud-conflict-review.js",
+  "cloud-sync-lifecycle.js", "cloud-sync.js", "finance-integrity.js", "finance-transaction-diagnostics.js", "form-inputs.js", "interaction-patterns.js", "privacy-lock.js", "productivity-tools.js",
   "payees-rules.js", "import-formats.js", "import-center.js", "net-worth.js", "household-splits.js",
   "projects-calendar.js", "pwa-update.js", "reminders-alerts.js", "reports-insights.js", "security-profiles.js"
 ];
