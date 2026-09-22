@@ -90,7 +90,6 @@ const runtimeGroups = {
   ],
   "assets/js": [
     "finance-transaction-diagnostics.js",
-    "finance-integrity.js",
     "account-ledger.js",
     "account-submit-compat.js",
     "brand-icons.js",
