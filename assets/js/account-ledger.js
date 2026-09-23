@@ -722,9 +722,10 @@
 
   function commitExternalExpensePayment(items, { paidDate = localDateKey(), undoLabel = "", message = "Expense marked paid without an account deduction", decorateItem = null, verifyItem = null } = {}) {
     const ids = (items || []).map(item => item?.id).filter(Boolean);
-    const eligible = ids.map(id => (data.expenses || []).find(item => item.id === id)).filter(item => item && !item.paid);
+    const expenseMap = new Map((data.expenses || []).map(item => [item.id, item]));
+    const eligible = ids.map(id => expenseMap.get(id)).filter(item => item && !item.paid);
     if (!eligible.length) {
-      const existing = ids.map(id => (data.expenses || []).find(item => item.id === id)).filter(Boolean);
+      const existing = ids.map(id => expenseMap.get(id)).filter(Boolean);
       const alreadyApplied = existing.length === ids.length && existing.every(item => item.paid && !item.accountDeducted && !item.paidFromAccount && !item.paymentTransactionId);
       return alreadyApplied ? { ok:true, idempotent:true, count:existing.length } : { ok:false, reason:"empty", count:0 };
     }
