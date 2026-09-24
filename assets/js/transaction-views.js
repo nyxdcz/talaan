@@ -65,8 +65,8 @@
     if(name==="income") return data.incomeRecords || [];
     return (data.expenses || []).filter(item=>name==="paid"?item.paid:!item.paid);
   }
-  function recordId(row,name,index) {
-    return String(row.dataset.expenseRow || row.dataset.paidExpenseRow || (name==="income" ? visibleIncome()[index]?.id : "") || "");
+  function recordId(row,name,index,cachedIncome=null) {
+    return String(row.dataset.expenseRow || row.dataset.paidExpenseRow || (name==="income" ? (cachedIncome || visibleIncome())[index]?.id : "") || "");
   }
   function visibleIncome() {
     const search=getFilterElement("incomeSearch")?.value.trim().toLowerCase()||"";
@@ -82,7 +82,7 @@
       const list=document.getElementById(id); if(!list)return;
       [...list.querySelectorAll(WORKSPACES[name].rowSelector)].forEach((row,index)=>{
         if(row.classList.contains("productivity-record-filtered"))return;
-        const idValue=recordId(row,name,index), item=byId.get(idValue) || (name==="income"?cachedVisibleIncome[index]:null);
+        const idValue=recordId(row,name,index,cachedVisibleIncome), item=byId.get(idValue) || (name==="income"?cachedVisibleIncome[index]:null);
         if(item) { row.dataset.transactionRecordId=String(item.id); result.push({row,item,list}); }
       });
     });
