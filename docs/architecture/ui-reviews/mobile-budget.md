@@ -20,4 +20,4 @@ After, at 375px:
 
 Validation covers the existing financial totals, presentation-only disclosure changes, privacy masking, drawer focus, long amounts, phone targets, and both themes at phone, tablet, and desktop widths. See `tests/browser/budget-priority-accessibility.spec.mjs`.
 
-The application stays on V2.5.0, Finance Schema 12, and Cloud Schema V3. The UI asset refresh advances to `finance-ui-hotfix-v2-0-1-talaan9`; the existing finance cache identity is retained.
+The application stays on V2.5.0, Finance Schema 12, and Cloud Schema V3. The UI asset refresh advances to `finance-ui-hotfix-v2-0-1-talaan10`; the existing finance cache identity is retained.

@@ -2,11 +2,18 @@ import { expect, test } from "@playwright/test";
 
 const APP_URL = "http://127.0.0.1:3000";
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.FINANCE_SYNC_CONFIG = { supabaseUrl:"", supabasePublishableKey:"" };
+  });
+});
+
 async function openDashboard(page, viewport, options = {}) {
   await page.setViewportSize(viewport);
   await page.goto(`${APP_URL}/?page=dashboard`, { waitUntil:"networkidle" });
-  await page.waitForFunction(() => Boolean(window.FinancePrivacyLock));
+  await page.waitForFunction(() => Boolean(window.FinancePrivacyLock && window.FinanceCloudSync) && !document.body.classList.contains("finance-auth-pending"));
   await page.evaluate(() => window.FinancePrivacyLock.setAuthenticated(true));
+  await expect(page.locator("body")).toHaveClass(/finance-signed-in/);
   await expect(page.locator("#dashboard .dashboard-view-tabs")).toBeVisible();
   if (options.hideSampleNotice) {
     await page.locator("#sampleDataNotice").evaluate(notice => { notice.hidden = true; });
@@ -16,8 +23,9 @@ async function openDashboard(page, viewport, options = {}) {
 async function openFinance(page, viewport) {
   await page.setViewportSize(viewport);
   await page.goto(`${APP_URL}/?page=money`, { waitUntil:"networkidle" });
-  await page.waitForFunction(() => Boolean(window.FinancePrivacyLock));
+  await page.waitForFunction(() => Boolean(window.FinancePrivacyLock && window.FinanceCloudSync) && !document.body.classList.contains("finance-auth-pending"));
   await page.evaluate(() => window.FinancePrivacyLock.setAuthenticated(true));
+  await expect(page.locator("body")).toHaveClass(/finance-signed-in/);
   await expect(page.locator("#money .money-workspace-switcher")).toBeVisible();
 }
 

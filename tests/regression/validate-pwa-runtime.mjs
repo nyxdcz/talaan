@@ -32,7 +32,7 @@ assert.match(index, /FinancePwaUpdate\.updateState\(remote, APP_VERSION, APP_CAC
 assert.match(updater, /const FINANCE_CACHE_PATTERN = \/\^finance-v\\d\+-\//);
 assert.match(updater, /const LEGACY_INDEX_CACHE = "finance-v15-20260816-mobile-ui-ux-r32";/, "pre-Talaan cache alias stays compatibility-only");
 assert.match(updater, /const CURRENT_CACHE_VERSION = "finance-v2-20260828-household-splits-r17";/);
-assert.match(updater, /const UI_HOTFIX_REFRESH_KEY = "finance-ui-hotfix-v2-0-1-talaan9";/);
+assert.match(updater, /const UI_HOTFIX_REFRESH_KEY = "finance-ui-hotfix-v2-0-1-talaan10";/);
 assert.match(updater, /const DASHBOARD_PRESENTATION_REFRESH_KEY = "finance-dashboard-presentation-v2-5-0-talaan9";/);
 assert.match(updater, /const EXPENSE_DARK_MODE_REFRESH_KEY = "finance-expense-dark-mode-v2-5-0-talaan1";/);
 assert.match(updater, /const INCOME_PLANNING_REFRESH_KEY = "finance-income-planning-v2-5-0-talaan1";/);
