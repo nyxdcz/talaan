@@ -35,7 +35,7 @@ async function visibleSettingsContract(page) {
       });
     return {
       interactive,
-      undersized:interactive.filter(item => item.height < 34.5 || item.height > 35.5),
+      undersized:interactive.filter(item => item.height < 44),
       outside:interactive.filter(item => item.left < -1 || item.right > innerWidth + 1),
       pageOverflow:document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       viewport:{ width:innerWidth, height:innerHeight }
@@ -43,7 +43,7 @@ async function visibleSettingsContract(page) {
   });
 }
 
-test("iPhone 14 Pro Settings sections keep 35px controls contained", async ({ page }) => {
+test("iPhone 14 Pro Settings sections keep touch controls contained", async ({ page }) => {
   await openAuthenticatedSettings(page);
 
   const tabs = await page.locator("#settings [data-settings-tab]").evaluateAll(nodes => nodes.map(node => node.id).filter(Boolean));

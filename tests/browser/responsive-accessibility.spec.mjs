@@ -71,9 +71,10 @@ test("collapsed Monthly Budget Plan stays compact and readable at narrow phone w
   }
 });
 
-test("phone controls and content cards keep the approved compact rhythm", async ({ page }) => {
+test("phone primary controls and expanded budget details remain readable and contained", async ({ page }) => {
   for (const width of [320, 360, 390, 430]) {
     await openApp(page, width);
+    await page.locator("#moneyBudgetBreakdown > summary").click();
     const metrics = await page.evaluate(() => {
       const visible = element => {
         const box = element.getBoundingClientRect();
@@ -107,7 +108,7 @@ test("phone controls and content cards keep the approved compact rhythm", async 
         }));
       return {
         controls,
-        oversized:controls.filter(size => size.height > 35.5),
+        oversized:controls.filter(size => size.height < 43.5),
         collapse,
         collapseIcons,
         periodHeaders,
@@ -121,10 +122,8 @@ test("phone controls and content cards keep the approved compact rhythm", async 
     expect(metrics.oversized, JSON.stringify(metrics.oversized, null, 2)).toEqual([]);
     expect(metrics.collapse.length).toBeGreaterThan(0);
     metrics.collapse.forEach(size => {
-      expect(size.width).toBeGreaterThanOrEqual(34.5);
-      expect(size.width).toBeLessThanOrEqual(35.5);
-      expect(size.height).toBeGreaterThanOrEqual(34.5);
-      expect(size.height).toBeLessThanOrEqual(35.5);
+      expect(size.width).toBeGreaterThanOrEqual(43.5);
+      expect(size.height).toBeGreaterThanOrEqual(43.5);
     });
     expect(metrics.collapseIcons.length).toBeGreaterThan(0);
     metrics.collapseIcons.forEach(size => {
@@ -135,15 +134,14 @@ test("phone controls and content cards keep the approved compact rhythm", async 
     });
     const dividerHeaders = metrics.headers.filter(size => size.className.includes("collapsible-header"));
     const compactHeaders = metrics.headers.filter(size => !size.className.includes("collapsible-header"));
-    dividerHeaders.forEach(size => expect(size.height).toBeLessThanOrEqual(44.5));
-    compactHeaders.forEach(size => expect(size.height).toBeLessThanOrEqual(35.5));
+    dividerHeaders.forEach(size => expect(size.height).toBeGreaterThanOrEqual(44));
+    compactHeaders.forEach(size => expect(size.height).toBeGreaterThanOrEqual(44));
     metrics.periodHeaders.forEach(size => {
       expect(size.height).toBeGreaterThanOrEqual(50);
     });
-    expect(metrics.contentCards.length).toBeGreaterThanOrEqual(8);
+    expect(metrics.contentCards.length).toBeGreaterThanOrEqual(6);
     metrics.contentCards.forEach(size => {
-      expect(size.height).toBeGreaterThanOrEqual(55.5);
-      expect(size.height).toBeLessThanOrEqual(62.5);
+      expect(size.height).toBeGreaterThanOrEqual(48);
     });
     expect(metrics.values.length).toBeGreaterThan(0);
     expect(metrics.values.every(value => value.text && !value.clipped)).toBe(true);
@@ -178,7 +176,7 @@ test("phone Settings status cards remain readable content cards", async ({ page 
       }));
     expect(cards.length).toBe(6);
     cards.forEach(card => {
-      expect(card.height).toBeGreaterThanOrEqual(70);
+      expect(Math.round(card.height * 100) / 100).toBeGreaterThanOrEqual(70);
       expect(card.inside).toBe(true);
       expect(card.copyVisible).toBe(true);
       expect(card.statusText).not.toBe("");

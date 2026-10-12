@@ -56,8 +56,8 @@
   <link rel="stylesheet" href="./desktop-ui-phase1.css?v=2.5.0-talaan1">
   <link rel="stylesheet" href="./desktop-ux.css?v=2.5.0-talaan1">
   <link rel="stylesheet" href="./production-ui-audit.css?v=2.5.0-talaan1">
-  <link rel="stylesheet" href="./summary-mascots.css?v=2.5.0-ui-e0c1fb9945cf">
-  <link rel="stylesheet" href="./ui-radius.css?v=2.5.0-ui-e0c1fb9945cf">
+  <link rel="stylesheet" href="./summary-mascots.css?v=2.5.0-ui-b561ee9f3b5d">
+  <link rel="stylesheet" href="./ui-radius.css?v=2.5.0-ui-b561ee9f3b5d">
   <script src="./form-inputs.js?v=2.5.0-talaan1"></script>
   <script src="./application-help.js?v=2.5.0-talaan1"></script>
   <script src="./pwa-update.js?v=2.5.0-talaan1"></script>
@@ -68,7 +68,7 @@
 </head>
 <body class="finance-signed-out finance-auth-pending">
   <div class="app">
-    <aside class="sidebar" id="sidebar" aria-label="Main navigation" aria-hidden="true">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation" aria-hidden="true" inert>
       <button class="sidebar-close-button" id="sidebarCloseButton" type="button" aria-label="Pin navigation open" title="Pin navigation open">
         <svg class="sidebar-pin-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3h6l-.8 5 2.8 3v2H7v-2l2.8-3L9 3Zm3 10v8"/></svg>
         <svg class="sidebar-unpin-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m4 4 16 16M10.2 3H15l-.8 5 2.8 3v2h-4M8 13H7v-2l1.5-1.6M12 17v4"/></svg>
@@ -105,6 +105,7 @@
         <div class="topbar-left">
           <button class="menu-button" id="menuButton" type="button" aria-label="Show navigation" aria-controls="sidebar" aria-expanded="false" title="Show navigation"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button>
           <div>
+            <strong class="phone-product-name">Talaan</strong>
             <h1 id="topTitle">Budget &amp; Expenses</h1>
             <p id="todayLabel">Tuesday, July 21, 2026</p>
             <small id="buildBadge" title="V2.5.0 · Talaan · August 28, 2026">V2.5.0</small>
@@ -350,6 +351,7 @@
           </div>
           <div class="page-heading">
             <div><h2 id="income-title">Income &amp; Planning</h2><p>Plan the month, then track salary, project payments, and other money received.</p></div>
+            <button class="button button-primary phone-page-add" id="addIncomeButton" type="button">Add income</button>
           </div>
           <div class="grid income-kpi-grid compact-summary-grid compact-income-grid">
             <article class="card kpi-card income-kpi-card bento-tone-green text-green"><div><div class="kpi-label">Total income</div><div class="kpi-value" id="incomeTotal">₱0.00</div></div><div class="kpi-meta" id="incomeTotalMeta">Included manual and project income</div></article>
@@ -392,6 +394,14 @@
             </div>
             <button class="button button-secondary button-small related-page-link" type="button" data-go="paid-expenses">View paid expenses</button>
           </div>
+          <article class="card money-priority-summary" id="moneyPrioritySummary" aria-labelledby="moneyRemainingTitle">
+            <h3 id="moneyRemainingTitle">Money remaining</h3>
+            <strong class="money-priority-amount" id="moneyRemainingValue" aria-live="polite">₱0.00</strong>
+            <span class="money-priority-status" id="moneyRemainingStatus">After outstanding expenses</span>
+            <div class="money-priority-outstanding"><span>Outstanding expenses</span><strong id="moneyOutstandingValue" aria-live="polite">₱0.00</strong></div>
+          </article>
+          <details class="money-budget-breakdown" id="moneyBudgetBreakdown" open>
+          <summary>Monthly breakdown</summary>
           <div class="legend" aria-label="Monthly budget and expense totals">
             <div class="legend-item summary-card summary-card-green">
               <div class="legend-copy"><span class="legend-dot bg-green"></span><span class="legend-text"><strong><span class="summary-label-desktop">Available money</span><span class="summary-label-mobile">Available money</span></strong><small><span class="summary-desc-desktop">Total included account balances</span><span class="summary-desc-mobile">Included account balances</span></small></span></div>
@@ -416,6 +426,7 @@
             <div class="summary-item summary-card summary-card-green"><div class="summary-card-copy"><span class="summary-card-label">Second-half difference</span><small>Available money minus first-half and second-half expenses</small></div><strong class="summary-card-value text-green">₱0.00</strong></div>
             <div class="summary-item summary-card summary-card-green"><div class="summary-card-copy"><span class="summary-card-label">Money remaining</span><small>Available money minus included expenses</small></div><strong class="summary-card-value text-green">₱0.00</strong></div>
           </div>
+          </details>
           <article class="card collapsible-section" id="availableMoneySection" data-collapse-key="available-money">
             <div class="card-header collapsible-header">
               <div><div class="section-title-row"><h3>Available money</h3><button class="section-help-button" type="button" data-section-help="available-money" aria-label="Explain Available money">?</button></div><p>Edit balances, add accounts, reorder, or remove accounts here</p></div>
@@ -487,6 +498,7 @@
         </div>
       </div>
           </article>
+          <button class="button button-primary money-add-expense" id="addExpenseButton" type="button">Add expense</button>
           <details class="expense-filters-panel" id="expenseFiltersPanel" open>
             <summary><span>Filters &amp; actions</span><small>Search, select, and manage expenses</small></summary>
             <div class="toolbar expense-toolbar-compact expense-toolbar-single-line" aria-label="Expense filters and actions">
@@ -685,6 +697,7 @@
           </div>
           <div class="page-heading">
             <div><h2 id="projects-title">Projects</h2><p>Track project value, deadlines, status, and client payments.</p></div>
+            <button class="button button-primary phone-page-add" id="addProjectButton" type="button">Add project</button>
           </div>
 
           <article class="card project-section-card project-kanban-shell" id="activeProjectsCard">
@@ -4716,6 +4729,15 @@
       const secondHalfDifference = available - (early + late);
       const remaining = available - total;
 
+      const remainingValue = document.getElementById("moneyRemainingValue");
+      remainingValue.textContent = money(remaining);
+      remainingValue.classList.toggle("text-danger", remaining < 0);
+      remainingValue.classList.toggle("text-green", remaining > 0);
+      document.getElementById("moneyOutstandingValue").textContent = money(total);
+      const remainingStatus = document.getElementById("moneyRemainingStatus");
+      remainingStatus.textContent = remaining < 0 ? "Monthly shortfall" : "After outstanding expenses";
+      remainingStatus.classList.toggle("shortfall", remaining < 0);
+
       document.getElementById("moneyAvailableTotal").textContent = money(available);
       const availableMoneyAccountCount = document.getElementById("availableMoneyAccountCount");
       if (availableMoneyAccountCount) availableMoneyAccountCount.textContent = `${accountNames().length} ${accountNames().length === 1 ? "account" : "accounts"}`;
@@ -6232,6 +6254,8 @@
       menuButton.setAttribute("aria-label", isDesktopSidebar() ? (sidebarPinned ? "Unpin navigation" : "Pin navigation open") : (expanded ? "Hide navigation" : "Show navigation"));
       menuButton.title = menuButton.getAttribute("aria-label");
       sidebar.setAttribute("aria-hidden", isDesktopSidebar() ? "false" : String(!expanded));
+      sidebar.inert = !isDesktopSidebar() && !expanded;
+      if (sidebar.inert && sidebar.contains(document.activeElement)) menuButton.focus();
       if (closeButton) {
         closeButton.setAttribute("aria-label", isDesktopSidebar() ? (sidebarPinned ? "Unpin navigation" : "Pin navigation open") : "Hide navigation");
         closeButton.title = closeButton.getAttribute("aria-label");
@@ -6250,6 +6274,12 @@
 
     function applyResponsiveSidebarState() {
       const sidebar = document.getElementById("sidebar");
+      const breakdown = document.getElementById("moneyBudgetBreakdown");
+      const breakdownLayout = isDesktopSidebar() ? "desktop" : "touch";
+      if (breakdown && breakdown.dataset.layout !== breakdownLayout) {
+        breakdown.open = isDesktopSidebar();
+        breakdown.dataset.layout = breakdownLayout;
+      }
       if (isDesktopSidebar()) {
         sidebar.classList.remove("open");
         document.getElementById("overlay").classList.remove("show");
@@ -7232,6 +7262,7 @@
     schedulePhilippineThemeRefresh();
     document.addEventListener("visibilitychange", () => { if (!document.hidden && currentThemePreference() === "system") syncThemeControls(); });
     document.getElementById("addExpenseButton")?.addEventListener("click", () => openExpenseDialog());
+    document.getElementById("addIncomeButton")?.addEventListener("click", () => openIncomeDialog());
     document.getElementById("addAccountButton").addEventListener("click", () => openAccountDialog());
     document.getElementById("addProjectButton")?.addEventListener("click", () => openProjectDialog());
     document.querySelectorAll('[data-history-action="undo"]').forEach(button => button.addEventListener("click", undoLastChange));

@@ -148,7 +148,7 @@ for (const theme of ["light", "dark"]) {
         });
       }
       expect(geometry.reportGap).toBeGreaterThanOrEqual(8);
-      expect(geometry.radii.period).toBe("12px");
+      expect(geometry.radii.period).toBe("14px");
       expect(geometry.radii.projectColumn).toBe("16px");
       expect(geometry.radii.reportNav).toBe("16px");
 

@@ -49,7 +49,7 @@ test("app shell publishes the refreshed responsive stylesheet revision", async (
 test("Escape closes the Income dialog and returns focus to its opener", async ({ page }) => {
   await openAuthenticatedPage(page, "income", { width:393, height:852 });
 
-  const opener = page.locator("#quickAddExpense");
+  const opener = page.locator("#addIncomeButton");
   const dialog = page.locator("#incomeDialog");
   await opener.click();
   await expect(dialog).toBeVisible();

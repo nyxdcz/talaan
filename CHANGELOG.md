@@ -1,10 +1,19 @@
 # Changelog
 
 ## V2.5.0 · Talaan
+### Priority budget and mobile accessibility
+
+- Leads the phone and tablet Budget view with Money remaining and Outstanding expenses, retaining the existing calculations in a Monthly breakdown disclosure.
+- Uses the approved 32px primary amount and 14px card radius while preserving compact desktop controls.
+- Gives phone primary actions 44px touch targets and moves month navigation to a dedicated row with a readable selected period.
+- Removes the closed phone navigation drawer from keyboard focus and restores the visible menu trigger when it closes.
+- Improves muted, account-type, semantic, and selected-control text contrast in both themes, with larger phone record labels and amounts.
+- Advances the one-time UI asset refresh without changing the application version, Finance Schema 12, Cloud Schema V3, or stored financial records.
+
 - Adds read-only financial integrity detection and guarded recovery for historical, imported, restored, and cloud-reconstructed finance data, with deterministic safe repairs only and automatic rollback on failed imports/restores.
 
 **Current production release:** V2.5.0
-- Standardized phone controls, compact headers, summary cards, and utility actions at a maximum 35px height while preserving Finance Schema 12, Cloud Schema V3, and desktop/tablet behavior.
+- Retains compact desktop controls while phone primary actions use 44px targets and readable two-row headers.
 
 ### Household expense splits
 

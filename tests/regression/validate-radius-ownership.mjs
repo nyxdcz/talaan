@@ -22,7 +22,7 @@ const cloudSync = read("assets/js/cloud-sync.js");
 
 for (const token of [
   "--talaan-control-radius: 12px",
-  "--talaan-card-radius: 12px",
+  "--talaan-card-radius: 14px",
   "--talaan-section-radius: 16px",
   "--talaan-dialog-radius: 20px",
   "--talaan-popover-radius: 12px"

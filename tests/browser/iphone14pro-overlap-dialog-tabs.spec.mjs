@@ -131,8 +131,8 @@ test("iPhone transaction totals remain in flow with 30px workspace buttons", asy
   expect(contract.plannerParent).toBe("income");
   expect(contract.plannerBeforeIncomeSummary).toBe(true);
   expect(contract.plannerInMoney).toBe(false);
-  expect(contract.tabShellHeight).toBe(35);
-  expect(contract.tabHeight).toBe(30);
+  expect(contract.tabShellHeight).toBeGreaterThanOrEqual(52);
+  expect(contract.tabHeight).toBe(44);
   expect(contract.tabShellShadow).toBe("none");
   expect(contract.pageOverflow).toBe(false);
 });
@@ -165,12 +165,12 @@ test("iPhone Project Agenda actions stay compact inside their horizontal rail", 
     };
   });
 
-  expect(contract.tabShellHeight).toBe(35);
+  expect(contract.tabShellHeight).toBeGreaterThanOrEqual(52);
   expect(contract.viewWidth).toBeGreaterThanOrEqual(100);
-  expect(contract.viewHeight).toBe(35);
+  expect(contract.viewHeight).toBe(44);
   expect(contract.columnWidth).toBeGreaterThanOrEqual(100);
-  expect(contract.columnHeight).toBe(35);
-  expect(contract.addSize).toEqual([35, 35]);
+  expect(contract.columnHeight).toBe(44);
+  expect(contract.addSize).toEqual([44, 44]);
   expect(contract.actionRowAligned).toBe(true);
   expect(contract.columnTextFits).toBe(true);
   expect(contract.agendaContainsBoard).toBe(true);

@@ -5,6 +5,7 @@ const DATA_KEY = "simple-finance-project-records-v2";
 
 async function openSavingsForecast(page, width = 1440) {
   await page.setViewportSize({ width, height:1000 });
+  await page.clock.setFixedTime(new Date("2026-09-01T04:00:00Z"));
   await page.addInitScript(({ key }) => {
     const stamp = "2026-09-01T00:00:00.000Z";
     localStorage.setItem(key, JSON.stringify({
@@ -105,8 +106,8 @@ for (const contract of [{ width:1440, touch:false }, { width:390, touch:true }])
     expect(metrics.target).toBe(12);
     expect(metrics.button).toBe(12);
     expect(metrics.checkbox).toBe(12);
-    expect(metrics.confirmation).toBe(12);
-    expect(metrics.row).toBe(12);
+    expect(metrics.confirmation).toBe(14);
+    expect(metrics.row).toBe(14);
     expect(metrics.overflow).toBe(false);
   });
 }
