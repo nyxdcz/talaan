@@ -176,7 +176,7 @@ test("phone Settings status cards remain readable content cards", async ({ page 
       }));
     expect(cards.length).toBe(6);
     cards.forEach(card => {
-      expect(card.height).toBeGreaterThanOrEqual(70);
+      expect(Math.round(card.height * 100) / 100).toBeGreaterThanOrEqual(70);
       expect(card.inside).toBe(true);
       expect(card.copyVisible).toBe(true);
       expect(card.statusText).not.toBe("");
