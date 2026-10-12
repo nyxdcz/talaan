@@ -5,6 +5,7 @@
 
 - Leads the phone and tablet Budget view with Money remaining and Outstanding expenses, retaining the existing calculations in a Monthly breakdown disclosure.
 - Uses the approved 32px primary amount and 14px card radius while preserving compact desktop controls.
+- Shows one Add expense action per layout: in the page on phones, and in the top bar on tablet and desktop.
 - Gives phone primary actions 44px touch targets and moves month navigation to a dedicated row with a readable selected period.
 - Removes the closed phone navigation drawer from keyboard focus and restores the visible menu trigger when it closes.
 - Improves muted, account-type, semantic, and selected-control text contrast in both themes, with larger phone record labels and amounts.

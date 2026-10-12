@@ -2530,6 +2530,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
 @layer talaan-readable-ui {
 @scope (:root:has(#moneyPrioritySummary)) {
 .phone-product-name, .money-priority-summary, .money-add-expense, .phone-page-add { display:none; }
+:scope body #money .money-add-expense { display:none !important; }
 .money-budget-breakdown { border:0; background:transparent; margin:0; }
 .money-budget-breakdown > summary { display:none; }
 :scope body .income-expenses-period-copy.is-positive { color:var(--green-text) !important; }
@@ -2558,7 +2559,6 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   :scope body #moneyBudgetBreakdown :is(.legend-text strong,.summary-card-label,.summary-label-mobile) { font-size:14px !important; line-height:1.4 !important; white-space:normal !important; }
   :scope body #moneyBudgetBreakdown :is(.legend-total,.summary-card-value) { width:auto !important; max-width:100% !important; font-size:17px !important; line-height:1.4 !important; white-space:normal !important; overflow:visible !important; overflow-wrap:anywhere; }
   :scope body #moneyBudgetBreakdown #moneySummary > :is(.summary-item:first-child,.summary-item:last-child) { display:none !important; }
-  :scope body #money .money-add-expense { display:flex !important; width:100%; min-height:44px !important; height:auto !important; max-height:none !important; margin:12px 0; font-size:14px !important; }
 }
 
 /* Two header rows reserve the selected period instead of clipping it between utility actions. */
@@ -2585,6 +2585,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   :scope body .topbar .month-display-long { display:inline !important; }
   :scope body .topbar .month-display-short { display:none !important; }
   :scope body .topbar #quickAddExpense { display:none !important; }
+  :scope body #money .money-add-expense { display:flex !important; width:100%; min-height:44px !important; height:auto !important; max-height:none !important; margin:12px 0; font-size:14px !important; }
   :scope body :is(button,.button,summary,[role="button"],[role="tab"]) { min-height:44px !important; max-height:none !important; }
   :scope body :is(.workspace-switcher-button,.dashboard-view-tab,.button,.topbar-tools-item,.month-picker-option) { height:auto !important; font-size:14px !important; line-height:1.4 !important; }
   :scope body :is(.workspace-switcher,.dashboard-view-tabs,.money-workspace-switcher,.project-workspace-switcher) { height:auto !important; min-height:52px !important; max-height:none !important; }
