@@ -585,12 +585,12 @@ html body #money #moneyAccounts .account-card-icon:has(> img[alt="GCash icon" i]
 html body #money #moneyAccounts .account-card-icon:has(> img[alt="GoTyme icon" i]) { --available-account-badge-fill:#16d3cf; }
 html body #money #moneyAccounts .account-card-icon:has(> img[alt="Metrobank icon" i]) { --available-account-badge-fill:#005baa; }
 
-/* V15.2.5-r5 · Available Money account names are white and account types use #AEB6C1. */
+/* Account labels follow the canvas so light and dark cards remain readable. */
 html body #money #moneyAccounts .account-card .account-card-label > span {
-  color:#fff !important;
+  color:var(--text) !important;
 }
 html body #money #moneyAccounts .account-card .account-card-label > small {
-  color:#aeb6c1 !important;
+  color:var(--muted) !important;
 }
 html body #projects .completed-project-record .project-source-line {
   color:var(--text) !important;

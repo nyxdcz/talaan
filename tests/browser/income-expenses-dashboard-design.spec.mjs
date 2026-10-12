@@ -38,7 +38,7 @@ test("desktop Income vs Expenses follows the approved analytics hierarchy", asyn
   expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.viewport + 1);
 });
 
-test("iPhone 14 Pro stacks analytics without overflow with 35px range controls", async ({ page }) => {
+test("iPhone 14 Pro stacks analytics without overflow with 44px range controls", async ({ page }) => {
   await openDashboard(page, { width:393, height:852 });
   const card = page.locator('[data-dashboard-card="cash-flow"]');
   const summary = card.locator(".income-expenses-summary");
@@ -54,7 +54,7 @@ test("iPhone 14 Pro stacks analytics without overflow with 35px range controls",
   }));
   for (const size of buttonSizes) {
     expect(size.width).toBeGreaterThan(0);
-    expect(size.height).toBe(35);
+    expect(size.height).toBe(44);
   }
 
   const layout = await page.evaluate(() => {

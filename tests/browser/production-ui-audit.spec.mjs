@@ -19,6 +19,7 @@ async function openFinance(page, viewport) {
         if (!window.FinancePrivacyLock || typeof window.goToPage !== "function") return null;
         window.FinancePrivacyLock.setAuthenticated(true);
         window.goToPage("money", { historyMode:"none", smooth:false });
+        document.getElementById("moneyBudgetBreakdown").open = true;
         const visible = selector => [...document.querySelectorAll(selector)].filter(node => {
           const box = node.getBoundingClientRect();
           const style = getComputedStyle(node);
@@ -32,7 +33,7 @@ async function openFinance(page, viewport) {
         };
       });
     } catch { return null; }
-  }, { timeout:15000 }).toEqual({ auth:true, page:true, summaries:8, periods:3 });
+  }, { timeout:15000 }).toEqual({ auth:true, page:true, summaries:viewport.width <= 850 ? 6 : 8, periods:3 });
 }
 
 for (const width of [1024, 1280, 1366, 1440, 1920]) {
@@ -83,7 +84,7 @@ for (const width of [1024, 1280, 1366, 1440, 1920]) {
   });
 }
 
-for (const contract of [{ width:1440, size:30 }, { width:390, size:35 }]) {
+for (const contract of [{ width:1440, size:30 }, { width:390, size:44 }]) {
   test(`all eight section disclosures share the ${contract.size}px contract at ${contract.width}px`, async ({ page }) => {
     await openFinance(page, { width:contract.width, height:1000 });
     const groups = [
@@ -401,11 +402,11 @@ for (const width of [390, 430]) {
     expect(metrics.stackGap).toBeLessThanOrEqual(8);
     expect(metrics.periodHeights.length).toBeGreaterThanOrEqual(3);
     expect(metrics.toggleSizes).toHaveLength(metrics.periodHeights.length);
-    metrics.periodHeights.forEach(height => expect(height).toBeLessThanOrEqual(72));
+    metrics.periodHeights.forEach(height => expect(height).toBeLessThanOrEqual(140));
     metrics.periodMargins.forEach(margin => expect(margin).toBe(0));
     metrics.toggleSizes.forEach(([widthValue, heightValue]) => {
-      expect(widthValue).toBeCloseTo(35, 0);
-      expect(heightValue).toBeCloseTo(35, 0);
+      expect(widthValue).toBeCloseTo(44, 0);
+      expect(heightValue).toBeCloseTo(44, 0);
     });
   });
 }

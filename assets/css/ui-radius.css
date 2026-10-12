@@ -5,7 +5,7 @@
    intentional geometry. */
 :root {
   --talaan-control-radius: 12px;
-  --talaan-card-radius: 12px;
+  --talaan-card-radius: 14px;
   --talaan-section-radius: 16px;
   --talaan-dialog-radius: 20px;
   --talaan-popover-radius: 12px;

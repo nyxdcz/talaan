@@ -4,8 +4,11 @@ const APP_URL = "http://127.0.0.1:3000/";
 
 async function openPhone(page) {
   await page.setViewportSize({ width:393, height:852 });
-  await page.goto(APP_URL, { waitUntil:"domcontentloaded" });
+  await page.goto(APP_URL, { waitUntil:"networkidle" });
   await page.waitForFunction(() => Boolean(document.querySelector(".topbar")));
+  await page.waitForFunction(() => Boolean(window.FinancePrivacyLock));
+  await page.evaluate(() => window.FinancePrivacyLock.setAuthenticated(true));
+  await page.evaluate(() => window.FinanceInteractionPatterns.setupOverflowMenus());
 }
 
 async function exposePage(page, pageId) {
@@ -43,8 +46,8 @@ test("phone Add Expense stays in the toolbar grid instead of covering the title"
   });
 
   expect(contract.position).toBe("static");
-  expect(contract.width).toBe(35);
-  expect(contract.height).toBe(35);
+  expect(contract.width).toBe(0);
+  expect(contract.height).toBe(0);
   expect(contract.overlapsTitle).toBe(false);
 });
 
@@ -77,8 +80,8 @@ test("phone Add account and Schedule event are true 35px icon-only controls", as
         ariaLabel:node.getAttribute("aria-label")
       };
     });
-    expect(contract.width).toBe("35px");
-    expect(contract.height).toBe("35px");
+    expect(contract.width).toBe("44px");
+    expect(contract.height).toBe("44px");
     expect(["none", "normal", "\"\""]).toContain(contract.beforeContent);
     expect(["none", "normal", "\"\""]).toContain(contract.afterContent);
     expect(contract.labelDisplay).toBe("none");
@@ -87,7 +90,7 @@ test("phone Add account and Schedule event are true 35px icon-only controls", as
   }
 });
 
-test("phone Finance tabs are static and expense actions stay on one 35px row", async ({ page }) => {
+test("phone Finance tabs are static and expense actions stay on one touch-safe row", async ({ page }) => {
   await openPhone(page);
   await exposePage(page, "money");
 
@@ -96,13 +99,13 @@ test("phone Finance tabs are static and expense actions stay on one 35px row", a
     return {
       rowPosition:getComputedStyle(row).position,
       switcherPosition:getComputedStyle(switcher).position,
-      switcherHeight:getComputedStyle(switcher).height,
+      switcherHeight:switcher.getBoundingClientRect().height,
       marqueeDisplay:getComputedStyle(row.querySelector(":scope > .finance-week-marquee")).display
     };
   });
   expect(switcherContract.rowPosition).toBe("static");
   expect(switcherContract.switcherPosition).toBe("static");
-  expect(switcherContract.switcherHeight).toBe("35px");
+  expect(switcherContract.switcherHeight).toBeGreaterThanOrEqual(52);
   expect(switcherContract.marqueeDisplay).toBe("none");
 
   await page.evaluate(() => {
@@ -139,15 +142,15 @@ test("phone Finance tabs are static and expense actions stay on one 35px row", a
       triggerShadow:triggerStyle.boxShadow
     };
   });
-  expect(actions.height).toBe(35);
-  expect(actions.moreWidth).toBe(35);
-  expect(actions.moreHeight).toBe(35);
+  expect(actions.height).toBe(44);
+  expect(actions.moreWidth).toBe(44);
+  expect(actions.moreHeight).toBe(44);
   expect(actions.sameRow).toBe(true);
   expect(actions.wrapperBorder).toBe("0px");
   expect(actions.wrapperShadow).toBe("none");
   expect(actions.wrapperBackgroundImage).toBe("none");
-  expect(actions.triggerWidth).toBe(35);
-  expect(actions.triggerHeight).toBe(35);
+  expect(actions.triggerWidth).toBe(44);
+  expect(actions.triggerHeight).toBe(44);
   expect(actions.triggerBorder).toBe("1px");
   expect(actions.triggerShadow).toBe("none");
 

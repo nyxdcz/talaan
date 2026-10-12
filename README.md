@@ -77,6 +77,8 @@ For detailed setup guidance, configuration, and deployment options, see [📖 Se
 
 ## 🏗️ How Talaan Works
 
+The phone Budget view puts Money remaining and Outstanding expenses first. Open Monthly breakdown to review the period totals and half-month differences. Light and dark themes use readable account labels, the month selector has a dedicated row, and primary phone actions provide 44px touch targets. Keyboard navigation skips the closed phone drawer.
+
 ```mermaid
 flowchart LR
     UI["📱 Talaan PWA"]

@@ -8,6 +8,8 @@ html[data-theme="light"] {
   color-scheme:light;
   --bg:#efefef;
   --focus-ring:#356FD1;
+  --muted:#526071;
+  --action-text:#275bb9;
 }
 html[data-theme="dark"] {
   color-scheme:dark;
@@ -15,7 +17,8 @@ html[data-theme="dark"] {
   --surface:#080b10;
   --surface-soft:#0e131b;
   --text:#f4f7fb;
-  --muted:#9ca8b8;
+  --muted:#bbc5d4;
+  --action-text:#9dbdff;
   --line:#202938;
   --nav:#080B10;
   --primary:#356FD1;

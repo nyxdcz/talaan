@@ -2525,3 +2525,103 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
     grid-template-rows:35px !important;
   }
 }
+
+/* The phone summary leads with the monthly position; desktop retains its comparison rows. */
+@layer talaan-readable-ui {
+@scope (:root:has(#moneyPrioritySummary)) {
+.phone-product-name, .money-priority-summary, .money-add-expense, .phone-page-add { display:none; }
+.money-budget-breakdown { border:0; background:transparent; margin:0; }
+.money-budget-breakdown > summary { display:none; }
+:scope body .income-expenses-period-copy.is-positive { color:var(--green-text) !important; }
+:scope body :is(.insights-workspace-tabs button[aria-selected="true"], .reports-workspace-tabs button[aria-selected="true"], .report-section-number, .project-source-line.freelance, .savings-trend-values > summary) { color:var(--action-text) !important; }
+:scope body .finance-kanban-column-header > strong { color:var(--text) !important; }
+:scope body .insight-change-chip.started { color:var(--danger) !important; }
+:scope body #reports .report-section-nav button[aria-current="true"],
+:scope body .chart-data-details > summary,
+:scope body .income-yearly-table th.text-blue { color:var(--action-text) !important; }
+:scope body .report-section-heading > span { color:var(--action-text) !important; }
+
+@media (max-width:850px) {
+  :scope body .money-priority-summary { display:block; padding:16px !important; margin-bottom:12px; }
+  :scope body #moneyPrioritySummary h3 { margin:0; font-size:15px !important; }
+  :scope body #moneyPrioritySummary .money-priority-amount { display:block; font-size:32px !important; line-height:1.3; font-weight:750; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; margin:4px 0 8px; }
+  :scope body #moneyPrioritySummary .money-priority-status { display:inline-block; font-size:13px; color:var(--muted); margin-bottom:14px; }
+  :scope body #moneyPrioritySummary .money-priority-status.shortfall { color:var(--danger); background:var(--red-soft); padding:4px 7px; border-radius:var(--talaan-control-radius); }
+  :scope body #moneyPrioritySummary .money-priority-outstanding { display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between; padding-top:12px; border-top:1px solid var(--line); font-size:14px; }
+  :scope body #moneyOutstandingValue { font-size:20px; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+  :scope body #moneyBudgetBreakdown { border:1px solid var(--line); background:var(--surface); border-radius:var(--talaan-card-radius); margin-bottom:12px; padding:0 12px; }
+  :scope body #moneyBudgetBreakdown > summary { display:list-item; min-height:48px; padding:12px 0; font-size:14px; font-weight:650; }
+  :scope body #moneyBudgetBreakdown :is(.legend,.summary-strip) { display:grid !important; grid-template-columns:minmax(0,1fr) !important; gap:0 !important; margin:0 !important; }
+  :scope body #moneyBudgetBreakdown :is(.legend-item,.summary-item) { display:flex !important; flex-wrap:wrap; align-items:center; justify-content:space-between; min-height:52px !important; height:auto !important; max-height:none !important; padding:10px 0 !important; border:0 !important; border-top:1px solid var(--line) !important; border-radius:0 !important; background:transparent !important; box-shadow:none !important; }
+  :scope body #moneyBudgetBreakdown :is(.legend-copy,.legend-text,.summary-card-copy,.summary-card-label) { width:auto !important; min-width:0; flex:1 1 140px; }
+  :scope body #moneyBudgetBreakdown .legend-dot { display:none; }
+  :scope body #moneyBudgetBreakdown :is(.legend-text strong,.summary-card-label,.summary-label-mobile) { font-size:14px !important; line-height:1.4 !important; white-space:normal !important; }
+  :scope body #moneyBudgetBreakdown :is(.legend-total,.summary-card-value) { width:auto !important; max-width:100% !important; font-size:17px !important; line-height:1.4 !important; white-space:normal !important; overflow:visible !important; overflow-wrap:anywhere; }
+  :scope body #moneyBudgetBreakdown #moneySummary > :is(.summary-item:first-child,.summary-item:last-child) { display:none !important; }
+  :scope body #money .money-add-expense { display:flex !important; width:100%; min-height:44px !important; height:auto !important; max-height:none !important; margin:12px 0; font-size:14px !important; }
+}
+
+/* Two header rows reserve the selected period instead of clipping it between utility actions. */
+@media (max-width:700px) {
+  :scope { --mobile-topbar-offset:calc(max(8px,env(safe-area-inset-top)) + 104px) !important; --talaan-phone-control-size:44px; }
+  :scope body .topbar { display:grid !important; grid-template-columns:44px minmax(0,1fr) 44px 44px !important; grid-template-rows:44px 44px !important; grid-template-areas:none !important; gap:8px !important; min-height:0 !important; height:auto !important; max-height:none !important; padding:max(8px,env(safe-area-inset-top)) 12px 8px !important; align-items:center; }
+  :scope body .topbar .topbar-left, :scope body .topbar .topbar-actions { display:contents !important; }
+  :scope body .topbar .topbar-left > div { display:block !important; min-width:0 !important; grid-column:2 !important; grid-row:1 !important; text-align:center; }
+  :scope body .topbar .phone-product-name { display:block !important; font-size:18px; line-height:1.2; }
+  :scope body .topbar #topTitle { display:block !important; font-size:12px !important; line-height:1.3; margin:2px 0 0; color:var(--muted); }
+  :scope body .topbar :is(#todayLabel,#buildBadge) { display:none !important; }
+  :scope body .topbar #menuButton { grid-row:1 !important; grid-column:1 !important; margin:0 !important; }
+  :scope body .topbar #cloudSyncStatusButton { grid-row:1 !important; grid-column:3 !important; position:static !important; }
+  :scope body .topbar .topbar-tools-menu { grid-row:1 !important; grid-column:4 !important; position:relative !important; width:44px !important; min-width:44px !important; max-width:44px !important; height:44px !important; min-height:44px !important; max-height:44px !important; }
+  :scope body .topbar .month-navigator { display:grid !important; position:static !important; grid-row:2 !important; grid-column:1 / -1 !important; grid-template-columns:44px minmax(0,1fr) 44px !important; grid-template-areas:none !important; gap:8px !important; height:44px !important; min-height:44px !important; max-height:44px !important; width:100% !important; max-width:none !important; margin:0 !important; }
+  :scope body .topbar .month-navigator:has(> #currentMonthButton:not([hidden])) { grid-template-columns:44px minmax(0,1fr) 44px 64px !important; }
+  :scope body .topbar .month-navigator #previousMonthButton { grid-column:1 !important; grid-row:1 !important; }
+  :scope body .topbar .month-navigator #nextMonthButton { grid-column:3 !important; grid-row:1 !important; }
+  :scope body .topbar .month-navigator #currentMonthButton { grid-column:4 !important; grid-row:1 !important; width:64px !important; font-size:12px !important; }
+  :scope body .topbar .month-navigator .month-control { display:block !important; position:relative !important; grid-column:2 !important; grid-row:1 !important; top:auto !important; left:auto !important; transform:none !important; width:100% !important; min-width:0 !important; max-width:none !important; height:44px !important; min-height:44px !important; max-height:none !important; padding:0 !important; }
+  :scope body .topbar .month-navigator #monthDisplayButton { display:flex !important; justify-content:center !important; width:100% !important; height:44px !important; padding:8px 2px !important; }
+  :scope body .topbar .month-navigator :is(.month-display-label,.month-display-separator,#monthStatusChip) { display:none !important; }
+  :scope body .topbar .month-navigator .month-display-value { width:auto !important; max-width:100% !important; font-size:14px !important; line-height:1.4 !important; flex:0 1 auto !important; }
+  :scope body .topbar .month-display-long { display:inline !important; }
+  :scope body .topbar .month-display-short { display:none !important; }
+  :scope body .topbar #quickAddExpense { display:none !important; }
+  :scope body :is(button,.button,summary,[role="button"],[role="tab"]) { min-height:44px !important; max-height:none !important; }
+  :scope body :is(.workspace-switcher-button,.dashboard-view-tab,.button,.topbar-tools-item,.month-picker-option) { height:auto !important; font-size:14px !important; line-height:1.4 !important; }
+  :scope body :is(.workspace-switcher,.dashboard-view-tabs,.money-workspace-switcher,.project-workspace-switcher) { height:auto !important; min-height:52px !important; max-height:none !important; }
+  :scope body :is(.collapse-toggle,.overflow-menu-trigger,.section-help-button,.month-nav-button,.menu-button,.sidebar-close-button,.topbar-tools-trigger,.cloud-sync-toolbar-button,.phone-icon-only-action) { width:44px !important; min-width:44px !important; max-width:44px !important; height:44px !important; min-height:44px !important; max-height:44px !important; flex-basis:44px !important; }
+  :scope body .sidebar .nav-button { min-height:44px !important; }
+  :scope body :is(.mobile-record-actions,.record-row[data-paid-expense-row] .mobile-record-actions) { height:auto !important; min-height:44px !important; grid-template-columns:minmax(0,1fr) 44px !important; }
+  :scope body .mobile-record-actions .record-more-menu { width:44px !important; min-width:44px !important; max-width:44px !important; height:44px !important; min-height:44px !important; max-height:44px !important; }
+  :scope body #money .account-card-actions { grid-template-columns:44px auto !important; }
+  :scope body #money #availableMoneySection .collapse-actions { grid-template-columns:minmax(0,1fr) 44px 44px !important; }
+  :scope body #money :is(.period-header,.card-header) .collapse-actions { max-width:100%; }
+  :scope body #money .period-header .collapse-actions { grid-template-columns:minmax(0,1fr) 44px !important; }
+  :scope body #money :is(#availableMoneySection .card-header,.period-header) { display:grid !important; grid-template-columns:minmax(0,1fr) !important; grid-template-areas:none !important; gap:8px !important; height:auto !important; min-height:0 !important; max-height:none !important; padding:12px !important; }
+  :scope body #money :is(#availableMoneySection .card-header,.period-header) > div { grid-column:1 !important; grid-row:auto !important; min-width:0 !important; max-width:100% !important; }
+  :scope body #money :is(#availableMoneySection .card-header,.period-header) .collapse-actions { display:grid !important; width:100% !important; max-width:100% !important; align-items:center; gap:8px !important; }
+  :scope body #money :is(.available-money-total-wrap,.period-total) { min-width:0 !important; width:auto !important; max-width:100% !important; white-space:normal !important; overflow:visible !important; overflow-wrap:anywhere; }
+  :scope body #money #moneyAvailableTotal { width:auto !important; max-width:none !important; white-space:normal !important; overflow:visible !important; }
+  :scope body #money .account-card-main strong { font-size:17px !important; line-height:1.4 !important; }
+  :scope body :is(.month-picker-popover,.topbar-tools-panel) { max-width:calc(100vw - 24px) !important; }
+  :scope body #money :is(.account-card-label small,.record-title-copy small,.record-label,.record-meta,.record-status-chip,.summary-card-label) { font-size:13px !important; line-height:1.4 !important; }
+  :scope body #money :is(.ui-tag,.status-badge,.expense-inline-note,.due-cell,[data-label]:not(.amount)) { font-size:13px !important; line-height:1.4 !important; }
+  :scope body #money :is(.account-card-label > span,.account-card-main > span,.record-title-copy > strong,.period-header h3,.card-header h3) { font-size:14px !important; line-height:1.4 !important; }
+  :scope body #money :is(.account-card-main > strong,.amount,.period-total,#moneyAvailableTotal) { font-size:17px !important; line-height:1.4 !important; }
+  :scope body #money :is(.record-row[data-expense-row],.account-card) { height:auto !important; max-height:none !important; }
+  :scope body #money .record-row[data-expense-row] .record-title-copy { white-space:normal !important; }
+  :scope body #money .record-row[data-expense-row] .record-title-copy > :is(strong,small) { white-space:normal !important; overflow:visible !important; }
+  :scope body .income-expenses-range button { min-width:44px !important; min-height:44px !important; height:44px !important; max-height:none !important; font-size:13px !important; }
+  :scope body :is(.budget-panel-collapse,.budget-planner-toggle,.toast-dismiss,#toastDismissButton) { width:44px !important; min-width:44px !important; height:44px !important; min-height:44px !important; }
+  :scope body :is(select,input:not([type="checkbox"]):not([type="radio"]):not([type="month"]):not([type="hidden"])) { min-height:44px !important; max-height:none !important; font-size:16px !important; }
+  :scope body .calendar-day { min-height:56px !important; }
+  :scope body .month-navigator { grid-template-rows:44px !important; padding:0 !important; border:0 !important; }
+  :scope body .settings-status-card { min-height:70px !important; height:auto !important; }
+  :scope body .phone-page-add { display:flex !important; height:auto !important; max-height:none !important; font-size:14px !important; }
+  :scope body :is(.annual-show-all,.expense-select-footer,label:has(> input[type="checkbox"])) { min-width:44px !important; min-height:44px !important; height:auto !important; }
+  :scope body #money .expense-record-title { display:grid !important; grid-template-columns:44px minmax(0,1fr) !important; gap:8px !important; }
+  :scope body #money .expense-select-footer { position:static !important; display:flex !important; align-items:center; justify-content:center; width:44px !important; min-width:44px !important; flex:0 0 44px !important; }
+  :scope body #money .expense-record-title .record-title-copy { grid-column:2; }
+}
+:scope body #annualIncomeTable th { color:var(--text) !important; }
+}
+}

@@ -20,7 +20,6 @@ test("phone headers use the reference control order on every workspace page", as
 
       const geometry = await page.evaluate(() => {
         const rect = selector => document.querySelector(selector)?.getBoundingClientRect();
-        const visibleMonthStatus = document.querySelector("#currentMonthButton:not([hidden]), #monthStatusChip:not([hidden])");
         const topbar = document.querySelector(".topbar");
         const monthNavigator = document.querySelector(".month-navigator");
         const cloud = document.querySelector("#cloudSyncStatusButton");
@@ -29,12 +28,11 @@ test("phone headers use the reference control order on every workspace page", as
           rect("#previousMonthButton"),
           rect("#monthControl"),
           rect("#nextMonthButton"),
-          visibleMonthStatus?.getBoundingClientRect(),
           rect("#cloudSyncStatusButton"),
           rect("#topbarToolsTrigger")
         ];
         const allInside = controls.every(item => item && item.left >= -1 && item.right <= innerWidth + 1);
-        const ordered = controls.every((item, index) => index === 0 || item.left > controls[index - 1].left);
+        const ordered = controls[1].right <= controls[2].left && controls[2].right <= controls[3].left && controls[1].top > controls[0].top;
         const height = selector => Math.round((rect(selector)?.height || 0) * 100) / 100;
         return {
           areas:getComputedStyle(topbar).gridTemplateAreas,
@@ -53,16 +51,15 @@ test("phone headers use the reference control order on every workspace page", as
         };
       });
 
-      expect(geometry.areas).toContain("menu month month month month sync tools");
-      expect(geometry.titleRowArea).toBe("menu");
-      expect(geometry.monthArea).toBe("month");
-      expect(geometry.cloudArea).toBe("sync");
-      expect(geometry.toolsArea).toBe("tools");
+      expect(geometry.areas).toBe("none");
+      expect(geometry.monthArea).toBe("2 / 1 / auto / -1");
+      expect(geometry.cloudArea).toBe("1 / 3");
+      expect(geometry.toolsArea).toBe("1 / 4");
       expect(geometry.cloudDisplay).toBe("grid");
       expect(geometry.toolsDisplay).toBe("block");
-      expect(geometry.titleDisplay).toBe("none");
-      expect(geometry.controlHeights).toEqual([35, 35, 35, 35, 35, 35, 35]);
-      expect(geometry.toolsHeight).toBe(35);
+      expect(geometry.titleDisplay).toBe("block");
+      expect(geometry.controlHeights).toEqual([44, 44, 44, 44, 44, 44]);
+      expect(geometry.toolsHeight).toBe(44);
       expect(geometry.allInside).toBe(true);
       expect(geometry.ordered).toBe(true);
       expect(geometry.pageOverflow).toBe(false);

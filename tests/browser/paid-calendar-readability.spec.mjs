@@ -117,7 +117,7 @@ test("desktop paid calendar separates dates and keeps names and amounts easy to 
   expect(state.calendarGap).toBeCloseTo(10, 0);
   expect(state.dayHeight).toBeGreaterThanOrEqual(176);
   expect(state.dayBorder).toBe("solid");
-  expect(state.dayRadius).toBeCloseTo(12, 0);
+  expect(state.dayRadius).toBeCloseTo(14, 0);
   expect(state.headingWeight).toBeGreaterThanOrEqual(800);
   expect(state.entryDisplay).toBe("grid");
   expect(state.entryHeight).toBeGreaterThanOrEqual(40);

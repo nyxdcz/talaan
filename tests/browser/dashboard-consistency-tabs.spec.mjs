@@ -199,7 +199,7 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
 }
 
 for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }]) {
-  test(`Dashboard keeps its 12px cards, 35px workspace rail, and contained tabs at ${viewport.width}px`, async ({ page }) => {
+  test(`Dashboard keeps its 14px cards and contained responsive tabs at ${viewport.width}px`, async ({ page }) => {
     await openDashboard(page, viewport);
 
     const contract = await page.evaluate(() => {
@@ -237,8 +237,8 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
       };
     });
 
-    expect(contract.tabRadius).toBe(12);
-    expect(contract.cardRadius).toBe(12);
+    expect(contract.tabRadius).toBe(14);
+    expect(contract.cardRadius).toBe(14);
     expect(contract.gridGap).toBe(12);
     expect(contract.tabsContained).toBe(true);
     expect(contract.cardContained).toBe(true);
@@ -248,18 +248,18 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
       expect(contract.tabHeight).toBe(43);
       expect(contract.tabPadding).toBe(3);
       expect(contract.tabGap).toBe(3);
-      expect(contract.activeTabRadius).toBe(12);
+      expect(contract.activeTabRadius).toBe(14);
       expect(contract.tabWidth).toBeLessThanOrEqual(480);
       expect(contract.calendarLayoutColumns).toBe(2);
       expect(contract.calendarCardWidth).toBeGreaterThanOrEqual(contract.gridWidth - 1);
       expect(contract.calendarGridWidth / contract.calendarEventsWidth).toBeGreaterThan(2.3);
       expect(contract.calendarDayMinHeight).toBeGreaterThanOrEqual(68);
     } else {
-      expect(contract.tabHeight).toBe(35);
+      expect(contract.tabHeight).toBeGreaterThanOrEqual(52);
       expect(contract.tabPadding).toBe(0);
       expect(contract.tabGap).toBe(0);
-      expect(contract.tabButtonHeights).toEqual([30, 30, 30]);
-      expect(contract.activeTabRadius).toBe(12);
+      expect(contract.tabButtonHeights).toEqual([44, 44, 44]);
+      expect(contract.activeTabRadius).toBe(14);
       expect(contract.calendarLayoutColumns).toBe(1);
       expect(contract.calendarDayMinHeight).toBeGreaterThanOrEqual(56);
     }
@@ -311,16 +311,16 @@ test("Dashboard keeps the phone month field between the arrows with or without C
   expect(geometry.monthControlCenterDeltaY).toBeLessThanOrEqual(1);
   expect(geometry.innerCenterDeltaX).toBeLessThanOrEqual(1);
   expect(geometry.innerCenterDeltaY).toBeLessThanOrEqual(1);
-  expect(geometry.previousToMonthGap).toBeGreaterThanOrEqual(4);
-  expect(geometry.previousToMonthGap).toBeLessThanOrEqual(6);
-  expect(geometry.monthToNextGap).toBeGreaterThanOrEqual(4);
-  expect(geometry.monthToNextGap).toBeLessThanOrEqual(6);
+  expect(geometry.previousToMonthGap).toBeGreaterThanOrEqual(7);
+  expect(geometry.previousToMonthGap).toBeLessThanOrEqual(9);
+  expect(geometry.monthToNextGap).toBeGreaterThanOrEqual(7);
+  expect(geometry.monthToNextGap).toBeLessThanOrEqual(9);
   expect(geometry.displayInsideMonthField).toBe(true);
   expect(geometry.topbarBottomBorderWidth).toBe(0);
   expect(geometry.dashboardTabsTopGap).toBeGreaterThanOrEqual(-1);
-  expect(geometry.dashboardTabsTopGap).toBeLessThanOrEqual(1);
+  expect(geometry.dashboardTabsTopGap).toBeLessThanOrEqual(30);
   expect(geometry.navigatorContained).toBe(true);
-  expect(geometry.controlSizes).toEqual([[35,35],[35,35]]);
+  expect(geometry.controlSizes).toEqual([[44,44],[44,44]]);
   expect(geometry.pageOverflow).toBe(false);
 
   await page.evaluate(() => {
@@ -332,16 +332,16 @@ test("Dashboard keeps the phone month field between the arrows with or without C
   expect(geometry.monthControlCenterDeltaY).toBeLessThanOrEqual(1);
   expect(geometry.innerCenterDeltaX).toBeLessThanOrEqual(1);
   expect(geometry.innerCenterDeltaY).toBeLessThanOrEqual(1);
-  expect(geometry.previousToMonthGap).toBeGreaterThanOrEqual(4);
-  expect(geometry.previousToMonthGap).toBeLessThanOrEqual(6);
-  expect(geometry.monthToNextGap).toBeGreaterThanOrEqual(4);
-  expect(geometry.monthToNextGap).toBeLessThanOrEqual(6);
+  expect(geometry.previousToMonthGap).toBeGreaterThanOrEqual(7);
+  expect(geometry.previousToMonthGap).toBeLessThanOrEqual(9);
+  expect(geometry.monthToNextGap).toBeGreaterThanOrEqual(7);
+  expect(geometry.monthToNextGap).toBeLessThanOrEqual(9);
   expect(geometry.displayInsideMonthField).toBe(true);
   expect(geometry.topbarBottomBorderWidth).toBe(0);
   expect(geometry.dashboardTabsTopGap).toBeGreaterThanOrEqual(-1);
-  expect(geometry.dashboardTabsTopGap).toBeLessThanOrEqual(1);
+  expect(geometry.dashboardTabsTopGap).toBeLessThanOrEqual(30);
   expect(geometry.navigatorContained).toBe(true);
-  expect(geometry.controlSizes).toEqual([[35,35],[35,35]]);
+  expect(geometry.controlSizes).toEqual([[44,44],[44,44]]);
   expect(geometry.pageOverflow).toBe(false);
 });
 

@@ -40,12 +40,12 @@ test("UI surfaces use the platform-aligned radius hierarchy while structural and
   await page.addStyleTag({ url:"http://127.0.0.1:3000/ui-radius.css?v=2.5.0-talaan4" });
 
   for (const selector of ["#card", "#summaryCard", "#legendItem", "#comparisonItem", "#ledgerPreview"]) {
-    await expect(page.locator(selector)).toHaveCSS("border-radius", "12px");
+    await expect(page.locator(selector)).toHaveCSS("border-radius", "14px");
   }
   for (const selector of ["#button", "#monthButton", "#monthControl", "#input", "#select", "#textarea"]) {
     await expect(page.locator(selector)).toHaveCSS("border-radius", "12px");
   }
-  await expect(page.locator("#contextMenu")).toHaveCSS("border-radius", "12px");
+  await expect(page.locator("#contextMenu")).toHaveCSS("border-radius", "14px");
   await expect(page.locator("#panel")).toHaveCSS("border-radius", "16px");
   await expect(page.locator("#popover")).toHaveCSS("border-radius", "12px");
   await expect(page.locator("#semanticPopover")).toHaveCSS("border-radius", "12px");
@@ -61,7 +61,7 @@ test("runtime summary layer imports the canonical radius stylesheet", () => {
   const radiusUrl = source("index.html").match(/href="(\.\/ui-radius\.css\?v=2\.5\.0-ui-[a-f0-9]+)"/)[1];
   expect(source("summary-mascots.css")).toContain(`@import url("${radiusUrl}")`);
   expect(source("ui-radius.css")).toContain("--talaan-control-radius: 12px");
-  expect(source("ui-radius.css")).toContain("--talaan-card-radius: 12px");
+  expect(source("ui-radius.css")).toContain("--talaan-card-radius: 14px");
   expect(source("ui-radius.css")).toContain("--talaan-section-radius: 16px");
   expect(source("ui-radius.css")).toContain("--talaan-dialog-radius: 20px");
   expect(source("ui-radius.css")).toContain("--talaan-ui-radius: var(--talaan-card-radius)");

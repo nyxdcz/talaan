@@ -21,14 +21,14 @@ test("Talaan V2.5.0 Finance period surfaces keep exposed corners and flush inter
   }));
 
   expect(await radiusOf("#periodRadiusFixture")).toEqual({
-    topLeft:"12px",
-    topRight:"12px",
-    bottomRight:"12px",
-    bottomLeft:"12px"
+    topLeft:"14px",
+    topRight:"14px",
+    bottomRight:"14px",
+    bottomLeft:"14px"
   });
   expect(await radiusOf("#periodRadiusFixture .period-header")).toEqual({
-    topLeft:"12px",
-    topRight:"12px",
+    topLeft:"14px",
+    topRight:"14px",
     bottomRight:"0px",
     bottomLeft:"0px"
   });
@@ -59,10 +59,10 @@ test("Finance phone rows use flush internal joins while the period keeps its exp
     bottomLeft:getComputedStyle(element).borderBottomLeftRadius
   }));
   expect(await radiusOf("#phonePeriodRadiusFixture")).toEqual({
-    topLeft:"12px", topRight:"12px", bottomRight:"12px", bottomLeft:"12px"
+    topLeft:"14px", topRight:"14px", bottomRight:"14px", bottomLeft:"14px"
   });
   expect(await radiusOf("#phonePeriodRadiusFixture .period-header")).toEqual({
-    topLeft:"12px", topRight:"12px", bottomRight:"0px", bottomLeft:"0px"
+    topLeft:"14px", topRight:"14px", bottomRight:"0px", bottomLeft:"0px"
   });
   expect(await radiusOf("#phonePeriodRadiusFixture .record-row")).toEqual({
     topLeft:"0px", topRight:"0px", bottomRight:"0px", bottomLeft:"0px"
