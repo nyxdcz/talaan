@@ -2592,14 +2592,55 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   :scope body :is(.collapse-toggle,.overflow-menu-trigger,.section-help-button,.month-nav-button,.menu-button,.sidebar-close-button,.topbar-tools-trigger,.cloud-sync-toolbar-button,.phone-icon-only-action) { width:44px !important; min-width:44px !important; max-width:44px !important; height:44px !important; min-height:44px !important; max-height:44px !important; flex-basis:44px !important; }
   :scope body .sidebar .nav-button { min-height:44px !important; }
   :scope body :is(.mobile-record-actions,.record-row[data-paid-expense-row] .mobile-record-actions) { height:auto !important; min-height:44px !important; grid-template-columns:minmax(0,1fr) 44px !important; }
+  :scope body :is(#money .record-row[data-expense-row],#paid-expenses [data-paid-expense-row]) > .mobile-record-actions { grid-template-columns:minmax(44px,max-content) 44px !important; justify-content:end !important; align-items:center !important; gap:8px !important; }
+  :scope body :is(#money .record-row[data-expense-row],#paid-expenses [data-paid-expense-row]) > .mobile-record-actions > .button { width:auto !important; min-width:44px !important; max-width:100% !important; padding:8px 12px !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; text-align:center !important; white-space:normal !important; }
   :scope body .mobile-record-actions .record-more-menu { width:44px !important; min-width:44px !important; max-width:44px !important; height:44px !important; min-height:44px !important; max-height:44px !important; }
-  :scope body #money .account-card-actions { grid-template-columns:44px auto !important; }
-  :scope body #money #availableMoneySection .collapse-actions { grid-template-columns:minmax(0,1fr) 44px 44px !important; }
-  :scope body #money :is(.period-header,.card-header) .collapse-actions { max-width:100%; }
-  :scope body #money .period-header .collapse-actions { grid-template-columns:minmax(0,1fr) 44px !important; }
-  :scope body #money :is(#availableMoneySection .card-header,.period-header) { display:grid !important; grid-template-columns:minmax(0,1fr) !important; grid-template-areas:none !important; gap:8px !important; height:auto !important; min-height:0 !important; max-height:none !important; padding:12px !important; }
-  :scope body #money :is(#availableMoneySection .card-header,.period-header) > div { grid-column:1 !important; grid-row:auto !important; min-width:0 !important; max-width:100% !important; }
-  :scope body #money :is(#availableMoneySection .card-header,.period-header) .collapse-actions { display:grid !important; width:100% !important; max-width:100% !important; align-items:center; gap:8px !important; }
+  :scope body #money .account-card-actions { grid-template-columns:auto auto !important; align-items:center !important; gap:8px !important; }
+  :scope body #money .account-card-actions .button { display:inline-flex !important; min-width:44px !important; align-items:center !important; justify-content:center !important; gap:8px !important; }
+  :scope body .budget-planner-card:not(.is-planner-collapsed) .budget-planner-actions { grid-template-columns:minmax(0,1fr) 64px !important; align-items:center !important; gap:8px !important; }
+  :scope body .budget-planner-card .budget-planner-actions > :is(#buildBudgetFromExpenses,#copyPreviousBudget) { grid-column:1 / -1 !important; }
+  :scope body .budget-planner-card .budget-planner-actions > .button,
+  :scope body .budget-planner-card .budget-planner-more-menu > .overflow-menu-trigger { display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; padding:8px 12px !important; white-space:normal !important; text-align:center !important; overflow:visible !important; }
+  :scope body .budget-planner-card .budget-planner-more-menu { width:64px !important; min-width:64px !important; max-width:64px !important; height:44px !important; margin:0 !important; padding:0 !important; border:0 !important; background:transparent !important; box-shadow:none !important; }
+  :scope body .budget-planner-card .budget-planner-more-menu > .overflow-menu-trigger { width:64px !important; min-width:64px !important; max-width:64px !important; }
+  :scope body #expenseDialog .expense-dialog-footer { gap:8px !important; }
+  :scope body #expenseDialog .expense-dialog-footer .button:not([hidden]) { display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; padding:8px 12px !important; white-space:normal !important; text-align:center !important; }
+  :scope body #money :is(#availableMoneySection .card-header,.period-header) {
+    display:flex !important;
+    flex-wrap:wrap !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:8px !important;
+    height:auto !important;
+    min-height:68px !important;
+    max-height:none !important;
+    padding:12px !important;
+  }
+  :scope body #money :is(#availableMoneySection .card-header,.period-header) > div:first-child {
+    flex:1 1 140px !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    width:auto !important;
+  }
+  :scope body #money #availableMoneySection .card-header > div:first-child { flex-basis:100px !important; }
+  :scope body #money :is(#availableMoneySection .card-header,.period-header) .collapse-actions {
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    flex:0 1 auto !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:8px !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:auto !important;
+    min-height:44px !important;
+    max-height:none !important;
+  }
+  :scope body #money :is(#availableMoneySection .card-header,.period-header) .collapse-toggle { display:inline-grid !important; place-items:center !important; margin:0 !important; padding:0 !important; flex:0 0 44px !important; }
+  :scope body #money :is(#availableMoneySection .card-header,.period-header) h3 { white-space:normal !important; overflow:visible !important; overflow-wrap:anywhere; }
+  :scope body #money .period-header p { -webkit-line-clamp:unset !important; line-clamp:unset !important; overflow:visible !important; }
+  :scope body #money .collapse-actions > :is(.available-money-total-wrap,.period-total) { flex:0 1 auto !important; }
   :scope body #money :is(.available-money-total-wrap,.period-total) { min-width:0 !important; width:auto !important; max-width:100% !important; white-space:normal !important; overflow:visible !important; overflow-wrap:anywhere; }
   :scope body #money #moneyAvailableTotal { width:auto !important; max-width:none !important; white-space:normal !important; overflow:visible !important; }
   :scope body #money .account-card-main strong { font-size:17px !important; line-height:1.4 !important; }

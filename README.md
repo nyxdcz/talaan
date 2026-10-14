@@ -47,6 +47,8 @@ Talaan is a **finance-first PWA** designed for people who value **privacy, contr
 | 📱 **Offline PWA** | Install as an app. Works perfectly without internet. |
 | 🛡️ **Data Protection** | Finance schema, cache, and sync behavior are protected contracts. |
 
+Phone finance actions keep 44px touch targets. Planning labels use the available row width, repeated expense actions fit their labels, and related controls use centered content with 8px gaps. Available money and expense-period headers keep totals beside centered controls and wrap when longer content needs more space. The V2.5.0 update retains the existing radius tokens and financial schemas.
+
 ---
 
 ## 🚀 Quick Start
