@@ -2,6 +2,24 @@ import { expect, test } from "@playwright/test";
 
 test.use({ serviceWorkers:"block" });
 
+for (const theme of ["light","dark"]) {
+  test(`account actions retain touch targets with narrow font metrics in ${theme}`, async ({ page }) => {
+    await openPage(page, "money", 393, theme);
+    const actions = page.locator("#money .account-card").first().locator(".account-card-actions > .button");
+    await actions.evaluateAll(buttons => {
+      for (const button of buttons) {
+        button.style.setProperty("font-family", "Arial, sans-serif", "important");
+        button.style.setProperty("font-weight", "400", "important");
+        button.style.setProperty("font-size", "12px", "important");
+      }
+    });
+    for (const button of await actions.all()) await expectCenteredContent(button);
+    const boxes = await actions.evaluateAll(buttons => buttons.map(button => button.getBoundingClientRect().toJSON()));
+    expect(boxes[1].left - boxes[0].right).toBeCloseTo(8, 0);
+    expect(Math.abs(boxes[0].y + boxes[0].height / 2 - boxes[1].y - boxes[1].height / 2)).toBeLessThanOrEqual(1);
+  });
+}
+
 async function openPage(page, route, width, theme) {
   await page.setViewportSize({ width, height:660 });
   await page.addInitScript(value => {

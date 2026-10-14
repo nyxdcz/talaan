@@ -2596,7 +2596,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   :scope body :is(#money .record-row[data-expense-row],#paid-expenses [data-paid-expense-row]) > .mobile-record-actions > .button { width:auto !important; min-width:44px !important; max-width:100% !important; padding:8px 12px !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; text-align:center !important; white-space:normal !important; }
   :scope body .mobile-record-actions .record-more-menu { width:44px !important; min-width:44px !important; max-width:44px !important; height:44px !important; min-height:44px !important; max-height:44px !important; }
   :scope body #money .account-card-actions { grid-template-columns:auto auto !important; align-items:center !important; gap:8px !important; }
-  :scope body #money .account-card-actions .button { display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; }
+  :scope body #money .account-card-actions .button { display:inline-flex !important; min-width:44px !important; align-items:center !important; justify-content:center !important; gap:8px !important; }
   :scope body .budget-planner-card:not(.is-planner-collapsed) .budget-planner-actions { grid-template-columns:minmax(0,1fr) 64px !important; align-items:center !important; gap:8px !important; }
   :scope body .budget-planner-card .budget-planner-actions > :is(#buildBudgetFromExpenses,#copyPreviousBudget) { grid-column:1 / -1 !important; }
   :scope body .budget-planner-card .budget-planner-actions > .button,
