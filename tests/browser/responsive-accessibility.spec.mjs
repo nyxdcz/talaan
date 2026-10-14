@@ -167,6 +167,7 @@ test("phone Settings status cards remain readable content cards", async ({ page 
         const statusBox = status?.getBoundingClientRect();
         return {
           height:box.height,
+          copyInside:Boolean(copy && copy.getBoundingClientRect().top >= box.top && copy.getBoundingClientRect().bottom <= box.bottom),
           inside:box.left >= -1 && box.right <= innerWidth + 1,
           copyVisible:Boolean(copy && copy.getBoundingClientRect().width > 0),
           statusText:(status?.textContent || "").trim(),
@@ -176,7 +177,8 @@ test("phone Settings status cards remain readable content cards", async ({ page 
       }));
     expect(cards.length).toBe(6);
     cards.forEach(card => {
-      expect(Math.round(card.height * 100) / 100).toBeGreaterThanOrEqual(70);
+      expect(Math.round(card.height * 100) / 100).toBeGreaterThanOrEqual(44);
+      expect(card.copyInside).toBe(true);
       expect(card.inside).toBe(true);
       expect(card.copyVisible).toBe(true);
       expect(card.statusText).not.toBe("");

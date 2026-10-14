@@ -2585,13 +2585,13 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   :scope body .topbar .month-navigator .month-control { display:block !important; position:relative !important; grid-column:2 !important; grid-row:1 !important; top:auto !important; left:auto !important; transform:none !important; width:100% !important; min-width:0 !important; max-width:none !important; height:44px !important; min-height:44px !important; max-height:none !important; padding:0 !important; }
   :scope body .topbar .month-navigator #monthDisplayButton { display:flex !important; justify-content:center !important; width:100% !important; height:44px !important; padding:8px 2px !important; }
   :scope body .topbar .month-navigator :is(.month-display-label,.month-display-separator,#monthStatusChip) { display:none !important; }
-  :scope body .topbar .month-navigator .month-display-value { width:auto !important; max-width:100% !important; font-size:14px !important; line-height:1.4 !important; flex:0 1 auto !important; }
+  :scope body .topbar .month-navigator .month-display-value { width:auto !important; max-width:100% !important; font-size:var(--phone-action-size,14px) !important; line-height:1.4 !important; flex:0 1 auto !important; }
   :scope body .topbar .month-display-long { display:inline !important; }
   :scope body .topbar .month-display-short { display:none !important; }
   :scope body .topbar #quickAddExpense { display:none !important; }
-  :scope body #money .money-add-expense { display:flex !important; width:100%; min-height:44px !important; height:auto !important; max-height:none !important; margin:12px 0; font-size:14px !important; }
+  :scope body #money .money-add-expense { display:flex !important; width:100%; min-height:44px !important; height:auto !important; max-height:none !important; margin:12px 0; font-size:var(--phone-action-size,14px) !important; }
   :scope body :is(button,.button,summary,[role="button"],[role="tab"]) { min-height:44px !important; max-height:none !important; }
-  :scope body :is(.workspace-switcher-button,.dashboard-view-tab,.button,.topbar-tools-item,.month-picker-option) { height:auto !important; font-size:14px !important; line-height:1.4 !important; }
+  :scope body :is(.workspace-switcher-button,.dashboard-view-tab,.button,.topbar-tools-item,.month-picker-option) { height:auto !important; font-size:var(--phone-action-size,14px) !important; line-height:1.4 !important; }
   :scope body :is(.workspace-switcher,.dashboard-view-tabs,.money-workspace-switcher,.project-workspace-switcher) { height:auto !important; min-height:52px !important; max-height:none !important; }
   :scope body :is(.collapse-toggle,.overflow-menu-trigger,.section-help-button,.month-nav-button,.menu-button,.sidebar-close-button,.topbar-tools-trigger,.cloud-sync-toolbar-button,.phone-icon-only-action) { width:44px !important; min-width:44px !important; max-width:44px !important; height:44px !important; min-height:44px !important; max-height:44px !important; flex-basis:44px !important; }
   :scope body .sidebar .nav-button { min-height:44px !important; }
@@ -2662,7 +2662,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   :scope body .calendar-day { min-height:56px !important; }
   :scope body .month-navigator { grid-template-rows:44px !important; padding:0 !important; border:0 !important; }
   :scope body .settings-status-card { min-height:70px !important; height:auto !important; }
-  :scope body .phone-page-add { display:flex !important; height:auto !important; max-height:none !important; font-size:14px !important; }
+  :scope body .phone-page-add { display:flex !important; height:auto !important; max-height:none !important; font-size:var(--phone-action-size,14px) !important; }
   :scope body :is(.annual-show-all,.expense-select-footer,label:has(> input[type="checkbox"])) { min-width:44px !important; min-height:44px !important; height:auto !important; }
   :scope body #money .expense-record-title { display:grid !important; grid-template-columns:44px minmax(0,1fr) !important; gap:8px !important; }
   :scope body #money .expense-select-footer { position:static !important; display:flex !important; align-items:center; justify-content:center; width:44px !important; min-width:44px !important; flex:0 0 44px !important; }
@@ -2697,7 +2697,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   :scope body #money .phone-swipe-row .record-more-panel:not([hidden]) { position:static !important; display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important; gap:8px !important; width:100% !important; min-width:0 !important; max-width:none !important; margin:0 !important; padding:8px 0 0 !important; border:0 !important; border-top:1px solid var(--line) !important; border-radius:0 !important; background:transparent !important; box-shadow:none !important; }
   :scope body #money .phone-swipe-row .record-more-panel > .button { display:flex !important; align-items:center !important; justify-content:center !important; width:100% !important; min-width:44px !important; max-width:none !important; height:auto !important; min-height:44px !important; max-height:none !important; padding:8px !important; gap:8px !important; white-space:normal !important; text-align:center !important; border-radius:var(--talaan-control-radius) !important; }
   :scope body #money .phone-swipe-row .record-more-panel .saved-icon-container { display:none !important; }
-  :scope body #money .phone-swipe-row .record-more-panel .phone-recurrence-label { display:inline !important; font-size:14px !important; line-height:1.4 !important; }
+  :scope body #money .phone-swipe-row .record-more-panel .phone-recurrence-label { display:inline !important; font-size:var(--phone-action-size,14px) !important; line-height:1.4 !important; }
   :scope body #money .phone-swipe-row .record-more-panel .phone-selection-action { grid-column:1 / -1; }
   :scope body #money .phone-swipe-row .record-more-panel > .button::after { content:none !important; }
 }

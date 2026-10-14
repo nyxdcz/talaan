@@ -28,8 +28,8 @@ for (const width of [320,375,768,1024,1440,1920]) {
       await expect(page.locator("#moneyRemainingValue")).toHaveText(totals.remaining);
       await expect(page.locator("#moneyOutstandingValue")).toHaveText(totals.outstanding);
       if (phone) {
-        await expect(page.locator("#moneyRemainingValue")).toHaveCSS("font-size","32px");
-        await expect(page.locator("#moneyPrioritySummary")).toHaveCSS("border-radius","14px");
+        await expect(page.locator("#moneyRemainingValue")).toHaveCSS("font-size",width <= 700 ? "28px" : "32px");
+        await expect(page.locator("#moneyPrioritySummary")).toHaveCSS("border-radius",width <= 700 ? "12px" : "14px");
         await page.locator("#moneyBudgetBreakdown > summary").click();
         await expect(page.locator("#legendEarlyTotal")).toBeVisible();
         await page.locator("#moneyBudgetBreakdown > summary").click();

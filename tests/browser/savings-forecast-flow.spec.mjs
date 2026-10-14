@@ -102,12 +102,12 @@ for (const contract of [{ width:1440, touch:false }, { width:390, touch:true }])
         overflow:document.documentElement.scrollWidth > innerWidth + 1
       };
     });
-    expect(metrics.panel).toBe(16);
-    expect(metrics.target).toBe(12);
-    expect(metrics.button).toBe(12);
-    expect(metrics.checkbox).toBe(12);
-    expect(metrics.confirmation).toBe(14);
-    expect(metrics.row).toBe(14);
+    expect(metrics.panel).toBe(contract.touch ? 14 : 16);
+    expect(metrics.target).toBe(contract.touch ? 10 : 12);
+    expect(metrics.button).toBe(contract.touch ? 10 : 12);
+    expect(metrics.checkbox).toBe(contract.touch ? 10 : 12);
+    expect(metrics.confirmation).toBe(contract.touch ? 12 : 14);
+    expect(metrics.row).toBe(contract.touch ? 12 : 14);
     expect(metrics.overflow).toBe(false);
   });
 }

@@ -3,12 +3,15 @@
 ## V2.5.0 · Talaan
 ### Priority budget and mobile accessibility
 
+- Shares a compact phone type scale across the main screens and forms, with 13px action labels, readable 12px supporting text, and 16px editable inputs.
+- Reduces phone corner radii and prominent Budget amounts while retaining 44px tap targets, including landscape touch controls and form icon buttons.
+
 - Adds phone expense swipes: right to select or deselect, left to reveal Edit and monthly recurrence, with keyboard and screen-reader alternatives.
 - Keeps secondary expense actions inside the phone row and bounds retained Paid Expenses menus to the viewport.
 - Centers the Monthly breakdown disclosure arrow and label as one group.
 
 - Leads the phone and tablet Budget view with Money remaining and Outstanding expenses, retaining the existing calculations in a Monthly breakdown disclosure.
-- Uses the approved 32px primary amount and 14px card radius while preserving compact desktop controls.
+- Uses the approved 28px phone primary amount and 12px phone card radius while preserving compact desktop controls and the tablet summary scale.
 - Shows one Add expense action per layout: in the page on phones, and in the top bar on tablet and desktop.
 - Keeps phone Planning action labels complete, sizes repeated expense actions to their labels, and centers button content with consistent 8px action gaps.
 - Sets a 44px minimum width for phone account actions so narrow platform fonts cannot reduce their touch targets.

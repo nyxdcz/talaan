@@ -20,7 +20,9 @@ const RELEASE = Object.freeze({
 const APP_STYLE_ASSET_QUERY = "2.5.0-talaan2";
 const SIDEBAR_BRAND_ASSET_QUERY = "2.2.0-talaan2";
 const UI_RADIUS_ASSET_QUERY = `2.5.0-ui-${crypto.createHash("sha256").update(fs.readFileSync(path.join(root, "assets/css/ui-radius.css"))).digest("hex").slice(0, 12)}`;
+const PHONE_SCALE_ASSET_QUERY = `2.5.0-phone-${crypto.createHash("sha256").update(fs.readFileSync(path.join(root, "assets/css/phone-scale.css"))).digest("hex").slice(0, 12)}`;
 const applyUiAssetQuery = source => source
+  .replace(/phone-scale\.css\?v=[^"'\s<>)]+/g, `phone-scale.css?v=${PHONE_SCALE_ASSET_QUERY}`)
   .replace(/ui-radius\.css\?v=[^"'\s<>)]+/g, `ui-radius.css?v=${UI_RADIUS_ASSET_QUERY}`)
   .replace(/summary-mascots\.css\?v=[^"'\s<>)]+/g, `summary-mascots.css?v=${UI_RADIUS_ASSET_QUERY}`);
 
@@ -86,6 +88,7 @@ const runtimeGroups = {
     "security-profiles.css",
     "summary-mascots.css",
     "ui-radius.css",
+    "phone-scale.css",
     "ui-icon-alignment.css"
   ],
   "assets/js": [

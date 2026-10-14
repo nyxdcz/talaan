@@ -207,7 +207,7 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
 }
 
 for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }]) {
-  test(`Dashboard keeps its 14px cards and contained responsive tabs at ${viewport.width}px`, async ({ page }) => {
+  test(`Dashboard keeps its responsive card radii and contained tabs at ${viewport.width}px`, async ({ page }) => {
     await openDashboard(page, viewport);
 
     const contract = await page.evaluate(() => {
@@ -245,8 +245,8 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
       };
     });
 
-    expect(contract.tabRadius).toBe(14);
-    expect(contract.cardRadius).toBe(14);
+    expect(contract.tabRadius).toBe(viewport.width <= 700 ? 12 : 14);
+    expect(contract.cardRadius).toBe(viewport.width <= 700 ? 12 : 14);
     expect(contract.gridGap).toBe(12);
     expect(contract.tabsContained).toBe(true);
     expect(contract.cardContained).toBe(true);
@@ -256,7 +256,7 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
       expect(contract.tabHeight).toBe(43);
       expect(contract.tabPadding).toBe(3);
       expect(contract.tabGap).toBe(3);
-      expect(contract.activeTabRadius).toBe(14);
+      expect(contract.activeTabRadius).toBe(viewport.width <= 700 ? 10 : 14);
       expect(contract.tabWidth).toBeLessThanOrEqual(480);
       expect(contract.calendarLayoutColumns).toBe(2);
       expect(contract.calendarCardWidth).toBeGreaterThanOrEqual(contract.gridWidth - 1);
@@ -267,7 +267,7 @@ for (const viewport of [{ width:1440, height:1000 }, { width:393, height:852 }])
       expect(contract.tabPadding).toBe(0);
       expect(contract.tabGap).toBe(0);
       expect(contract.tabButtonHeights).toEqual([44, 44, 44]);
-      expect(contract.activeTabRadius).toBe(14);
+      expect(contract.activeTabRadius).toBe(viewport.width <= 700 ? 10 : 14);
       expect(contract.calendarLayoutColumns).toBe(1);
       expect(contract.calendarDayMinHeight).toBeGreaterThanOrEqual(56);
     }
