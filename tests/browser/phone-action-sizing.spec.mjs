@@ -88,9 +88,16 @@ for (const width of [375,393,430]) {
       const row = page.locator("#money .record-row[data-expense-row]").first();
       const paid = row.locator(".mobile-record-actions > .button");
       await expectCenteredContent(paid);
-      const button = await paid.boundingBox();
       const actions = await row.locator(".mobile-record-actions").boundingBox();
-      const more = await row.locator(".mobile-record-actions > .record-more-menu > button").boundingBox();
+      const trigger = row.locator(".mobile-record-actions > .record-more-menu > button");
+      await trigger.focus();
+      await expectCenteredContent(trigger);
+      const geometry = await row.evaluate(node => ({
+        paid:node.querySelector(".mobile-record-actions > .button").getBoundingClientRect().toJSON(),
+        more:node.querySelector(".mobile-record-actions .overflow-menu-trigger").getBoundingClientRect().toJSON()
+      }));
+      const button = geometry.paid;
+      const more = geometry.more;
       expect(button.width).toBeLessThan(actions.width / 2);
       expect(more.x - button.x - button.width).toBeCloseTo(8, 0);
       expect(Math.abs(button.y + button.height / 2 - more.y - more.height / 2)).toBeLessThanOrEqual(1);

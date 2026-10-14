@@ -6,10 +6,16 @@
     if (!menu) return;
     const trigger = menu.querySelector(":scope > .overflow-menu-trigger, :scope > .topbar-tools-trigger");
     const panel = trigger ? document.getElementById(trigger.getAttribute("aria-controls")) : null;
-    if (panel) panel.hidden = true;
+    if (panel) {
+      panel.hidden = true;
+      if (panel.dataset.phonePositioned) {
+        for (const property of ["position","width","left","right","bottom","top","max-height","overflow-y"]) panel.style.removeProperty(property);
+        delete panel.dataset.phonePositioned;
+      }
+    }
     trigger?.setAttribute("aria-expanded", "false");
     menu.classList.remove("is-open");
-    if (returnFocus) trigger?.focus();
+    if (returnFocus) (menu.closest(".phone-swipe-row") || trigger)?.focus();
   }
 
   function closeAllOverflowMenus(except = null) {
@@ -28,6 +34,26 @@
     panel.hidden = false;
     trigger.setAttribute("aria-expanded", "true");
     menu.classList.add("is-open");
+    if (window.matchMedia("(max-width:700px)").matches && menu.classList.contains("record-more-menu") && !menu.closest(".phone-swipe-row")) {
+      // Fixed phone panels use viewport coordinates, never percentage bottom offsets.
+      panel.dataset.phonePositioned = "true";
+      const anchor = trigger.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      const top = viewport?.offsetTop || 0;
+      const height = viewport?.height || window.innerHeight;
+      const safeTop = Math.max(top + 12, (document.querySelector(".topbar")?.getBoundingClientRect().bottom || 0) + 8);
+      const width = Math.min(280, window.innerWidth - 24);
+      panel.style.setProperty("position", "fixed", "important");
+      panel.style.setProperty("width", `${width}px`, "important");
+      panel.style.setProperty("left", `${Math.max(12, Math.min(anchor.right - width, window.innerWidth - width - 12))}px`, "important");
+      panel.style.setProperty("right", "auto", "important");
+      panel.style.setProperty("bottom", "auto", "important");
+      panel.style.setProperty("max-height", `${Math.max(44, top + height - safeTop - 12)}px`, "important");
+      panel.style.setProperty("overflow-y", "auto", "important");
+      const panelHeight = panel.getBoundingClientRect().height;
+      const preferredTop = anchor.top - panelHeight - 8;
+      panel.style.setProperty("top", `${Math.max(safeTop, Math.min(preferredTop, top + height - panelHeight - 12))}px`, "important");
+    }
     if (focusFirst) panel.querySelector('[role="menuitem"]:not([disabled])')?.focus();
   }
 
@@ -64,12 +90,161 @@
       }
       if (!item || !menu || !["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
       event.preventDefault();
-      const items = [...menu.querySelectorAll('[role="menuitem"]:not([disabled])')].filter(node => !node.hidden);
+      const items = [...menu.querySelectorAll('[role="menuitem"]:not([disabled])')].filter(node => !node.hidden && node.getClientRects().length > 0);
       if (!items.length) return;
       const current = Math.max(0, items.indexOf(item));
       const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1 : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
       items[next].focus();
     });
+  }
+
+  function setupPhoneExpenseSwipes() {
+    const money = document.getElementById("money");
+    if (!money) return;
+    const phone = window.matchMedia("(max-width:700px)");
+    const rowSelector = ".record-row[data-expense-row]";
+    const interactive = "button,a,input,select,textarea,label,summary,[role='menuitem']";
+    let gesture = null, suppressedClick = null;
+    const hint = document.createElement("p");
+    hint.className = "phone-expense-swipe-hint";
+    hint.id = "phoneExpenseSwipeHint";
+    hint.textContent = "Swipe right to select; swipe left for actions.";
+    document.getElementById("addExpenseButton")?.after(hint);
+    const status = document.createElement("span");
+    status.className = "sr-only phone-expense-swipe-status";
+    status.setAttribute("role", "status");
+    money.append(status);
+    const setAttribute = (node, name, value) => {
+      if (node.getAttribute(name) !== value) node.setAttribute(name, value);
+    };
+    const setClass = (node, name, enabled) => {
+      if (node.classList.contains(name) !== enabled) node.classList.toggle(name, enabled);
+    };
+    const syncSelection = row => {
+      const checked = Boolean(row.querySelector("[data-select-expense]")?.checked);
+      setClass(row, "is-expense-selected", checked);
+      const badge = row.querySelector(".phone-selection-badge");
+      if (badge && badge.hidden === checked) badge.hidden = !checked;
+      const button = row.querySelector("[data-phone-select-expense]");
+      const label = checked ? "Deselect expense" : "Select expense";
+      if (button && button.textContent !== label) button.textContent = label;
+    };
+    const toggleSelection = row => {
+      const checkbox = row.querySelector("[data-select-expense]");
+      if (!checkbox) return;
+      const menuHadFocus = row.querySelector(".record-more-panel")?.contains(document.activeElement);
+      closeAllOverflowMenus();
+      checkbox.checked = !checkbox.checked;
+      checkbox.dispatchEvent(new Event("change", { bubbles:true }));
+      syncSelection(row);
+      if (menuHadFocus) row.focus({ preventScroll:true });
+      status.textContent = `${row.querySelector(".record-title-copy > strong")?.textContent || "Expense"} ${checkbox.checked ? "selected" : "deselected"}.`;
+    };
+    const enhance = () => {
+      if (hint.hidden === phone.matches) hint.hidden = !phone.matches;
+      money.querySelectorAll(rowSelector).forEach(row => {
+        setClass(row, "phone-swipe-row", phone.matches);
+        if (phone.matches) {
+          setAttribute(row, "tabindex", "0");
+          setAttribute(row, "role", "group");
+          setAttribute(row, "aria-label", `${row.querySelector(".record-title-copy > strong")?.textContent || "Expense"}. Space selects; Enter opens actions.`);
+          setAttribute(row, "aria-describedby", hint.id);
+        } else {
+          row.classList.remove("has-keyboard-actions");
+          row.removeAttribute("tabindex");
+          row.removeAttribute("role");
+          row.removeAttribute("aria-label");
+          row.removeAttribute("aria-describedby");
+        }
+        const menu = row.querySelector(".record-more-menu");
+        if (menu && !menu.querySelector(".phone-row-actions-label")) {
+          const label = document.createElement("span");
+          label.className = "phone-row-actions-label";
+          label.textContent = "Actions";
+          menu.querySelector(".overflow-menu-trigger")?.append(label);
+          const select = document.createElement("button");
+          select.type = "button";
+          select.className = "button button-secondary phone-selection-action";
+          select.dataset.phoneSelectExpense = row.dataset.expenseRow;
+          select.setAttribute("role", "menuitem");
+          menu.querySelector(".record-more-panel")?.append(select);
+          const repeat = menu.querySelector("[data-toggle-saved]");
+          if (repeat) {
+            const repeatLabel = document.createElement("span");
+            repeatLabel.className = "phone-recurrence-label";
+            repeatLabel.textContent = `Repeat monthly: ${repeat.classList.contains("active") ? "On" : "Off"}`;
+            repeat.append(repeatLabel);
+          }
+          const badge = document.createElement("span");
+          badge.className = "status-badge phone-selection-badge";
+          badge.textContent = "Selected";
+          row.querySelector(".record-statuses")?.append(badge);
+        }
+        syncSelection(row);
+      });
+    };
+    money.addEventListener("focusin", event => {
+      if (event.target.matches(".overflow-menu-trigger")) event.target.closest(".phone-swipe-row")?.classList.add("has-keyboard-actions");
+    });
+    money.addEventListener("focusout", event => {
+      const row = event.target.closest(".phone-swipe-row");
+      if (row && !row.contains(event.relatedTarget)) row.classList.remove("has-keyboard-actions");
+    });
+    money.addEventListener("change", event => {
+      if (event.target.matches("[data-select-expense]")) syncSelection(event.target.closest(rowSelector));
+    });
+    money.addEventListener("click", event => {
+      const button = event.target.closest("[data-phone-select-expense]");
+      if (button) toggleSelection(button.closest(rowSelector));
+    });
+    money.addEventListener("keydown", event => {
+      const row = event.target.closest(".phone-swipe-row");
+      if (!row || event.target !== row) return;
+      if (event.key === " ") { event.preventDefault(); toggleSelection(row); }
+      if (["Enter", "ArrowLeft"].includes(event.key)) {
+        event.preventDefault(); openOverflowMenu(row.querySelector(".record-more-menu"), true);
+      }
+      if (event.key === "Escape") { event.preventDefault(); closeAllOverflowMenus(); }
+    });
+    money.addEventListener("pointerdown", event => {
+      suppressedClick = null;
+      gesture = null;
+      const row = event.target.closest(".phone-swipe-row");
+      if (!row || !event.isPrimary || !["touch","pen"].includes(event.pointerType) || event.target.closest(interactive)) return;
+      gesture = { row, id:event.pointerId, x:event.clientX, y:event.clientY, horizontal:false };
+    });
+    document.addEventListener("pointermove", event => {
+      if (!gesture || gesture.id !== event.pointerId) return;
+      const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y;
+      if (!gesture.horizontal && Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) { gesture = null; return; }
+      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.5) gesture.horizontal = true;
+      if (gesture.horizontal && event.cancelable) event.preventDefault();
+    });
+    document.addEventListener("pointerup", event => {
+      const completed = gesture;
+      gesture = null;
+      if (!completed || completed.id !== event.pointerId || !completed.horizontal || !completed.row.isConnected) return;
+      const dx = event.clientX - completed.x, dy = event.clientY - completed.y;
+      if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy) * 1.5) return;
+      suppressedClick = { row:completed.row, until:performance.now() + 500 };
+      if (dx > 0) toggleSelection(completed.row);
+      else openOverflowMenu(completed.row.querySelector(".record-more-menu"));
+    });
+    document.addEventListener("pointercancel", () => { gesture = null; });
+    document.addEventListener("lostpointercapture", () => { gesture = null; });
+    money.addEventListener("click", event => {
+      if (suppressedClick && performance.now() < suppressedClick.until && suppressedClick.row.contains(event.target) && event.detail > 0) {
+        event.preventDefault(); event.stopImmediatePropagation(); suppressedClick = null;
+      }
+    }, true);
+    phone.addEventListener("change", () => { gesture = null; closeAllOverflowMenus(); enhance(); });
+    window.addEventListener("blur", () => { gesture = null; });
+    window.addEventListener("resize", () => {
+      gesture = null;
+      document.querySelectorAll("#money .record-more-menu.is-open, #paid-expenses .record-more-menu.is-open").forEach(menu => closeOverflowMenu(menu));
+    });
+    new MutationObserver(enhance).observe(money, { childList:true, subtree:true });
+    enhance();
   }
 
   function renderDuplicatedMarquee(track, groupContent) {
@@ -737,6 +912,7 @@
 
   function setupInteractionPatterns() {
     setupOverflowMenus();
+    setupPhoneExpenseSwipes();
     setupEmptyStateActions();
     setupFirstHalfCompletionIcons();
     setupStructuredDragTransitions();
