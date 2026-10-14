@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 test.use({ serviceWorkers:"block" });
 

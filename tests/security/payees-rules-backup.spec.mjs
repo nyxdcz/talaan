@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../helpers/browser-fixtures.mjs";
 /* global data */
 
 test("payees and rules round-trip through backup and encrypted Cloud V3 settings", async ({ page }) => {

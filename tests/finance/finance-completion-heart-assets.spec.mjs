@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 const EXPECTED = {
   light:"98999e5da1549a7ffdf0bb170400b91b01c806868fc259cff80c90fa6b5cc79e",

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../helpers/browser-fixtures.mjs";
 /* global data */
 
 const app = "http://127.0.0.1:3000/index.html?page=settings&settings=finance-tools";

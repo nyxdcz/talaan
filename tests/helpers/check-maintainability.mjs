@@ -40,6 +40,7 @@ visitTests(path.join(root, "tests"));
 for (const full of testFiles) {
   const file = path.relative(root, full).replaceAll(path.sep, "/");
   const source = fs.readFileSync(full, "utf8");
+  if (file.endsWith(".spec.mjs") && /from\s+["']@playwright\/test["']/.test(source)) fail(`${file} bypasses browser-fixtures.mjs and its isolated startup defaults`);
   if (/\/mnt\/data\//.test(source)) fail(`${file} contains a non-portable /mnt/data path`);
   if (/executable_path\s*=\s*['"]\/usr\/bin\/chromium/.test(source)) fail(`${file} hardcodes a Chromium executable`);
 }

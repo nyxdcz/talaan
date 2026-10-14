@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../helpers/browser-fixtures.mjs";
 /* global data */
 
 test("net worth round-trips through Finance Schema 12 backup and encrypted Cloud V3 settings", async ({ page }) => {

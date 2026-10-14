@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 test("Talaan V2.5.0 Finance period surfaces keep exposed corners and flush internal joins", async ({ page }) => {
   await page.goto("http://127.0.0.1:3000/index.html?page=money", { waitUntil:"networkidle" });

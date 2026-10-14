@@ -1,5 +1,5 @@
 /* global appMeta, writeMeta, data, saveData */
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 import fs from "node:fs";
 
 const privacySource = fs.readFileSync(new URL("../../privacy-lock.js", import.meta.url), "utf8");

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 const widths = [1024, 1280, 1366, 1440, 1920];
 const css = [

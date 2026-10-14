@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 test("cloud startup creates one client and preserves an existing locked profile", async ({ page }) => {
   const consoleNoise = [];

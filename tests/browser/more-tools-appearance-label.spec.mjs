@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 test("More tools appearance is one compact Auto, Light, or Dark label", async ({ page }) => {
   await page.goto("http://127.0.0.1:3000/index.html", { waitUntil:"domcontentloaded" });

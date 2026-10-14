@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../helpers/browser-fixtures.mjs";
 /* global data, goToPage, openExpenseDialog, openExpensePaymentDialog, saveData */
 
 test.use({ serviceWorkers:"block" });

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import vm from "node:vm";
 import { webcrypto } from "node:crypto";
-import { test } from "@playwright/test";
+import { test } from "../helpers/browser-fixtures.mjs";
 
 test("manual net worth normalizes, calculates, evolves, and merges deterministically", () => {
   const context = vm.createContext({ console, structuredClone, Intl, Date, Math, JSON, Number, String, Object, Array, Set, Map, RegExp, Error, crypto:webcrypto, __FINANCE_NET_WORTH_TEST__:true });

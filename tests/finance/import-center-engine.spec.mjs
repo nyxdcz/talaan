@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import vm from "node:vm";
 import { webcrypto } from "node:crypto";
-import { test } from "@playwright/test";
+import { test } from "../helpers/browser-fixtures.mjs";
 
 test("local CSV engine parses, previews, deduplicates, and preserves balances", () => {
 const source = fs.readFileSync("assets/js/import-center.js", "utf8");

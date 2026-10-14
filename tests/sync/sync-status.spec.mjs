@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 const states = [
   ["synced", "sync-synced.png", "rgb(67, 207, 120)"],

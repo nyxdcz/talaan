@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 test("desktop month selector uses compact standalone controls and a centered 4x3 picker", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });

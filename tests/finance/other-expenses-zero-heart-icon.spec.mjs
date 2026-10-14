@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 async function loadOtherExpensesUi(page, { other = "₱0.00", theme = "light" } = {}) {
   await page.goto("http://127.0.0.1:3000/offline.html", { waitUntil:"networkidle" });
