@@ -17,7 +17,7 @@ Talaan is a quiet, local-first finance workspace. Dense financial information sh
 
 - The shared radius token defines the application baseline.
 - Small controls, pills, and compact rows use the smallest radius in the hierarchy.
-- The approved card radius is 14px; controls retain their 12px radius.
+- Desktop retains 14px cards and 12px controls. The compact phone scale uses 12px cards, 10px controls, and 16px dialogs in both orientations.
 - Cards and sections use the shared radius; dialogs and larger floating surfaces may be slightly larger when their component contract requires it.
 - Radius changes must preserve clear card boundaries and never hide action rows or dividers.
 
@@ -26,7 +26,8 @@ Talaan is a quiet, local-first finance workspace. Dense financial information sh
 - Use the existing system font stack and the established heading, body, helper, and metadata scale.
 - Blue is reserved for primary actions and navigation selection. Green means positive or completed, orange means attention or planning, and red means destructive or overdue.
 - Amounts use tabular numerals and remain readable when privacy masking is enabled.
-- Phone Budget uses a 32px Money remaining value, readable supporting labels, and a Monthly breakdown disclosure for the intermediate calculations.
+- Compact phone type uses 16px page headings, 14px section/record titles, 13px action and field labels, and 12px supporting text. Editable inputs retain 16px text.
+- Phone Budget uses a 28px Money remaining value, an 18px outstanding total, and 16px other amounts, with a Monthly breakdown disclosure for the intermediate calculations.
 - Empty and unavailable states use explicit words such as `N/A`, `Not signed in`, or a short explanation instead of ambiguous punctuation.
 
 ## Responsive behavior

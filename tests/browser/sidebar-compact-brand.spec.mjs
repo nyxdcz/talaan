@@ -176,7 +176,7 @@ test("mobile drawer keeps a roomy 320px shell, 48px rows, and the real Talaan br
   await expect(mark).toHaveCSS("width", "25px");
   await expect(mark).toHaveCSS("height", "25px");
   await expect(firstButton).toHaveCSS("min-height", "48px");
-  await expect(firstButton).toHaveCSS("border-radius", "12px");
+  await expect(firstButton).toHaveCSS("border-radius", "10px");
   await expect(firstLabel).toHaveCSS("font-size", "12px");
   await expect(firstLabel).toHaveCSS("font-weight", "700");
   await expect.poll(() => mark.evaluate(node => node.complete && node.naturalWidth > 0)).toBe(true);
@@ -196,7 +196,7 @@ test("runtime preparation renders fresh real brand assets without changing relea
   expect(index).toContain('talaan-brand-logo.png?v=2.2.0-talaan2');
   expect(serviceWorker).toContain('url.pathname.endsWith("sidebar-compact-brand.css") ||');
   expect(updater).not.toContain("document");
-  expect(updater).toContain('const UI_HOTFIX_REFRESH_KEY = "finance-ui-hotfix-v2-0-1-talaan12"');
+  expect(updater).toContain('const UI_HOTFIX_REFRESH_KEY = "finance-ui-hotfix-v2-0-1-talaan13"');
   expect(updater).toContain('"/sidebar-compact-brand.css"');
   expect(updater).toContain('"/talaan-brand-logo.png"');
 });

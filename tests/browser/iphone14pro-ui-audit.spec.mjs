@@ -121,7 +121,7 @@ for (const theme of ["light", "dark"]) {
     expect(metrics.iconSize).toEqual([20, 20]);
     expect(metrics.rowMoreSurface).toEqual({ borderTopWidth:"0px", boxShadow:"none", backgroundImage:"none" });
     expect(metrics.rowMoreTrigger).toEqual({ width:35, height:35, boxShadow:"none" });
-    expect(metrics.controlRadius).toBe(12);
+    expect(metrics.controlRadius).toBe(10);
     expect(metrics.cardShadow).toBe("none");
     expect(metrics.overflow, JSON.stringify(metrics.overflowDetails)).toBe(false);
     expect(metrics.offset).toContain("41px");
