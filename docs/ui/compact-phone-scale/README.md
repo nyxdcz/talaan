@@ -15,7 +15,7 @@ Approved audit findings 18–21, 14 October 2026. This change shares the phone t
 | Effective tap area | At least 44px |
 | Control / card / dialog corner | 10px / 12px / 16px |
 
-`assets/css/phone-scale.css` owns the type and touch rules. The canonical radius stylesheet owns responsive corner tokens. Portrait applies at up to 700px; coarse-pointer layouts retain the shared scale up to 932px, including iPhone landscape. Native checkbox drawings stay small inside larger labels, and calendar cells retain event space. Hidden swipe controls remain hidden until keyboard focus exposes their alternative. State changes and financial behavior are untouched.
+`assets/css/phone-scale.css` owns the type and touch rules, including legacy span annotations and generated Due/Account prefixes. The canonical radius stylesheet owns responsive corner tokens. Portrait applies at up to 700px; coarse-pointer layouts retain the shared scale up to 932px, including iPhone landscape. Native checkbox drawings stay small inside larger labels, and calendar cells retain event space. Hidden swipe controls remain hidden until keyboard focus exposes their alternative. State changes and financial behavior are untouched.
 
 The UI refresh key advances to talaan13; the phone stylesheet gets a content-hashed query shared by the document and offline shell. Application V2.5.0, Finance Schema 12, Cloud Schema V3, persistent storage, and cache identity are preserved.
 

@@ -2652,7 +2652,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   :scope body #money :is(.account-card-label small,.record-title-copy small,.record-label,.record-meta,.record-status-chip,.summary-card-label) { font-size:13px !important; line-height:1.4 !important; }
   :scope body #money :is(.ui-tag,.status-badge,.expense-inline-note,.due-cell,[data-label]:not(.amount)) { font-size:13px !important; line-height:1.4 !important; }
   :scope body #money :is(.account-card-label > span,.account-card-main > span,.record-title-copy > strong,.period-header h3,.card-header h3) { font-size:14px !important; line-height:1.4 !important; }
-  :scope body #money :is(.account-card-main > strong,.amount,.period-total,#moneyAvailableTotal) { font-size:17px !important; line-height:1.4 !important; }
+  :scope body #money :is(.account-card-main > strong,.amount,.period-total,#moneyAvailableTotal) { font-size:var(--phone-amount-size,17px) !important; line-height:1.4 !important; }
   :scope body #money :is(.record-row[data-expense-row],.account-card) { height:auto !important; max-height:none !important; }
   :scope body #money .record-row[data-expense-row] .record-title-copy { white-space:normal !important; }
   :scope body #money .record-row[data-expense-row] .record-title-copy > :is(strong,small) { white-space:normal !important; overflow:visible !important; }

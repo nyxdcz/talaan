@@ -17,9 +17,27 @@ async function open(page, route, width, height, theme) {
 }
 
 async function readableCopy(root) {
-  return root.evaluate(node => [...node.querySelectorAll("p,small,label")]
-    .filter(n => n.checkVisibility() && n.getBoundingClientRect().width > 1 && !n.closest(".sr-only,.filter-label-visually-hidden") && (!n.closest("details:not([open])") || n.closest("summary")))
-    .map(n => ({ label:n.id || n.className || n.tagName, size:parseFloat(getComputedStyle(n).fontSize) })));
+  return root.evaluate(root => {
+    const visible = n => {
+      const box = n.getBoundingClientRect();
+      return n.checkVisibility({ checkOpacity:true,checkVisibilityCSS:true }) && box.width > 2 && box.height > 2
+        && !n.closest('.sr-only,.filter-label-visually-hidden,[aria-hidden="true"]') && getComputedStyle(n).clipPath !== "inset(50%)"
+        && (!n.closest("details:not([open])") || n.closest("summary"));
+    };
+    const copy = [];
+    const walker = document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const text = walker.currentNode, node = text.parentElement;
+      if (/[A-Za-z0-9]/.test(text.textContent) && visible(node)) copy.push({ label:node.id || node.className || node.tagName,size:parseFloat(getComputedStyle(node).fontSize) });
+    }
+    for (const node of [...root.querySelectorAll("*")].filter(visible)) {
+      for (const pseudo of ["::before","::after"]) {
+        const style = getComputedStyle(node,pseudo);
+        if (style.display !== "none" && !["none","normal"].includes(style.content) && /[A-Za-z0-9]/.test(style.content)) copy.push({ label:(node.id || node.className || node.tagName) + pseudo,size:parseFloat(style.fontSize) });
+      }
+    }
+    return copy;
+  });
 }
 
 for (const theme of ["light","dark"]) {
@@ -39,6 +57,8 @@ for (const theme of ["light","dark"]) {
         }
         if (route === "money") {
           await expect(page.locator("#moneyRemainingValue")).toHaveCSS("font-size","28px");
+          await expect(page.locator("#money .record-title-copy > strong").first()).toHaveCSS("font-size","14px");
+          await expect(page.locator("#money .amount").first()).toHaveCSS("font-size","16px");
           await expect(page.locator("#moneyOutstandingValue")).toHaveCSS("font-size","18px");
           await expect(page.locator("#moneyPrioritySummary")).toHaveCSS("border-radius","12px");
           await expect(page.locator("#addExpenseButton")).toHaveCSS("border-radius","10px");
