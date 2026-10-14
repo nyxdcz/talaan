@@ -2551,7 +2551,11 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   :scope body #moneyPrioritySummary .money-priority-outstanding { display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between; padding-top:12px; border-top:1px solid var(--line); font-size:14px; }
   :scope body #moneyOutstandingValue { font-size:20px; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
   :scope body #moneyBudgetBreakdown { border:1px solid var(--line); background:var(--surface); border-radius:var(--talaan-card-radius); margin-bottom:12px; padding:0 12px; }
-  :scope body #moneyBudgetBreakdown > summary { display:list-item; min-height:48px; padding:12px 0; font-size:14px; font-weight:650; }
+  :scope body #moneyBudgetBreakdown > summary { display:flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; min-height:44px !important; padding:12px 0 !important; font-size:14px; font-weight:650; list-style:none; }
+  :scope body #moneyBudgetBreakdown > summary::-webkit-details-marker { display:none; }
+  :scope body #moneyBudgetBreakdown > summary::marker { content:""; }
+  :scope body #moneyBudgetBreakdown .money-breakdown-chevron { flex:0 0 20px; }
+  :scope body #moneyBudgetBreakdown[open] .money-breakdown-chevron { transform:rotate(90deg); }
   :scope body #moneyBudgetBreakdown :is(.legend,.summary-strip) { display:grid !important; grid-template-columns:minmax(0,1fr) !important; gap:0 !important; margin:0 !important; }
   :scope body #moneyBudgetBreakdown :is(.legend-item,.summary-item) { display:flex !important; flex-wrap:wrap; align-items:center; justify-content:space-between; min-height:52px !important; height:auto !important; max-height:none !important; padding:10px 0 !important; border:0 !important; border-top:1px solid var(--line) !important; border-radius:0 !important; background:transparent !important; box-shadow:none !important; }
   :scope body #moneyBudgetBreakdown :is(.legend-copy,.legend-text,.summary-card-copy,.summary-card-label) { width:auto !important; min-width:0; flex:1 1 140px; }
@@ -2665,5 +2669,37 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
   :scope body #money .expense-record-title .record-title-copy { grid-column:2; }
 }
 :scope body #annualIncomeTable th { color:var(--text) !important; }
+}
+}
+
+/* Swipe rows keep payment visible and expose secondary actions in the row. */
+.phone-expense-swipe-hint, .phone-row-actions-label, .phone-recurrence-label, .phone-selection-action, .phone-selection-badge { display:none; }
+@layer talaan-readable-ui {
+@scope (:root:has(#moneyPrioritySummary)) {
+@media (max-width:700px) {
+  :scope body .phone-expense-swipe-hint { display:block; margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.4; }
+  :scope body #money .phone-swipe-row { touch-action:pan-y pinch-zoom; }
+  :scope body #money .phone-swipe-row:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
+  :scope body #money .phone-swipe-row.is-expense-selected { box-shadow:inset 3px 0 var(--blue); }
+  :scope body #money .phone-swipe-row .expense-select-footer { display:none !important; }
+  :scope body #money .phone-swipe-row .expense-record-title { grid-template-columns:minmax(0,1fr) !important; }
+  :scope body #money .phone-swipe-row .record-title-copy { grid-column:1 !important; }
+  :scope body #money .phone-swipe-row .phone-selection-badge:not([hidden]) { display:inline-flex !important; color:var(--action-text); border:1px solid var(--blue); }
+  :scope body #money .phone-swipe-row > .mobile-record-actions { display:flex !important; flex-wrap:wrap !important; justify-content:flex-end !important; align-items:center !important; height:auto !important; min-height:44px !important; max-height:none !important; gap:8px !important; }
+  :scope body #money .phone-swipe-row .record-more-menu { flex:0 0 0 !important; width:0 !important; min-width:0 !important; max-width:none !important; height:0 !important; min-height:0 !important; max-height:none !important; }
+  :scope body #money .phone-swipe-row .record-more-menu > .overflow-menu-trigger { position:absolute !important; width:1px !important; min-width:0 !important; max-width:none !important; height:1px !important; min-height:0 !important; max-height:none !important; padding:0 !important; overflow:hidden !important; clip-path:inset(50%); }
+  :scope body #money .phone-swipe-row.has-keyboard-actions .record-more-menu { flex:0 0 auto !important; width:auto !important; height:44px !important; }
+  :scope body #money .phone-swipe-row.has-keyboard-actions .record-more-menu > .overflow-menu-trigger { position:static !important; width:auto !important; min-width:44px !important; height:44px !important; min-height:44px !important; padding:8px 12px !important; min-width:76px !important; max-width:none !important; flex-basis:auto !important; overflow:visible !important; clip-path:none; }
+  :scope body #money .phone-swipe-row .overflow-menu-trigger :is(.kebab-icon,.sr-only) { display:none !important; }
+  :scope body #money .phone-expense-swipe-status { position:fixed !important; left:0; top:0; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+  :scope body #money .phone-swipe-row .phone-row-actions-label { display:inline !important; }
+  :scope body #money .phone-swipe-row .record-more-menu.is-open { flex:1 1 100% !important; width:100% !important; height:auto !important; }
+  :scope body #money .phone-swipe-row .record-more-panel:not([hidden]) { position:static !important; display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important; gap:8px !important; width:100% !important; min-width:0 !important; max-width:none !important; margin:0 !important; padding:8px 0 0 !important; border:0 !important; border-top:1px solid var(--line) !important; border-radius:0 !important; background:transparent !important; box-shadow:none !important; }
+  :scope body #money .phone-swipe-row .record-more-panel > .button { display:flex !important; align-items:center !important; justify-content:center !important; width:100% !important; min-width:44px !important; max-width:none !important; height:auto !important; min-height:44px !important; max-height:none !important; padding:8px !important; gap:8px !important; white-space:normal !important; text-align:center !important; border-radius:var(--talaan-control-radius) !important; }
+  :scope body #money .phone-swipe-row .record-more-panel .saved-icon-container { display:none !important; }
+  :scope body #money .phone-swipe-row .record-more-panel .phone-recurrence-label { display:inline !important; font-size:14px !important; line-height:1.4 !important; }
+  :scope body #money .phone-swipe-row .record-more-panel .phone-selection-action { grid-column:1 / -1; }
+  :scope body #money .phone-swipe-row .record-more-panel > .button::after { content:none !important; }
+}
 }
 }

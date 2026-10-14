@@ -79,7 +79,7 @@ test("phone primary controls and expanded budget details remain readable and con
       const visible = element => {
         const box = element.getBoundingClientRect();
         const style = getComputedStyle(element);
-        return box.width > 0 && box.height > 0 && style.visibility !== "hidden" && style.display !== "none";
+        return box.width > 0 && box.height > 0 && style.visibility !== "hidden" && style.display !== "none" && style.clipPath !== "inset(50%)";
       };
       const sizes = selector => [...document.querySelectorAll(selector)]
         .filter(visible)
@@ -158,7 +158,7 @@ test("phone Settings status cards remain readable content cards", async ({ page 
       .filter(card => {
         const box = card.getBoundingClientRect();
         const style = getComputedStyle(card);
-        return box.width > 0 && box.height > 0 && style.visibility !== "hidden" && style.display !== "none";
+        return box.width > 0 && box.height > 0 && style.visibility !== "hidden" && style.display !== "none" && style.clipPath !== "inset(50%)";
       })
       .map(card => {
         const box = card.getBoundingClientRect();
@@ -220,7 +220,7 @@ test("touch tablets keep visible primary controls touch safe", async ({ browser 
         const node = [...document.querySelectorAll(selector)].find(candidate => {
           const box = candidate.getBoundingClientRect();
           const style = getComputedStyle(candidate);
-          return box.width > 0 && box.height > 0 && style.visibility !== "hidden" && style.display !== "none";
+          return box.width > 0 && box.height > 0 && style.visibility !== "hidden" && style.display !== "none" && style.clipPath !== "inset(50%)";
         });
         return node ? node.getBoundingClientRect().height : null;
       };

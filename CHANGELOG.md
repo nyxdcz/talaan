@@ -3,6 +3,10 @@
 ## V2.5.0 · Talaan
 ### Priority budget and mobile accessibility
 
+- Adds phone expense swipes: right to select or deselect, left to reveal Edit and monthly recurrence, with keyboard and screen-reader alternatives.
+- Keeps secondary expense actions inside the phone row and bounds retained Paid Expenses menus to the viewport.
+- Centers the Monthly breakdown disclosure arrow and label as one group.
+
 - Leads the phone and tablet Budget view with Money remaining and Outstanding expenses, retaining the existing calculations in a Monthly breakdown disclosure.
 - Uses the approved 32px primary amount and 14px card radius while preserving compact desktop controls.
 - Shows one Add expense action per layout: in the page on phones, and in the top bar on tablet and desktop.

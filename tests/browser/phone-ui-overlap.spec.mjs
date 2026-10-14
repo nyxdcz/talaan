@@ -120,6 +120,8 @@ test("phone Finance tabs are static and expense actions stay on one touch-safe r
     host.appendChild(row);
   });
 
+  const more = page.locator("#phoneHotfixExpenseFixture .overflow-menu-trigger");
+  await more.focus();
   const actions = await page.locator("#phoneHotfixExpenseFixture > .mobile-record-actions").evaluate(node => {
     const rect = node.getBoundingClientRect();
     const moreNode = node.querySelector(":scope > .record-more-menu");
@@ -143,18 +145,17 @@ test("phone Finance tabs are static and expense actions stay on one touch-safe r
     };
   });
   expect(actions.height).toBe(44);
-  expect(actions.moreWidth).toBe(44);
+  expect(actions.moreWidth).toBeGreaterThanOrEqual(44);
   expect(actions.moreHeight).toBe(44);
   expect(actions.sameRow).toBe(true);
   expect(actions.wrapperBorder).toBe("0px");
   expect(actions.wrapperShadow).toBe("none");
   expect(actions.wrapperBackgroundImage).toBe("none");
-  expect(actions.triggerWidth).toBe(44);
+  expect(actions.triggerWidth).toBeGreaterThanOrEqual(44);
   expect(actions.triggerHeight).toBe(44);
   expect(actions.triggerBorder).toBe("1px");
   expect(actions.triggerShadow).toBe("none");
 
-  const more = page.locator("#phoneHotfixExpenseFixture .overflow-menu-trigger");
   const panel = page.locator("#phoneHotfixExpenseMenu");
   await more.click();
   await expect(more).toHaveAttribute("aria-expanded", "true");
