@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../helpers/browser-fixtures.mjs";
 /* global data, renderMoneyPage, goToPage */
 
 test.use({ serviceWorkers:"block", isMobile:true, hasTouch:true, deviceScaleFactor:3 });

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../helpers/browser-fixtures.mjs";
 
 const BASE = "http://127.0.0.1:3000";
 

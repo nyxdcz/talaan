@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../helpers/browser-fixtures.mjs";
 
 test.use({ serviceWorkers:"block", isMobile:true, hasTouch:true, deviceScaleFactor:3 });
 const routes = ["money","income","paid-expenses","dashboard","projects","payments","reports","settings"];

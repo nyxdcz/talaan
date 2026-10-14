@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 for (const theme of ["light","dark"]) {
   test(`Talaan V2.5.0 ${theme} final chrome is readable`, async ({ page }) => {

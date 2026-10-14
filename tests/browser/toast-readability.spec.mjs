@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 const APP_URL = "http://127.0.0.1:3000/index.html?page=settings&settings=sync";
 

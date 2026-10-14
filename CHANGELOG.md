@@ -1,6 +1,11 @@
 # Changelog
 
 ## V2.5.0 · Talaan
+### Browser validation reliability
+
+- Isolates UI checks from hosted session restoration and unrelated first-use cache refreshes, while retaining explicit authentication and real PWA upgrade coverage.
+- Adds delayed-session and one-time stylesheet refresh checks without changing the app version, deployed UI, financial records, or authentication behavior.
+
 ### Priority budget and mobile accessibility
 
 - Shares a compact phone type scale across the main screens and forms, with 13px action labels, readable 12px supporting text, and 16px editable inputs.

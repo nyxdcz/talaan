@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 const phone = { width:390, height:844 };
 

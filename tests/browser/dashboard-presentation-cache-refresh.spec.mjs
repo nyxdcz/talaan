@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../helpers/browser-fixtures.mjs";
 
 test("Dashboard presentation receives a dedicated one-time cache refresh", () => {
   const updater = fs.readFileSync("assets/js/pwa-update.js", "utf8");

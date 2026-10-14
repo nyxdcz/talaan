@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 const fixture = `<!doctype html><html data-theme="dark"><head>
   <link rel="stylesheet" href="http://127.0.0.1:3000/app.css?v=structured-drag-test">

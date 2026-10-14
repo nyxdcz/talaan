@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 const profiles = [
   { profile_id:"cloud-profile-old-11111111", name:"My Finances", role:"owner", created_at:"2026-08-10T03:00:00Z", updated_at:"2026-08-12T03:00:00Z" },

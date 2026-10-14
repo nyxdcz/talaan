@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../helpers/browser-fixtures.mjs";
 /* global data, groupedExpenses, budgetExpenseItems, sumExpenseAmounts, money, availableMoney, renderMoneyPage */
 
 test.use({ serviceWorkers:"block" });

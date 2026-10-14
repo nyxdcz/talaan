@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 test("production Talaan V2.5.0 UI alignment uses the delivered final stylesheet", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled:false });

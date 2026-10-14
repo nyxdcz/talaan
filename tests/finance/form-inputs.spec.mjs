@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 import { fileURLToPath } from "node:url";
 
 const formInputsScript = fileURLToPath(new URL("../../form-inputs.js", import.meta.url));

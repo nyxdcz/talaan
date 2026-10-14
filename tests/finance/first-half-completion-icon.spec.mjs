@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 async function loadCompletionUi(page, { today = "2026-08-17", month = "2026-08", firstHalf = "₱0.00", difference = "₱18,313.00", theme = "light" } = {}) {
   await page.goto("http://127.0.0.1:3000/offline.html", { waitUntil:"networkidle" });

@@ -2,7 +2,7 @@
 
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { test } from "@playwright/test";
+import { test } from "../helpers/browser-fixtures.mjs";
 
 test("statement files stay session-only and commit requires recovery without ledger mutation", () => {
 const source = fs.readFileSync("assets/js/import-center.js", "utf8");

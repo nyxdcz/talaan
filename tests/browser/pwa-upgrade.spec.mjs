@@ -1,4 +1,34 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, refreshKeys } from "../helpers/browser-fixtures.mjs";
+
+test.use({ legacyPwaRefresh:true });
+
+test("a stale phone stylesheet triggers one real UI refresh and preserves device data", async ({ page }) => {
+  const origin = "http://127.0.0.1:3000";
+  const uiKey = refreshKeys.find(key => key.startsWith("finance-ui-hotfix-"));
+  await page.goto(`${origin}/?page=money`, { waitUntil:"networkidle" });
+  await page.evaluate(async ({ refreshKeys, uiKey, origin }) => {
+    await navigator.serviceWorker.ready;
+    for (const key of refreshKeys) localStorage.setItem(key, "done");
+    const cache = await caches.open("finance-v2-20260828-household-splits-r17-runtime");
+    await cache.put(`${origin}/phone-scale.css?stale-test`, new Response("/* stale phone scale */"));
+    localStorage.setItem("ui-refresh-test-record", "preserved");
+    localStorage.removeItem(uiKey);
+  }, { refreshKeys, uiKey, origin });
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  let navigations = 0;
+  page.on("framenavigated", frame => { if (frame === page.mainFrame()) navigations += 1; });
+  await page.reload({ waitUntil:"networkidle" });
+  await expect.poll(async () => {
+    try { return await page.evaluate(key => localStorage.getItem(key), uiKey); }
+    catch { return null; }
+  }).toBe("done");
+  await expect.poll(() => navigations).toBe(2);
+  await page.waitForLoadState("networkidle");
+  expect(await page.evaluate(() => localStorage.getItem("ui-refresh-test-record"))).toBe("preserved");
+  expect(await page.evaluate(async origin => Boolean(await caches.match(`${origin}/phone-scale.css?stale-test`)), origin)).toBe(false);
+  await page.reload({ waitUntil:"networkidle" });
+  expect(navigations).toBe(3);
+});
 
 test("Talaan V2.5.0 registers the cache-qualified worker and clears stale Finance caches", async ({ page }) => {
   await page.goto("http://127.0.0.1:3000/index.html?page=settings", { waitUntil:"networkidle" });

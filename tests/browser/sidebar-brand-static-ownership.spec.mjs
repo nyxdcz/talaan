@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 import fs from "node:fs";
 
 const root = name => fs.readFileSync(new URL(`../../${name}`, import.meta.url), "utf8");

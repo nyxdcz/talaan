@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { test } from "@playwright/test";
+import { test } from "../helpers/browser-fixtures.mjs";
 
 test("OFX and QIF files remain session-only and reject unsafe document structures", () => {
   const formats = fs.readFileSync("assets/js/import-formats.js", "utf8");

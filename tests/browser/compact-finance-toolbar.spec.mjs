@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../helpers/browser-fixtures.mjs";
 
 async function loadFixture(page, width) {
   await page.setViewportSize({ width, height:900 });

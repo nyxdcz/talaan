@@ -40,3 +40,11 @@ The suite-specific commands are convenience filters. CI continues to run the com
 5. Run `npm run quality` and `npm run test:browser` before merge.
 
 Browser tests remain under the Playwright configuration and are not duplicated in `tests/run.mjs`.
+
+## Browser startup isolation
+
+Import `test` and `expect` from `tests/helpers/browser-fixtures.mjs` in every Playwright spec. The maintainability check enforces this entry point. It supplies an empty cloud configuration before navigation and marks the five generated PWA refresh migrations as complete, modeling an updated local installation. UI cases can unlock synthetic records without a delayed hosted session restoring a signed-out state or an unrelated first-use refresh reloading the page mid-interaction.
+
+The fixture does not unlock records, block service workers, or change application authentication. Tests that install their own cloud configuration and SDK mocks retain those values. Use `test.use({ hostedCloud:true })` when deliberately testing hosted configuration startup, and `test.use({ legacyPwaRefresh:true })` for a real one-time cache refresh. Keep network responses synthetic in authentication scenarios.
+
+`browser-startup-isolation.spec.mjs` checks navigation without hosted authentication and verifies that a deliberately delayed empty session still locks records. `pwa-upgrade.spec.mjs` opts into real refreshes and checks stylesheet replacement, one-time reload behavior, offline delivery, and preservation of device data.

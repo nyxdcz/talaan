@@ -136,6 +136,8 @@ npx playwright install chromium
 npm run test:browser       # End-to-end privacy and accessibility
 ```
 
+Browser checks use isolated local startup by default. Authentication and PWA upgrade cases explicitly exercise their own session and cache behavior; see [browser startup isolation](tests/README.md#browser-startup-isolation).
+
 **Test Organization:**
 - `tests/browser/` — Playwright end-to-end behavior, accessibility, and privacy
 - `tests/finance/` — Finance workflows, calculations, and UI contracts
