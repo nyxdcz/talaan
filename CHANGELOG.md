@@ -1,6 +1,13 @@
 # Changelog
 
 ## V2.5.0 · Talaan
+### Phone expense card organization
+
+- Groups the expense name and amount, category and note, one payment-status line, and the schedule/account beside a centered 104 × 44px minimum payment button.
+- Replaces separate unpaid/overdue and recurrence badges on phones with readable status and schedule text, using a neutral card with a restrained warning edge.
+- Preserves exceptional warnings, custom icons, long text, privacy masking, swipe selection, inline actions and keyboard alternatives. Desktop expense presentation and financial behavior remain unchanged.
+- Advances the one-time UI refresh to talaan16 while preserving V2.5.0 and the existing cache identity and schemas.
+
 ### Phone content and menu consistency
 
 - Keeps planner menus inside the visible phone screen through scrolling and rotation, with keyboard focus and Escape support.

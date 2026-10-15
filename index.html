@@ -4660,6 +4660,13 @@
               ? (item.budgetPeriod === "second" ? "Days 16–end" : "Days 1–15")
               : (item.dueDay ? `Every ${Number(item.dueDay)}` : (item.expensePeriod === "second" ? "Second half" : "First half"))));
         const displayedDueText = showAllDates && !isOther ? `${dueText} · ${itemMonthLabel}` : dueText;
+        const day = Number(item.dueDay);
+        const ordinal = day % 100 >= 11 && day % 100 <= 13 ? "th" : ({ 1:"st", 2:"nd", 3:"rd" }[day % 10] || "th");
+        const phoneDueText = day && !isOther && !isGymExpense(item) && !isDailyBudget(item)
+          ? `due ${day}${ordinal}${showAllDates ? ` · ${itemMonthLabel}` : ""}`
+          : displayedDueText;
+        const phoneSchedule = `${item.recurring === "Monthly" ? "Monthly" : "One-time"} · ${phoneDueText}`;
+        const phoneDueStatus = dueStatus.label.replace(/^Past due · (.+)$/, "$1 overdue").replace(/^Due/, "due");
         const repeatBadge = item.recurring === "Monthly"
           ? `<span class="status-badge status-saved">Saved monthly</span>`
           : `<span class="status-badge status-one-time">One-time</span>`;
@@ -4671,10 +4678,10 @@
         <div class="record-row ${dueStatus.rowClass} ${highlightExpenseId === item.id ? "newly-duplicated-row" : ""}" data-expense-row="${item.id}">
           <div class="record-title expense-record-title">
             <label class="expense-select-footer"><input class="expense-select-checkbox" type="checkbox" data-select-expense="${item.id}" ${selectedExpenseIds.has(item.id) ? "checked" : ""}><span class="sr-only">Select ${escapeHtml(item.name)}</span></label>
-            ${recordIconHtml(item.icon,{label:`${item.name} icon`})}<div class="record-title-copy"><strong>${escapeHtml(item.name)}</strong><small><span class="ui-tag">${escapeHtml(item.category)}</span>${expenseRecordDescription(item) ? ` · ${escapeHtml(expenseRecordDescription(item))}` : ""}</small><div class="record-statuses"><span class="status-badge ui-pill status-unpaid">Unpaid</span>${repeatBadge}${totalsBadge}${householdBadge}${autoPayBadge}</div></div>
+            ${recordIconHtml(item.icon,{label:`${item.name} icon`})}<div class="record-title-copy"><strong>${escapeHtml(item.name)}</strong><small><span class="ui-tag expense-category">${escapeHtml(item.category)}</span>${expenseRecordDescription(item) ? ` · ${escapeHtml(expenseRecordDescription(item))}` : ""}</small><div class="record-statuses"><span class="phone-expense-payment-status ${dueStatus.badgeClass}">Unpaid${phoneDueStatus ? ` · ${escapeHtml(phoneDueStatus)}` : ""}</span><span class="status-badge ui-pill status-unpaid">Unpaid</span>${repeatBadge}${totalsBadge}${householdBadge}${autoPayBadge}</div></div>
           </div>
           <div class="due-cell" data-label="${isOther ? "Date" : "Due date"}">
-            <span>${displayedDueText}</span>
+            <span class="expense-due-original">${displayedDueText}</span><span class="phone-expense-schedule">${escapeHtml(phoneSchedule)}</span>
             ${dueStatus.label ? `<span class="status-badge due-warning ${dueStatus.badgeClass}">${escapeHtml(dueStatus.label)}</span>` : ""}
           </div>
           <div data-label="Planned account">${escapeHtml(item.account)}</div>

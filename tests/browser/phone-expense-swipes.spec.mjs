@@ -197,11 +197,13 @@ test("long phone expense content wraps and recurrence changes only after its act
   await gesture(row,-80);
   expect(await page.evaluate(key=>JSON.stringify(data.expenses.find(e=>e.id===key)),id)).toBe(before);
   await row.locator(".record-more-panel [data-toggle-saved]").click();
-  await expect(row.locator(".status-one-time")).toBeVisible();
+  await expect(row.locator(".phone-expense-schedule")).toBeVisible();
+  await expect(row.locator(".phone-expense-schedule")).toContainText("One-time ·");
   await gesture(row,-80);
   await expect(row.locator(".phone-recurrence-label")).toHaveText("Repeat monthly: Off");
   await row.locator(".record-more-panel [data-toggle-saved]").click();
-  await expect(row.locator(".status-saved")).toBeVisible();
+  await expect(row.locator(".phone-expense-schedule")).toBeVisible();
+  await expect(row.locator(".phone-expense-schedule")).toContainText("Monthly ·");
   expect(await page.evaluate(()=>document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
 });
 

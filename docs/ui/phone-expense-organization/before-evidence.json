@@ -1,0 +1,24 @@
+[
+  {
+    "theme": "dark",
+    "stage": "before",
+    "box": {
+      "x": 12,
+      "y": 334.625,
+      "width": 369,
+      "height": 181.953125
+    },
+    "text": "Apple Music\nSubscriptions · Music subscription\nUnpaid\nPast due · 5 days\nSaved monthly\nEvery 9\nMaya\n₱•••••\nMark paid\nActions"
+  },
+  {
+    "theme": "light",
+    "stage": "before",
+    "box": {
+      "x": 12,
+      "y": 334.625,
+      "width": 369,
+      "height": 181.953125
+    },
+    "text": "Apple Music\nSubscriptions · Music subscription\nUnpaid\nPast due · 5 days\nSaved monthly\nEvery 9\nMaya\n₱•••••\nMark paid\nActions"
+  }
+]
