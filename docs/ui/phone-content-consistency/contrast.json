@@ -1,0 +1,442 @@
+[
+  {
+    "theme": "dark",
+    "selector": "#accountCorrectModeButton .account-mode-phone-label",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      244,
+      247,
+      251,
+      1
+    ],
+    "backgrounds": [
+      [
+        8,
+        10,
+        17
+      ]
+    ],
+    "contrast": 18.405800829211252
+  },
+  {
+    "theme": "dark",
+    "selector": "#accountSpendModeButton strong",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      244,
+      247,
+      251,
+      1
+    ],
+    "backgrounds": [
+      [
+        12,
+        18,
+        30
+      ]
+    ],
+    "contrast": 17.43588912069486
+  },
+  {
+    "theme": "dark",
+    "selector": "#reportOpenBudgetPlan",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      244,
+      247,
+      251,
+      1
+    ],
+    "backgrounds": [
+      [
+        8,
+        10,
+        17
+      ]
+    ],
+    "contrast": 18.405800829211252
+  },
+  {
+    "theme": "dark",
+    "selector": ".report-export-menu>button",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      244,
+      247,
+      251,
+      1
+    ],
+    "backgrounds": [
+      [
+        8,
+        10,
+        17
+      ]
+    ],
+    "contrast": 18.405800829211252
+  },
+  {
+    "theme": "dark",
+    "selector": "#rememberModeButtonGroup>button:first-child strong",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      244,
+      247,
+      251,
+      1
+    ],
+    "backgrounds": [
+      [
+        14,
+        19,
+        27
+      ]
+    ],
+    "contrast": 17.331593355483587
+  },
+  {
+    "theme": "dark",
+    "selector": "#rememberModeButtonGroup>button:first-child span",
+    "font": "12px",
+    "opacity": 1,
+    "foreground": [
+      244,
+      247,
+      251,
+      1
+    ],
+    "backgrounds": [
+      [
+        14,
+        19,
+        27
+      ]
+    ],
+    "contrast": 17.331593355483587
+  },
+  {
+    "theme": "dark",
+    "selector": "#rememberModeButtonGroup>button.active strong",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      255,
+      254,
+      254,
+      1
+    ],
+    "backgrounds": [
+      [
+        53,
+        110,
+        208
+      ]
+    ],
+    "contrast": 4.859539523243942
+  },
+  {
+    "theme": "dark",
+    "selector": "#rememberModeButtonGroup>button.active span",
+    "font": "12px",
+    "opacity": 1,
+    "foreground": [
+      255,
+      254,
+      254,
+      1
+    ],
+    "backgrounds": [
+      [
+        53,
+        110,
+        208
+      ]
+    ],
+    "contrast": 4.859539523243942
+  },
+  {
+    "theme": "dark",
+    "selector": ".advanced-settings-disclosure>summary>span",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      244,
+      247,
+      251,
+      1
+    ],
+    "backgrounds": [
+      [
+        8,
+        10,
+        17
+      ]
+    ],
+    "contrast": 18.405800829211252
+  },
+  {
+    "theme": "dark",
+    "selector": ".advanced-settings-disclosure>summary>small",
+    "font": "12px",
+    "opacity": 1,
+    "foreground": [
+      244,
+      247,
+      251,
+      1
+    ],
+    "backgrounds": [
+      [
+        8,
+        10,
+        17
+      ]
+    ],
+    "contrast": 18.405800829211252
+  },
+  {
+    "theme": "dark",
+    "selector": "#productivityPanelTemplates [data-productivity-action=\"expense\"]",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      255,
+      254,
+      254,
+      1
+    ],
+    "backgrounds": [
+      [
+        53,
+        110,
+        208
+      ]
+    ],
+    "contrast": 4.859539523243942
+  },
+  {
+    "theme": "light",
+    "selector": "#accountCorrectModeButton .account-mode-phone-label",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      24,
+      35,
+      49,
+      1
+    ],
+    "backgrounds": [
+      [
+        255,
+        254,
+        254
+      ]
+    ],
+    "contrast": 15.759943426567826
+  },
+  {
+    "theme": "light",
+    "selector": "#accountSpendModeButton strong",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      24,
+      35,
+      49,
+      1
+    ],
+    "backgrounds": [
+      [
+        238,
+        242,
+        251
+      ]
+    ],
+    "contrast": 14.150252784815022
+  },
+  {
+    "theme": "light",
+    "selector": "#reportOpenBudgetPlan",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      24,
+      35,
+      49,
+      1
+    ],
+    "backgrounds": [
+      [
+        255,
+        254,
+        254
+      ]
+    ],
+    "contrast": 15.759943426567826
+  },
+  {
+    "theme": "light",
+    "selector": ".report-export-menu>button",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      24,
+      35,
+      49,
+      1
+    ],
+    "backgrounds": [
+      [
+        255,
+        254,
+        254
+      ]
+    ],
+    "contrast": 15.759943426567826
+  },
+  {
+    "theme": "light",
+    "selector": "#rememberModeButtonGroup>button:first-child strong",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      24,
+      35,
+      49,
+      1
+    ],
+    "backgrounds": [
+      [
+        249,
+        251,
+        250
+      ]
+    ],
+    "contrast": 15.266871230218236
+  },
+  {
+    "theme": "light",
+    "selector": "#rememberModeButtonGroup>button:first-child span",
+    "font": "12px",
+    "opacity": 1,
+    "foreground": [
+      24,
+      35,
+      49,
+      1
+    ],
+    "backgrounds": [
+      [
+        249,
+        251,
+        250
+      ]
+    ],
+    "contrast": 15.266871230218236
+  },
+  {
+    "theme": "light",
+    "selector": "#rememberModeButtonGroup>button.active strong",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      255,
+      254,
+      254,
+      1
+    ],
+    "backgrounds": [
+      [
+        52,
+        111,
+        208
+      ]
+    ],
+    "contrast": 4.8168536557101405
+  },
+  {
+    "theme": "light",
+    "selector": "#rememberModeButtonGroup>button.active span",
+    "font": "12px",
+    "opacity": 1,
+    "foreground": [
+      255,
+      254,
+      254,
+      1
+    ],
+    "backgrounds": [
+      [
+        52,
+        111,
+        208
+      ]
+    ],
+    "contrast": 4.8168536557101405
+  },
+  {
+    "theme": "light",
+    "selector": ".advanced-settings-disclosure>summary>span",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      24,
+      35,
+      49,
+      1
+    ],
+    "backgrounds": [
+      [
+        255,
+        254,
+        254
+      ]
+    ],
+    "contrast": 15.759943426567826
+  },
+  {
+    "theme": "light",
+    "selector": ".advanced-settings-disclosure>summary>small",
+    "font": "12px",
+    "opacity": 1,
+    "foreground": [
+      24,
+      35,
+      49,
+      1
+    ],
+    "backgrounds": [
+      [
+        255,
+        254,
+        254
+      ]
+    ],
+    "contrast": 15.759943426567826
+  },
+  {
+    "theme": "light",
+    "selector": "#productivityPanelTemplates [data-productivity-action=\"expense\"]",
+    "font": "13px",
+    "opacity": 1,
+    "foreground": [
+      255,
+      254,
+      254,
+      1
+    ],
+    "backgrounds": [
+      [
+        52,
+        111,
+        208
+      ]
+    ],
+    "contrast": 4.8168536557101405
+  }
+]

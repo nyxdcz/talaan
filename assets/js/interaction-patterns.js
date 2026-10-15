@@ -1,6 +1,54 @@
 "use strict";
 (() => {
   let overflowMenusReady = false;
+  let menuPositionFrame = 0;
+
+  function clearPhoneMenuPosition(panel) {
+    if (!panel?.dataset.phonePositioned) return;
+    for (const property of ["position","width","left","right","bottom","top","max-height","overflow-y"]) panel.style.removeProperty(property);
+    delete panel.dataset.phonePositioned;
+  }
+
+  function positionPhoneMenu(menu) {
+    const trigger = menu.querySelector(":scope > .overflow-menu-trigger");
+    const panel = trigger ? document.getElementById(trigger.getAttribute("aria-controls")) : null;
+    if (!panel || panel.hidden) return;
+    const phone = window.matchMedia("(max-width:700px), (pointer:coarse) and (max-width:932px)").matches;
+    if (!phone || !menu.matches(".record-more-menu,.budget-planner-more-menu") || menu.closest(".phone-swipe-row")) {
+      clearPhoneMenuPosition(panel);
+      return;
+    }
+    const anchor = trigger.getBoundingClientRect();
+    if (!anchor.width || !anchor.height) { closeOverflowMenu(menu); return; }
+    const viewport = window.visualViewport;
+    const top = viewport?.offsetTop || 0, left = viewport?.offsetLeft || 0;
+    const height = viewport?.height || window.innerHeight, viewportWidth = viewport?.width || window.innerWidth;
+    const edge = 12, bottom = top + height - edge;
+    const headerBottom = document.querySelector(".topbar")?.getBoundingClientRect().bottom || 0;
+    const safeTop = Math.max(top + edge, Math.min(headerBottom + 8, bottom - 44));
+    const width = Math.min(menu.matches(".budget-planner-more-menu") ? 240 : 280, viewportWidth - edge * 2);
+    panel.dataset.phonePositioned = "true";
+    // Fixed panels use visual viewport coordinates, including after scrolling or rotation.
+    panel.style.setProperty("position", "fixed", "important");
+    panel.style.setProperty("width", `${width}px`, "important");
+    panel.style.setProperty("left", `${Math.max(left + edge, Math.min(anchor.right - width, left + viewportWidth - width - edge))}px`, "important");
+    panel.style.setProperty("right", "auto", "important");
+    panel.style.setProperty("bottom", "auto", "important");
+    panel.style.setProperty("max-height", `${Math.max(44, bottom - safeTop)}px`, "important");
+    panel.style.setProperty("overflow-y", "auto", "important");
+    const panelHeight = panel.getBoundingClientRect().height;
+    const below = anchor.bottom + 8;
+    const preferredTop = menu.matches(".budget-planner-more-menu") && below + panelHeight <= bottom ? below : anchor.top - panelHeight - 8;
+    panel.style.setProperty("top", `${Math.max(safeTop, Math.min(preferredTop, bottom - panelHeight))}px`, "important");
+  }
+
+  function schedulePhoneMenuPosition() {
+    if (menuPositionFrame) return;
+    menuPositionFrame = requestAnimationFrame(() => {
+      menuPositionFrame = 0;
+      document.querySelectorAll(".overflow-menu.is-open").forEach(positionPhoneMenu);
+    });
+  }
 
   function closeOverflowMenu(menu, returnFocus = false) {
     if (!menu) return;
@@ -8,10 +56,7 @@
     const panel = trigger ? document.getElementById(trigger.getAttribute("aria-controls")) : null;
     if (panel) {
       panel.hidden = true;
-      if (panel.dataset.phonePositioned) {
-        for (const property of ["position","width","left","right","bottom","top","max-height","overflow-y"]) panel.style.removeProperty(property);
-        delete panel.dataset.phonePositioned;
-      }
+      clearPhoneMenuPosition(panel);
     }
     trigger?.setAttribute("aria-expanded", "false");
     menu.classList.remove("is-open");
@@ -34,32 +79,17 @@
     panel.hidden = false;
     trigger.setAttribute("aria-expanded", "true");
     menu.classList.add("is-open");
-    if (window.matchMedia("(max-width:700px)").matches && menu.classList.contains("record-more-menu") && !menu.closest(".phone-swipe-row")) {
-      // Fixed phone panels use viewport coordinates, never percentage bottom offsets.
-      panel.dataset.phonePositioned = "true";
-      const anchor = trigger.getBoundingClientRect();
-      const viewport = window.visualViewport;
-      const top = viewport?.offsetTop || 0;
-      const height = viewport?.height || window.innerHeight;
-      const safeTop = Math.max(top + 12, (document.querySelector(".topbar")?.getBoundingClientRect().bottom || 0) + 8);
-      const width = Math.min(280, window.innerWidth - 24);
-      panel.style.setProperty("position", "fixed", "important");
-      panel.style.setProperty("width", `${width}px`, "important");
-      panel.style.setProperty("left", `${Math.max(12, Math.min(anchor.right - width, window.innerWidth - width - 12))}px`, "important");
-      panel.style.setProperty("right", "auto", "important");
-      panel.style.setProperty("bottom", "auto", "important");
-      panel.style.setProperty("max-height", `${Math.max(44, top + height - safeTop - 12)}px`, "important");
-      panel.style.setProperty("overflow-y", "auto", "important");
-      const panelHeight = panel.getBoundingClientRect().height;
-      const preferredTop = anchor.top - panelHeight - 8;
-      panel.style.setProperty("top", `${Math.max(safeTop, Math.min(preferredTop, top + height - panelHeight - 12))}px`, "important");
-    }
+    positionPhoneMenu(menu);
     if (focusFirst) panel.querySelector('[role="menuitem"]:not([disabled])')?.focus();
   }
 
   function setupOverflowMenus() {
     if (overflowMenusReady) return;
     overflowMenusReady = true;
+    window.addEventListener("resize", schedulePhoneMenuPosition);
+    document.addEventListener("scroll", schedulePhoneMenuPosition, { capture:true, passive:true });
+    window.visualViewport?.addEventListener("resize", schedulePhoneMenuPosition);
+    window.visualViewport?.addEventListener("scroll", schedulePhoneMenuPosition);
     document.addEventListener("click", event => {
       const trigger = event.target.closest(".overflow-menu-trigger, .topbar-tools-trigger");
       if (trigger) {
@@ -237,7 +267,11 @@
         event.preventDefault(); event.stopImmediatePropagation(); suppressedClick = null;
       }
     }, true);
-    phone.addEventListener("change", () => { gesture = null; closeAllOverflowMenus(); enhance(); });
+    phone.addEventListener("change", () => {
+      gesture = null;
+      money.querySelectorAll(".record-more-menu.is-open").forEach(menu => closeOverflowMenu(menu));
+      enhance();
+    });
     window.addEventListener("blur", () => { gesture = null; });
     window.addEventListener("resize", () => {
       gesture = null;

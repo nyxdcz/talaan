@@ -1,6 +1,13 @@
 # Changelog
 
 ## V2.5.0 · Talaan
+### Phone content and menu consistency
+
+- Keeps planner menus inside the visible phone screen through scrolling and rotation, with keyboard focus and Escape support.
+- Restores 44px touch targets for planner and project menus in landscape.
+- Contains account mode labels, report and template actions, security explanations, connection disclosures, and longer reminder messages.
+- Preserves the approved compact type and shape roles, desktop controls, app version, and financial schemas.
+
 ### Phone header consistency
 
 - Centers the month-navigation arrows inside the existing 44px controls.
