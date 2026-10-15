@@ -1177,7 +1177,7 @@
     switcher.setAttribute("role", "group");
     switcher.setAttribute("aria-label", "Account action");
     switcher.innerHTML = `
-      <button class="account-mode-button" id="accountCorrectModeButton" type="button" data-account-mode="correct" aria-pressed="true">${CORRECT_ICON}<span><strong>Correct account balance</strong><small>Use when the displayed balance is wrong.</small></span></button>
+      <button class="account-mode-button" id="accountCorrectModeButton" type="button" data-account-mode="correct" aria-pressed="true" aria-label="Correct account balance">${CORRECT_ICON}<span><strong><span class="account-mode-full-label">Correct account balance</span><span class="account-mode-phone-label">Correct balance</span></strong><small>Use when the displayed balance is wrong.</small></span></button>
       <button class="account-mode-button" id="accountSpendModeButton" type="button" data-account-mode="spend" aria-pressed="false">${SPEND_ICON}<span><strong>Record spending</strong><small>Use when you bought or paid for something.</small></span></button>`;
     if (context?.nextSibling) body.insertBefore(switcher, context.nextSibling); else body.insertBefore(switcher, grid);
 

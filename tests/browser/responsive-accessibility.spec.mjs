@@ -67,7 +67,8 @@ test("collapsed Monthly Budget Plan stays compact and readable at narrow phone w
     expect(metrics.readable).toBe(true);
     expect(metrics.sameRow).toBe(true);
     expect(metrics.inside).toBe(true);
-    expect(metrics.height).toBeLessThanOrEqual(130);
+    // Fractional scroll coordinates can add floating-point noise to the rectangle.
+    expect(metrics.height).toBeLessThanOrEqual(130.01);
   }
 });
 

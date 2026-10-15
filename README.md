@@ -21,6 +21,8 @@ Phone layouts share a compact type scale: 16px page headings, 14px section title
 
 Phone month arrows are centered inside their controls. The collapsed Planning card hides its editing actions; expanding it shows full-width Build and Copy buttons with 8px action gaps. The annual-income heading sits above the year selector, Show all toggle, and Export action.
 
+Phone account modes keep complete labels, report and template actions reflow below their headings, and security explanations, connection details, and longer reminders wrap inside their controls. Planner menus stay within the visible screen through scrolling and rotation. Planner and project menu buttons retain 44px touch targets in landscape, while mouse controls keep their compact desktop sizing.
+
 ## 🎯 What is Talaan?
 
 Talaan is a **finance-first PWA** designed for people who value **privacy, control, and reliability**. Whether you're managing personal expenses or shared household finances, Talaan keeps your data local, encrypted, and always accessible—even offline.
@@ -57,7 +59,7 @@ Phone finance actions keep 44px touch targets. Planning labels use the available
 
 ### Phone expense gestures
 
-In Budget & Expenses on phones, swipe right on an unpaid expense to select or deselect it for bulk actions. Swipe left to reveal Edit expense and monthly recurrence. Swiping does not mark an expense paid or change its recurrence. Keyboard users can focus an expense row and press Space to select, or Enter to open its actions; an accessible Actions control also remains available. Monthly breakdown centers its arrow and label. The one-time UI refresh uses `finance-ui-hotfix-v2-0-1-talaan12`; V2.5.0 and the finance cache and schemas remain unchanged.
+In Budget & Expenses on phones, swipe right on an unpaid expense to select or deselect it for bulk actions. Swipe left to reveal Edit expense and monthly recurrence. Swiping does not mark an expense paid or change its recurrence. Keyboard users can focus an expense row and press Space to select, or Enter to open its actions; an accessible Actions control also remains available. Monthly breakdown centers its arrow and label. The one-time UI refresh uses `finance-ui-hotfix-v2-0-1-talaan15`; V2.5.0 and the finance cache and schemas remain unchanged.
 
 ## 🚀 Quick Start
 
