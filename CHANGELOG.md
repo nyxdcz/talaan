@@ -1,6 +1,13 @@
 # Changelog
 
 ## V2.5.0 · Talaan
+### Phone header consistency
+
+- Centers the month-navigation arrows inside the existing 44px controls.
+- Restores hidden actions in the collapsed planner and gives expanded actions their own full-width rows, centered labels, and 8px gaps.
+- Places annual-income copy above the year/category controls and Export action on phones.
+- Adds saved-state, reload, geometry, action, and viewport regression coverage and advances the one-time UI refresh while retaining the current version and schemas.
+
 ### Browser validation reliability
 
 - Isolates UI checks from hosted session restoration and unrelated first-use cache refreshes, while retaining explicit authentication and real PWA upgrade coverage.

@@ -19,6 +19,8 @@
 
 Phone layouts share a compact type scale: 16px page headings, 14px section titles, 13px action and field labels, and 12px supporting text. Controls retain 44px tap targets in portrait and touch landscape, and editable inputs retain 16px text.
 
+Phone month arrows are centered inside their controls. The collapsed Planning card hides its editing actions; expanding it shows full-width Build and Copy buttons with 8px action gaps. The annual-income heading sits above the year selector, Show all toggle, and Export action.
+
 ## 🎯 What is Talaan?
 
 Talaan is a **finance-first PWA** designed for people who value **privacy, control, and reliability**. Whether you're managing personal expenses or shared household finances, Talaan keeps your data local, encrypted, and always accessible—even offline.
