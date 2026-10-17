@@ -1,0 +1,100 @@
+[
+  {
+    "theme": "dark",
+    "stage": "after",
+    "box": {
+      "x": 12,
+      "y": 348.625,
+      "width": 369,
+      "height": 153.984375
+    },
+    "text": "Apple Music\nSubscriptions · Music subscription\nUnpaid · 5 days overdue\nMonthly · due 9th\nMaya\n₱•••••\nMark paid\nActions",
+    "layout": {
+      ".due-cell": {
+        "y": 448.8125,
+        "h": 16.796875,
+        "margin": "0px",
+        "padding": "0px",
+        "align": "end",
+        "line": "16.8px",
+        "font": "12px"
+      },
+      "[data-label=\"Planned account\"]": {
+        "y": 469.609375,
+        "h": 16.796875,
+        "margin": "0px",
+        "padding": "0px",
+        "align": "start",
+        "line": "16.8px",
+        "font": "12px"
+      },
+      ".mobile-record-actions": {
+        "y": 445.609375,
+        "h": 44,
+        "margin": "0px",
+        "padding": "0px",
+        "align": "center",
+        "line": "16.8px",
+        "font": "12px"
+      },
+      ".record-statuses": {
+        "y": 416.8125,
+        "h": 16.796875,
+        "margin": "4px 0px 8px",
+        "padding": "0px",
+        "align": "auto",
+        "line": "16.8px",
+        "font": "12px"
+      }
+    }
+  },
+  {
+    "theme": "light",
+    "stage": "after",
+    "box": {
+      "x": 12,
+      "y": 348.625,
+      "width": 369,
+      "height": 153.984375
+    },
+    "text": "Apple Music\nSubscriptions · Music subscription\nUnpaid · 5 days overdue\nMonthly · due 9th\nMaya\n₱•••••\nMark paid\nActions",
+    "layout": {
+      ".due-cell": {
+        "y": 448.8125,
+        "h": 16.796875,
+        "margin": "0px",
+        "padding": "0px",
+        "align": "end",
+        "line": "16.8px",
+        "font": "12px"
+      },
+      "[data-label=\"Planned account\"]": {
+        "y": 469.609375,
+        "h": 16.796875,
+        "margin": "0px",
+        "padding": "0px",
+        "align": "start",
+        "line": "16.8px",
+        "font": "12px"
+      },
+      ".mobile-record-actions": {
+        "y": 445.609375,
+        "h": 44,
+        "margin": "0px",
+        "padding": "0px",
+        "align": "center",
+        "line": "16.8px",
+        "font": "12px"
+      },
+      ".record-statuses": {
+        "y": 416.8125,
+        "h": 16.796875,
+        "margin": "4px 0px 8px",
+        "padding": "0px",
+        "align": "auto",
+        "line": "16.8px",
+        "font": "12px"
+      }
+    }
+  }
+]

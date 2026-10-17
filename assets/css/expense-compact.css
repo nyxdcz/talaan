@@ -2718,3 +2718,52 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
 }
 }
 }
+
+.phone-expense-payment-status, .phone-expense-schedule { display:none; }
+@layer talaan-readable-ui {
+@scope (:root:has(#moneyPrioritySummary)) {
+@media (max-width:700px) {
+  /* Flatten only nonsemantic wrappers so the existing actions and swipe targets stay intact. */
+  :scope body #money :is(#earlyExpenses,#lateExpenses,#otherExpenses) > .record-row[data-expense-row] {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) fit-content(45%) !important;
+    grid-template-rows:auto auto auto auto auto !important;
+    gap:4px 12px !important;
+    align-items:start !important;
+    padding:12px !important;
+    margin:0 0 8px !important;
+    border:1px solid var(--line) !important;
+    border-left:3px solid var(--expense-status-edge,transparent) !important;
+    border-radius:12px !important;
+    background:var(--surface) !important;
+    box-shadow:var(--expense-selection-ring,none) !important;
+  }
+  :scope body #money .record-row[data-expense-row].overdue-row { --expense-status-edge:var(--danger); }
+  :scope body #money .record-row[data-expense-row].due-soon-row { --expense-status-edge:var(--orange-text); }
+  :scope body #money .record-row[data-expense-row].is-expense-selected { --expense-selection-ring:inset 3px 0 var(--blue); }
+  :scope body #money .record-row[data-expense-row] :is(.expense-record-title,.record-title-copy) { display:contents !important; }
+  :scope body #money .record-row[data-expense-row] .record-title-copy > strong { grid-column:1 !important; grid-row:1 !important; min-width:0 !important; overflow-wrap:anywhere; align-self:center; }
+  :scope body #money .record-row[data-expense-row] .record-icon { grid-column:1 !important; grid-row:1 !important; width:24px !important; height:24px !important; min-width:24px !important; font-size:20px !important; align-self:start; }
+  :scope body #money .record-row[data-expense-row]:has(.record-icon) .record-title-copy > strong { padding-left:32px; }
+  :scope body #money .record-row[data-expense-row] .record-title-copy > small { grid-column:1 / -1 !important; grid-row:2 !important; margin:0 !important; color:var(--muted) !important; overflow-wrap:anywhere; }
+  :scope body #money :is(#earlyExpenses,#lateExpenses,#otherExpenses) .expense-category { display:inline !important; background:transparent !important; border:0 !important; border-radius:0 !important; padding:0 !important; font-weight:400 !important; color:inherit !important; }
+  :scope body #money .record-row[data-expense-row] .record-statuses { grid-column:1 / -1 !important; grid-row:3 !important; display:flex !important; flex-wrap:wrap !important; gap:4px 8px !important; margin:4px 0 8px !important; }
+  :scope body #money .record-row[data-expense-row] .record-statuses > :is(.status-unpaid,.status-saved,.status-one-time,.expense-inline-due-warning) { display:none !important; }
+  :scope body #money .record-row[data-expense-row] .phone-expense-payment-status { display:block !important; flex-basis:100%; font-weight:600; color:var(--muted); background:transparent !important; border:0 !important; border-radius:0 !important; padding:0 !important; }
+  :scope body #money .record-row[data-expense-row] .phone-expense-payment-status.status-overdue { color:var(--danger) !important; }
+  :scope body #money .record-row[data-expense-row] .phone-expense-payment-status.status-due-soon { color:var(--orange-text) !important; }
+  :scope body #money .record-row[data-expense-row] > .amount { grid-column:2 !important; grid-row:1 !important; min-width:0 !important; max-width:100% !important; width:auto !important; white-space:normal !important; overflow-wrap:anywhere; text-align:right !important; justify-self:end !important; }
+  :scope body #money .record-row[data-expense-row] > .amount::before { content:none !important; }
+  :scope body #money .record-row[data-expense-row] > .due-cell { grid-column:1 !important; grid-row:4 !important; display:block !important; width:auto !important; min-width:0 !important; margin:0 !important; padding:0 !important; color:var(--muted) !important; white-space:normal !important; overflow-wrap:anywhere; align-self:end; }
+  :scope body #money .record-row[data-expense-row] > .due-cell::before { content:none !important; }
+  :scope body #money .record-row[data-expense-row] .expense-due-original { display:none !important; }
+  :scope body #money .record-row[data-expense-row] .phone-expense-schedule { display:inline !important; }
+  :scope body #money .record-row[data-expense-row] > [data-label="Planned account"] { grid-column:1 !important; grid-row:5 !important; justify-self:start !important; text-align:left !important; width:auto !important; min-width:0 !important; margin:0 !important; padding:0 !important; color:var(--muted) !important; white-space:normal !important; overflow-wrap:anywhere; align-self:start; }
+  :scope body #money .record-row[data-expense-row] > [data-label="Planned account"]::before { font-weight:400 !important; }
+  :scope body #money :is(#earlyExpenses,#lateExpenses,#otherExpenses) .record-row[data-expense-row] :is(.record-title-copy > small,.phone-expense-payment-status,.due-cell,[data-label="Planned account"]) { font-size:var(--phone-helper-size,12px) !important; line-height:1.4 !important; }
+  :scope body #money .record-row[data-expense-row] > .mobile-record-actions { grid-column:2 !important; grid-row:4 / 6 !important; justify-self:end !important; align-self:center !important; width:104px !important; min-width:104px !important; margin:0 !important; padding:0 !important; gap:0 !important; }
+  :scope body #money .record-row[data-expense-row] > .mobile-record-actions > [data-mark-paid] { width:104px !important; min-width:104px !important; min-height:44px !important; height:auto !important; max-height:none !important; padding:8px 12px !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; border-radius:10px !important; }
+  :scope body #money .record-row[data-expense-row]:is(.has-keyboard-actions,:has(.record-more-menu.is-open)) > .mobile-record-actions { grid-column:1 / -1 !important; grid-row:6 !important; width:100% !important; gap:8px !important; }
+}
+}
+}

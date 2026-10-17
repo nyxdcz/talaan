@@ -59,7 +59,7 @@ Phone finance actions keep 44px touch targets. Planning labels use the available
 
 ### Phone expense gestures
 
-In Budget & Expenses on phones, swipe right on an unpaid expense to select or deselect it for bulk actions. Swipe left to reveal Edit expense and monthly recurrence. Swiping does not mark an expense paid or change its recurrence. Keyboard users can focus an expense row and press Space to select, or Enter to open its actions; an accessible Actions control also remains available. Monthly breakdown centers its arrow and label. The one-time UI refresh uses `finance-ui-hotfix-v2-0-1-talaan15`; V2.5.0 and the finance cache and schemas remain unchanged.
+In Budget & Expenses on phones, swipe right on an unpaid expense to select or deselect it for bulk actions. Swipe left to reveal Edit expense and monthly recurrence. Swiping does not mark an expense paid or change its recurrence. Keyboard users can focus an expense row and press Space to select, or Enter to open its actions; an accessible Actions control also remains available. Monthly breakdown centers its arrow and label. Phone expense cards group the name and amount above quiet category/notes, a combined payment-status line, and the monthly or one-time schedule and account beside a centered 104 × 44px minimum Mark paid action. Neutral cards retain a warning edge and keep household shares, excluded totals, and auto-pay warnings visible. The one-time UI refresh uses `finance-ui-hotfix-v2-0-1-talaan16`; V2.5.0 and the finance cache and schemas remain unchanged.
 
 ## 🚀 Quick Start
 
