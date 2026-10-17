@@ -1,6 +1,13 @@
 # Changelog
 
 ## V2.5.0 · Talaan
+### Available money responsiveness
+
+- Updates balances and totals without replacing account cards or expense rows for balance-only corrections. Preserves selection, filters, transaction views, forecasting, Undo, reconciliation, verified profile persistence, and Cloud Sync.
+- Uses the full refresh for account name/type/icon changes and whenever lifecycle processing changes expenses.
+- Removes the synchronous layout read used to restart total animations, skips disabled phone animations, and limits phone-label enhancement to changed elements.
+- Avoids redundant calculator-preview mutations and advances the one-time UI refresh to talaan17 with V2.5.0, the finance cache identity, and schemas unchanged.
+
 ### Phone expense card organization
 
 - Groups the expense name and amount, category and note, one payment-status line, and the schedule/account beside a centered 104 × 44px minimum payment button.

@@ -1,5 +1,4 @@
 "use strict";
-
 /* My Finance Records V13.0.13 · account ledger, transfers, reconciliation, and transactional direct account spending.
    The ledger is append-only. Account balances are recalculated from signed entries.
    Existing V12.19.1 balances migrate once as opening-balance entries without changing totals. */
@@ -32,6 +31,7 @@
   const originalNormalizeData = normalizeData;
   const originalSaveData = saveData;
   const originalRenderAll = renderAll;
+  let ledgerRefreshPending = false;
   const originalOpenAccountDialog = openAccountDialog;
   const originalOpenIncomeDialog = openIncomeDialog;
   const originalSyncIncomeCategoryFields = syncIncomeCategoryFields;
@@ -215,18 +215,15 @@
     if (stamp && target.ledgerSettings) target.ledgerSettings.lastRecalculatedAt = new Date().toISOString();
     return target.accounts;
   }
-
   function currentDeviceIdSafe() {
     try {
       if (typeof ensureCurrentDevice === "function") ensureCurrentDevice();
       return typeof appMeta !== "undefined" ? String(appMeta.currentDeviceId || "") : "";
     } catch (error) { return ""; }
   }
-
   function ledgerOperationExists(operationId) {
     return Boolean(operationId && (data.accountLedger || []).some(entry => entry.operationId === operationId));
   }
-
   function appendLedgerEntries(entries, { recalculate = true } = {}) {
     ensureLedgerShape(data);
     const added = [];
@@ -269,14 +266,14 @@
     return reconciliation;
   }
 
-  function refreshReconciledAccountState(account, targetBalance = null) {
+  function refreshReconciledAccountState(account, targetBalance = null, accountBalanceOnly = false) {
     recalculateBalances(data);
     const actual = roundMoney(data.accounts?.[account] || 0);
     if (targetBalance != null && Number.isFinite(Number(targetBalance)) && actual !== roundMoney(targetBalance)) {
       console.warn(`Account ledger refresh mismatch for ${account}: expected ${roundMoney(targetBalance)}, calculated ${actual}`);
     }
     try {
-      renderAll(false);
+      renderAll(false, { accountBalanceOnly });
     } catch (error) {
       console.error("Finance data was saved but the full interface refresh failed.", error);
       try { renderMoneyPage(); } catch (refreshError) { console.error("Money workspace refresh also failed.", refreshError); }
@@ -330,7 +327,8 @@
   renderAll = function ledgerAwareRenderAll(...args) {
     recalculateBalances(data);
     const result = originalRenderAll(...args);
-    renderLedgerWorkspace();
+    if (args[1]?.accountBalanceOnly) ledgerRefreshPending = true;
+    else { renderLedgerWorkspace(); ledgerRefreshPending = false; }
     if (document.getElementById("accountDialog")?.open && document.getElementById("accountDialog")?.dataset.accountMode === "spend") updateAccountSpendPreview();
     return result;
   };
@@ -1565,6 +1563,7 @@
       return false;
     }
 
+    const accountBalanceOnly = originalName === newName && type === accountType(originalName) && JSON.stringify(pickerIcon("account")) === JSON.stringify(normalizeRecordIcon(data.accountIcons?.[originalName], data.iconLibrary || {}));
     const saved = runAccountMutation({
       undoLabel:originalName ? `Edit account ${originalName}` : `Add account ${newName}`,
       message:originalName ? "Account updated and reconciled" : "Account added with opening balance",
@@ -1598,7 +1597,7 @@
     });
     if (!saved) return false;
     closeTrackedFormAfterAction("accountDialog");
-    refreshReconciledAccountState(newName, targetBalance);
+    refreshReconciledAccountState(newName, targetBalance, accountBalanceOnly);
     return true;
   }
 
@@ -1739,6 +1738,7 @@
     }
   });
 
+  window.addEventListener("finance:page-changed", event => { if (ledgerRefreshPending && event.detail?.pageId === "settings") { renderLedgerWorkspace(); ledgerRefreshPending = false; } });
   ensureAccountSpendUi();
   bindPersistentSpendActionDelegation();
   injectLedgerUi();

@@ -2,7 +2,7 @@ import { test, expect, refreshKeys } from "../helpers/browser-fixtures.mjs";
 
 test.use({ legacyPwaRefresh:true });
 
-test("a stale phone stylesheet triggers one real UI refresh and preserves device data", async ({ page }) => {
+test("stale phone runtime and styles trigger one real UI refresh and preserve device data", async ({ page }) => {
   const origin = "http://127.0.0.1:3000";
   const uiKey = refreshKeys.find(key => key.startsWith("finance-ui-hotfix-"));
   await page.goto(`${origin}/?page=money`, { waitUntil:"networkidle" });
@@ -11,6 +11,9 @@ test("a stale phone stylesheet triggers one real UI refresh and preserves device
     for (const key of refreshKeys) localStorage.setItem(key, "done");
     const cache = await caches.open("finance-v2-20260828-household-splits-r17-runtime");
     await cache.put(`${origin}/phone-scale.css?stale-test`, new Response("/* stale phone scale */"));
+    for (const file of ["form-inputs.js", "productivity-tools.js", "transaction-views.js", "phone-finance-compat.js"]) {
+      await cache.put(`${origin}/${file}?stale-test`, new Response("/* stale balance editing runtime */"));
+    }
     localStorage.setItem("ui-refresh-test-record", "preserved");
     localStorage.removeItem(uiKey);
   }, { refreshKeys, uiKey, origin });
@@ -26,6 +29,10 @@ test("a stale phone stylesheet triggers one real UI refresh and preserves device
   await page.waitForLoadState("networkidle");
   expect(await page.evaluate(() => localStorage.getItem("ui-refresh-test-record"))).toBe("preserved");
   expect(await page.evaluate(async origin => Boolean(await caches.match(`${origin}/phone-scale.css?stale-test`)), origin)).toBe(false);
+  expect(await page.evaluate(async origin => {
+    const files = ["form-inputs.js", "productivity-tools.js", "transaction-views.js", "phone-finance-compat.js"];
+    return (await Promise.all(files.map(file => caches.match(`${origin}/${file}?stale-test`)))).some(Boolean);
+  }, origin)).toBe(false);
   await page.reload({ waitUntil:"networkidle" });
   expect(navigations).toBe(3);
 });

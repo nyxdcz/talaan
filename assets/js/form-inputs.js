@@ -174,8 +174,9 @@
   function setCalculatorPreview(input, message = "", state = "") {
     const preview = calculatorPreviewElement(input);
     if (!preview) return;
-    preview.textContent = message;
-    preview.className = `calculation-preview${message ? " show" : ""}${state ? ` ${state}` : ""}`;
+    if (preview.textContent !== message) preview.textContent = message;
+    const className = `calculation-preview${message ? " show" : ""}${state ? ` ${state}` : ""}`;
+    if (preview.className !== className) preview.className = className;
   }
   
   function setFieldError(input, message = "") {
