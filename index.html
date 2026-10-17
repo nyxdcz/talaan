@@ -4788,7 +4788,15 @@
         ["Second-half difference", "2nd-half diff", money(secondHalfDifference), secondDifferenceText, secondDifferenceTone, "Available money minus both scheduled periods", "Money after both halves"],
         ["Money remaining", "Money remaining", money(remaining), remaining < 0 ? "text-danger" : "text-green", remaining < 0 ? "summary-card-danger" : "summary-card-green", "Available money minus outstanding expenses", "After outstanding expenses"]
       ];
-      document.getElementById("moneySummary").innerHTML = summary.map(([label, mobileLabel, amount, className, toneClass, description, mobileDescription]) => `<div class="summary-item summary-card ${toneClass}"><div class="summary-card-copy"><span class="summary-card-label"><span class="summary-label-desktop">${label}</span><span class="summary-label-mobile">${mobileLabel}</span></span><small><span class="summary-desc-desktop">${description}</span><span class="summary-desc-mobile">${mobileDescription}</span></small></div><strong class="summary-card-value ${className}">${amount}</strong></div>`).join("");
+      const summaryNode = document.getElementById("moneySummary");
+      if (options.accountBalanceOnly && summaryNode.children.length === summary.length) {
+        summary.forEach(([, , amount, className, toneClass], index) => {
+          const card = summaryNode.children[index], value = card.querySelector(".summary-card-value");
+          card.className = `summary-item summary-card ${toneClass}`;
+          value.className = `summary-card-value ${className}`;
+          value.textContent = amount;
+        });
+      } else summaryNode.innerHTML = summary.map(([label, mobileLabel, amount, className, toneClass, description, mobileDescription]) => `<div class="summary-item summary-card ${toneClass}"><div class="summary-card-copy"><span class="summary-card-label"><span class="summary-label-desktop">${label}</span><span class="summary-label-mobile">${mobileLabel}</span></span><small><span class="summary-desc-desktop">${description}</span><span class="summary-desc-mobile">${mobileDescription}</span></small></div><strong class="summary-card-value ${className}">${amount}</strong></div>`).join("");
 
       if (options.accountBalanceOnly) return;
       lastVisibleExpenseIds = [];
@@ -5516,7 +5524,7 @@
 
     function renderPage(pageId, options = {}) {
       PAGE_RENDERERS[pageId]?.(options);
-      setupApplicationHelp(document.getElementById(pageId) || document);
+      if (!options.accountBalanceOnly) setupApplicationHelp(document.getElementById(pageId) || document);
     }
 
     function renderSampleDataNotice() {
@@ -5563,12 +5571,17 @@
       processGymMonthEndAutoPayments({ notify:true });
       ensureSavedExpensesForMonth(selectedMonth());
       ensureRecurringIncomeForMonth(selectedMonth());
-      refreshCategorySelects();
       ensureClosedMonthReports();
+      options.accountBalanceOnly = Boolean(!full && activePageId() === "money" && options.accountBalanceOnly && expenseState === JSON.stringify(data.expenses));
+      if (options.accountBalanceOnly) {
+        renderPage("money", options);
+        updateUndoButton();
+        return;
+      }
+      refreshCategorySelects();
       renderMonthNavigation();
-      const balanceOnly = !full && activePageId() === "money" && options.accountBalanceOnly && expenseState === JSON.stringify(data.expenses);
       if (full) Object.keys(PAGE_RENDERERS).forEach(pageId => renderPage(pageId));
-      else renderPage(activePageId(), { accountBalanceOnly:balanceOnly });
+      else renderPage(activePageId(), options);
       syncThemeControls();
       updateAllFilterControlStates();
       syncPageSpecificActions(activePageId());
@@ -9337,12 +9350,12 @@
   <script src="./sync-config.js?v=2.5.0-talaan1"></script>
   <script src="./sync-runtime-compat.js?v=2.5.0-talaan1"></script>
   <script src="./privacy-lock.js?v=2.5.0-talaan1"></script>
-  <script src="./finance-transaction-diagnostics.js?v=2.5.0-account-4b9150f4962f"></script>
+  <script src="./finance-transaction-diagnostics.js?v=2.5.0-account-be81e49280ff"></script>
   <script src="./security-profiles.js?v=2.5.0-talaan1"></script>
   <script src="./cloud-conflict-review.js?v=2.5.0-talaan1"></script>
-  <script src="./cloud-conflict-resolution.js?v=2.5.0-talaan1"></script><script src="./cloud-sync-lifecycle.js?v=2.5.0-account-4b9150f4962f"></script><script src="./cloud-sync.js?v=2.5.0-account-4b9150f4962f"></script>
-  <script src="./finance-integrity.js?v=2.5.0-account-4b9150f4962f"></script>
-  <script src="./account-ledger.js?v=2.5.0-account-4b9150f4962f"></script>
+  <script src="./cloud-conflict-resolution.js?v=2.5.0-talaan1"></script><script src="./cloud-sync-lifecycle.js?v=2.5.0-account-be81e49280ff"></script><script src="./cloud-sync.js?v=2.5.0-account-be81e49280ff"></script>
+  <script src="./finance-integrity.js?v=2.5.0-account-be81e49280ff"></script>
+  <script src="./account-ledger.js?v=2.5.0-account-be81e49280ff"></script>
   <script src="./budget-planning.js?v=2.5.0-talaan1"></script>
   <script src="./reports-insights.js?v=2.5.0-talaan1"></script>
   <script src="./net-worth.js?v=2.5.0-talaan1"></script>

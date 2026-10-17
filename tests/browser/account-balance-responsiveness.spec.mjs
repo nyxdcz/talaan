@@ -17,6 +17,7 @@ async function openCorrection(page) {
     const original = data.accounts[account];
     window.__balanceCard = card;
     window.__expenseRow = document.querySelector("[data-expense-row]");
+    window.__ledgerRow = document.querySelector("#accountLedgerBody tr");
     return { account, original, target:original + 1234.56 };
   });
   await page.locator("#moneyAccounts [data-edit-account]").first().click();
@@ -43,6 +44,7 @@ for (const width of [393, 1440]) {
       return {
         sameCard:window.__balanceCard === document.querySelector("#moneyAccounts [data-account-card]"),
         sameRow:window.__expenseRow === document.querySelector("[data-expense-row]"),
+        sameLedgerRow:window.__ledgerRow === document.querySelector("#accountLedgerBody tr"),
         selected:[...selectedExpenseIds], beforeSelected:window.__selectedBefore,
         view:window.FinanceTransactionViews.getState(), beforeView:window.__viewBefore,
         stored:local.accounts[account], profile:profile.accounts[account],
@@ -56,6 +58,7 @@ for (const width of [393, 1440]) {
     }, setup);
     expect(result.sameCard).toBe(true);
     expect(result.sameRow).toBe(true);
+    expect(result.sameLedgerRow).toBe(true);
     expect(result.selected).toEqual(result.beforeSelected);
     expect(result.view).toEqual(result.beforeView);
     expect(result.stored).toBeCloseTo(setup.target, 2);
@@ -65,6 +68,9 @@ for (const width of [393, 1440]) {
     expect(result.valid).toBe(true);
     expect(result.activity).toBe(true);
     if (width <= 700) await expect(page.locator("#moneyAccounts [data-account-card]").first().locator(".account-card-main strong")).toHaveAttribute("title", result.expectedDisplayed);
+    await page.evaluate(() => { window.goToPage("settings", { smooth:false }); window.activateSettingsPanel("accounts", false); });
+    await expect(page.locator("#accountReconciliationBody")).toContainText(result.expectedDisplayed);
+    expect(await page.evaluate(() => window.__ledgerRow.isConnected)).toBe(false);
     await page.reload({ waitUntil:"networkidle" });
     expect(await page.evaluate(account => data.accounts[account], setup.account)).toBeCloseTo(setup.target, 2);
   });

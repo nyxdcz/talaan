@@ -275,6 +275,7 @@
       captureDataChanges(observedData, data, "Records updated");
       observedData = clone(data);
     }
+    if (options.accountBalanceOnly) return result;
     ensureUniversalActions();
     renderProductivityPanels();
     renderRecentAccountSuggestions();

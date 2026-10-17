@@ -31,6 +31,7 @@
   const originalNormalizeData = normalizeData;
   const originalSaveData = saveData;
   const originalRenderAll = renderAll;
+  let ledgerRefreshPending = false;
   const originalOpenAccountDialog = openAccountDialog;
   const originalOpenIncomeDialog = openIncomeDialog;
   const originalSyncIncomeCategoryFields = syncIncomeCategoryFields;
@@ -214,18 +215,15 @@
     if (stamp && target.ledgerSettings) target.ledgerSettings.lastRecalculatedAt = new Date().toISOString();
     return target.accounts;
   }
-
   function currentDeviceIdSafe() {
     try {
       if (typeof ensureCurrentDevice === "function") ensureCurrentDevice();
       return typeof appMeta !== "undefined" ? String(appMeta.currentDeviceId || "") : "";
     } catch (error) { return ""; }
   }
-
   function ledgerOperationExists(operationId) {
     return Boolean(operationId && (data.accountLedger || []).some(entry => entry.operationId === operationId));
   }
-
   function appendLedgerEntries(entries, { recalculate = true } = {}) {
     ensureLedgerShape(data);
     const added = [];
@@ -329,7 +327,8 @@
   renderAll = function ledgerAwareRenderAll(...args) {
     recalculateBalances(data);
     const result = originalRenderAll(...args);
-    renderLedgerWorkspace();
+    if (args[1]?.accountBalanceOnly) ledgerRefreshPending = true;
+    else { renderLedgerWorkspace(); ledgerRefreshPending = false; }
     if (document.getElementById("accountDialog")?.open && document.getElementById("accountDialog")?.dataset.accountMode === "spend") updateAccountSpendPreview();
     return result;
   };
@@ -1739,6 +1738,7 @@
     }
   });
 
+  window.addEventListener("finance:page-changed", event => { if (ledgerRefreshPending && event.detail?.pageId === "settings") { renderLedgerWorkspace(); ledgerRefreshPending = false; } });
   ensureAccountSpendUi();
   bindPersistentSpendActionDelegation();
   injectLedgerUi();
