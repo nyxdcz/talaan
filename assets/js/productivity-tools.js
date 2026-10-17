@@ -269,8 +269,8 @@
   };
 
   const baseRenderAll = renderAll;
-  renderAll = function productivityRenderAll(full = false) {
-    const result = baseRenderAll(full);
+  renderAll = function productivityRenderAll(full = false, options = {}) {
+    const result = baseRenderAll(full, options);
     if (!suppressRenderDiff && simpleHash(observedData) !== simpleHash(data)) {
       captureDataChanges(observedData, data, "Records updated");
       observedData = clone(data);

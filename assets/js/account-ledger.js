@@ -1,5 +1,4 @@
 "use strict";
-
 /* My Finance Records V13.0.13 · account ledger, transfers, reconciliation, and transactional direct account spending.
    The ledger is append-only. Account balances are recalculated from signed entries.
    Existing V12.19.1 balances migrate once as opening-balance entries without changing totals. */
@@ -269,14 +268,14 @@
     return reconciliation;
   }
 
-  function refreshReconciledAccountState(account, targetBalance = null) {
+  function refreshReconciledAccountState(account, targetBalance = null, accountBalanceOnly = false) {
     recalculateBalances(data);
     const actual = roundMoney(data.accounts?.[account] || 0);
     if (targetBalance != null && Number.isFinite(Number(targetBalance)) && actual !== roundMoney(targetBalance)) {
       console.warn(`Account ledger refresh mismatch for ${account}: expected ${roundMoney(targetBalance)}, calculated ${actual}`);
     }
     try {
-      renderAll(false);
+      renderAll(false, { accountBalanceOnly });
     } catch (error) {
       console.error("Finance data was saved but the full interface refresh failed.", error);
       try { renderMoneyPage(); } catch (refreshError) { console.error("Money workspace refresh also failed.", refreshError); }
@@ -1565,6 +1564,7 @@
       return false;
     }
 
+    const accountBalanceOnly = originalName === newName && type === accountType(originalName) && JSON.stringify(pickerIcon("account")) === JSON.stringify(normalizeRecordIcon(data.accountIcons?.[originalName], data.iconLibrary || {}));
     const saved = runAccountMutation({
       undoLabel:originalName ? `Edit account ${originalName}` : `Add account ${newName}`,
       message:originalName ? "Account updated and reconciled" : "Account added with opening balance",
@@ -1598,7 +1598,7 @@
     });
     if (!saved) return false;
     closeTrackedFormAfterAction("accountDialog");
-    refreshReconciledAccountState(newName, targetBalance);
+    refreshReconciledAccountState(newName, targetBalance, accountBalanceOnly);
     return true;
   }
 

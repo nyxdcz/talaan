@@ -4716,14 +4716,19 @@
       if (!changed) return;
       const card = element.closest(".legend-item");
       if (!card) return;
+      if (matchMedia("(max-width: 700px), (prefers-reduced-motion: reduce)").matches) return;
+      cancelAnimationFrame(card.legendUpdateFrame);
       card.classList.remove("legend-live-update");
-      void card.offsetWidth;
-      card.classList.add("legend-live-update");
       clearTimeout(card.legendUpdateTimer);
-      card.legendUpdateTimer = setTimeout(() => card.classList.remove("legend-live-update"), 950);
+      card.legendUpdateFrame = requestAnimationFrame(() => {
+        card.legendUpdateFrame = requestAnimationFrame(() => {
+          card.classList.add("legend-live-update");
+          card.legendUpdateTimer = setTimeout(() => card.classList.remove("legend-live-update"), 950);
+        });
+      });
     }
 
-    function renderMoneyPage() {
+    function renderMoneyPage(options = {}) {
       const expenses = budgetExpenseItems();
       const unpaidExpenses = expenses.filter(item => !item.paid);
       const groups = groupedExpenses(unpaidExpenses);
@@ -4749,7 +4754,16 @@
       document.getElementById("moneyAvailableTotal").textContent = money(available);
       const availableMoneyAccountCount = document.getElementById("availableMoneyAccountCount");
       if (availableMoneyAccountCount) availableMoneyAccountCount.textContent = `${accountNames().length} ${accountNames().length === 1 ? "account" : "accounts"}`;
-      document.getElementById("moneyAccounts").innerHTML = accountCardsHtml(true);
+      if (options.accountBalanceOnly) {
+        document.querySelectorAll("#moneyAccounts [data-account-card]").forEach(card => {
+          const amount = card.querySelector(".account-card-main strong");
+          if (amount) {
+            const formatted = money(data.accounts[card.dataset.accountCard]);
+            amount.textContent = formatted;
+            if (amount.hasAttribute("title")) amount.title = formatted;
+          }
+        });
+      } else document.getElementById("moneyAccounts").innerHTML = accountCardsHtml(true);
       document.getElementById("earlyTotal").textContent = money(early);
       document.getElementById("lateTotal").textContent = money(late);
       document.getElementById("otherTotal").textContent = money(other);
@@ -4776,6 +4790,7 @@
       ];
       document.getElementById("moneySummary").innerHTML = summary.map(([label, mobileLabel, amount, className, toneClass, description, mobileDescription]) => `<div class="summary-item summary-card ${toneClass}"><div class="summary-card-copy"><span class="summary-card-label"><span class="summary-label-desktop">${label}</span><span class="summary-label-mobile">${mobileLabel}</span></span><small><span class="summary-desc-desktop">${description}</span><span class="summary-desc-mobile">${mobileDescription}</span></small></div><strong class="summary-card-value ${className}">${amount}</strong></div>`).join("");
 
+      if (options.accountBalanceOnly) return;
       lastVisibleExpenseIds = [];
       selectedExpenseIds = new Set([...selectedExpenseIds].filter(id => unpaidExpenses.some(item => item.id === id)));
       renderExpenseRows(groups.early, "earlyExpenses");
@@ -5499,8 +5514,8 @@
       updateAllFilterControlStates();
     }
 
-    function renderPage(pageId) {
-      PAGE_RENDERERS[pageId]?.();
+    function renderPage(pageId, options = {}) {
+      PAGE_RENDERERS[pageId]?.(options);
       setupApplicationHelp(document.getElementById(pageId) || document);
     }
 
@@ -5543,15 +5558,17 @@
       }
     }
 
-    function renderAll(full = false) {
+    function renderAll(full = false, options = {}) {
+      const expenseState = options.accountBalanceOnly ? JSON.stringify(data.expenses) : null;
       processGymMonthEndAutoPayments({ notify:true });
       ensureSavedExpensesForMonth(selectedMonth());
       ensureRecurringIncomeForMonth(selectedMonth());
       refreshCategorySelects();
       ensureClosedMonthReports();
       renderMonthNavigation();
-      if (full) Object.keys(PAGE_RENDERERS).forEach(renderPage);
-      else renderPage(activePageId());
+      const balanceOnly = !full && activePageId() === "money" && options.accountBalanceOnly && expenseState === JSON.stringify(data.expenses);
+      if (full) Object.keys(PAGE_RENDERERS).forEach(pageId => renderPage(pageId));
+      else renderPage(activePageId(), { accountBalanceOnly:balanceOnly });
       syncThemeControls();
       updateAllFilterControlStates();
       syncPageSpecificActions(activePageId());
@@ -9320,12 +9337,12 @@
   <script src="./sync-config.js?v=2.5.0-talaan1"></script>
   <script src="./sync-runtime-compat.js?v=2.5.0-talaan1"></script>
   <script src="./privacy-lock.js?v=2.5.0-talaan1"></script>
-  <script src="./finance-transaction-diagnostics.js?v=2.5.0-account-37d09b7119cc"></script>
+  <script src="./finance-transaction-diagnostics.js?v=2.5.0-account-4b9150f4962f"></script>
   <script src="./security-profiles.js?v=2.5.0-talaan1"></script>
   <script src="./cloud-conflict-review.js?v=2.5.0-talaan1"></script>
-  <script src="./cloud-conflict-resolution.js?v=2.5.0-talaan1"></script><script src="./cloud-sync-lifecycle.js?v=2.5.0-account-37d09b7119cc"></script><script src="./cloud-sync.js?v=2.5.0-account-37d09b7119cc"></script>
-  <script src="./finance-integrity.js?v=2.5.0-account-37d09b7119cc"></script>
-  <script src="./account-ledger.js?v=2.5.0-account-37d09b7119cc"></script>
+  <script src="./cloud-conflict-resolution.js?v=2.5.0-talaan1"></script><script src="./cloud-sync-lifecycle.js?v=2.5.0-account-4b9150f4962f"></script><script src="./cloud-sync.js?v=2.5.0-account-4b9150f4962f"></script>
+  <script src="./finance-integrity.js?v=2.5.0-account-4b9150f4962f"></script>
+  <script src="./account-ledger.js?v=2.5.0-account-4b9150f4962f"></script>
   <script src="./budget-planning.js?v=2.5.0-talaan1"></script>
   <script src="./reports-insights.js?v=2.5.0-talaan1"></script>
   <script src="./net-worth.js?v=2.5.0-talaan1"></script>

@@ -229,7 +229,7 @@
     window.addEventListener("finance:page-changed",event=>{const name=Object.keys(WORKSPACES).find(key=>WORKSPACES[key].page===event.detail?.pageId);if(name)enhance(name);});
     window.addEventListener("finance:profile-changed",()=>{state=read();Object.keys(WORKSPACES).forEach(enhance);});
   }
-  Object.keys(WORKSPACES).forEach(name=>{const page=WORKSPACES[name].page,base=PAGE_RENDERERS[page];if(typeof base!=="function")return;PAGE_RENDERERS[page]=function transactionViewRenderer(){base();enhance(name);};if(name==="income")renderIncomePage=PAGE_RENDERERS[page];if(name==="expense")renderMoneyPage=PAGE_RENDERERS[page];if(name==="paid")renderPaidExpenses=PAGE_RENDERERS[page];});
+  Object.keys(WORKSPACES).forEach(name=>{const page=WORKSPACES[name].page,base=PAGE_RENDERERS[page];if(typeof base!=="function")return;PAGE_RENDERERS[page]=function transactionViewRenderer(options={}){base(options);if(!options.accountBalanceOnly)enhance(name);};if(name==="income")renderIncomePage=PAGE_RENDERERS[page];if(name==="expense")renderMoneyPage=PAGE_RENDERERS[page];if(name==="paid")renderPaidExpenses=PAGE_RENDERERS[page];});
   injectDialog(); setupEvents(); Object.keys(WORKSPACES).forEach(enhance);
   window.FinanceTransactionViews={storagePrefix:STORAGE_PREFIX,get storageKey(){return storageKey();},getState:()=>clone(state),openColumns,openForActivePage:()=>document.querySelector(`#transactionToolbar-${currentPageWorkspace()}`)?.scrollIntoView({behavior:"smooth",block:"center"}),reset:name=>{const views=state[name].views;state[name]={...defaults(name),views};write();rerender(name);}};
 })();
