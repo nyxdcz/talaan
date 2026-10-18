@@ -148,8 +148,9 @@ function networkFirstResponse(request, event, navigation = false) {
   event.waitUntil(network.then(() => {}));
   return (async () => {
     const [runtime, shell] = await stores;
-    let cached = (await runtime?.match(request)) || (await shell?.match(request));
-    if (!cached && navigation) cached = (await runtime?.match(asset("./index.html"))) || (await shell?.match(asset("./index.html"))) || (await shell?.match(asset("./offline.html")));
+    const match = (cache, key) => cache?.match(key).catch(() => null);
+    let cached = (await match(runtime, request)) || (await match(shell, request));
+    if (!cached && navigation) cached = (await match(runtime, asset("./index.html"))) || (await match(shell, asset("./index.html"))) || (await match(shell, asset("./offline.html")));
     const offline = () => cached || new Response("Offline", { status:503, statusText:"Offline" });
     if (!cached) return (await network) || offline();
     let timer;

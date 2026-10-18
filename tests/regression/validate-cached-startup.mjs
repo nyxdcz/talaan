@@ -96,6 +96,12 @@ for (const failure of [() => Promise.reject(new Error("offline")), () => Promise
   fixture.caches.open = async () => { throw new Error("storage unavailable"); };
   assert.equal(await (await fixture.request("phone-scale.css?v=current").response).text(), "fresh without storage");
 }
+{
+  const fixture = workerFixture(() => Promise.resolve(new Response("fresh despite cache read error")));
+  const runtime = await fixture.caches.open(`${prefix}-runtime`);
+  runtime.match = async () => { throw new Error("cache read failed"); };
+  assert.equal(await (await fixture.request("phone-scale.css?v=current").response).text(), "fresh despite cache read error");
+}
 
 const refreshKeys = [...updater.matchAll(/const [A-Z_]+REFRESH_KEY = "([^"]+)";/g)].map(match => match[1]);
 const storage = new Map([["saved-finance-profile", "unchanged"]]);
