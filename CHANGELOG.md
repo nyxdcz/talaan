@@ -1,6 +1,13 @@
 # Changelog
 
 ## V2.5.0 · Talaan
+### Cached phone startup and interaction response
+
+- Limits network waiting to 250ms when the current shell or exact asset revision is already cached, while keeping successful downloads and cache updates alive in the background. Missing revisions still wait for their own download; offline and server-error responses use the existing cache.
+- Combines pending runtime refreshes into one cache scan and one reload, preserving offline cached files and retrying failed cache operations.
+- Replaces descendant-dependent phone style scope guards with a static shell marker, preserving the existing cascade, sizes, spacing, and appearance.
+- Advances the targeted UI refresh to talaan18 while retaining V2.5.0, the finance cache identity, and schemas.
+
 ### Available money responsiveness
 
 - Updates balances and totals without replacing account cards or expense rows for balance-only corrections. Preserves selection, filters, transaction views, forecasting, Undo, reconciliation, verified profile persistence, and Cloud Sync.

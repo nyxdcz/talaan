@@ -38,7 +38,7 @@ assert.match(index, /FinancePwaUpdate\.updateState\(remote, APP_VERSION, APP_CAC
 assert.match(updater, /const FINANCE_CACHE_PATTERN = \/\^finance-v\\d\+-\//);
 assert.match(updater, /const LEGACY_INDEX_CACHE = "finance-v15-20260816-mobile-ui-ux-r32";/, "pre-Talaan cache alias stays compatibility-only");
 assert.match(updater, /const CURRENT_CACHE_VERSION = "finance-v2-20260828-household-splits-r17";/);
-assert.match(updater, /const UI_HOTFIX_REFRESH_KEY = "finance-ui-hotfix-v2-0-1-talaan17";/);
+assert.match(updater, /const UI_HOTFIX_REFRESH_KEY = "finance-ui-hotfix-v2-0-1-talaan18";/);
 for (const file of ["index.html","interaction-patterns.js","expense-compact.css","ui-radius.css","phone-scale.css"]) {
   assert.ok(updater.includes(`"/${file}"`), `${file} must participate in the phone swipe UI refresh`);
 }
@@ -46,12 +46,8 @@ assert.match(updater, /const DASHBOARD_PRESENTATION_REFRESH_KEY = "finance-dashb
 assert.match(updater, /const EXPENSE_DARK_MODE_REFRESH_KEY = "finance-expense-dark-mode-v2-5-0-talaan1";/);
 assert.match(updater, /const INCOME_PLANNING_REFRESH_KEY = "finance-income-planning-v2-5-0-talaan1";/);
 assert.ok(updater.includes(`const ACCOUNT_INTEGRITY_REFRESH_KEY = "${accountIntegrityRefreshKey}";`));
-assert.match(updater, /async function refreshAccountIntegrityRuntimeOnce\(\)/);
-assert.match(updater, /void refreshAccountIntegrityRuntimeOnce\(\)\.then/);
-assert.match(updater, /async function refreshExpenseDarkModeOnce\(\)/);
-assert.match(updater, /void refreshExpenseDarkModeOnce\(\);/);
-assert.match(updater, /async function refreshIncomePlanningOnce\(\)/);
-assert.match(updater, /void refreshIncomePlanningOnce\(\);/);
+assert.match(updater, /async function refreshCachedRuntimeOnce\(\)/);
+assert.match(updater, /void refreshCachedRuntimeOnce\(\)\.then/);
 assert.match(updater, /"\/phone-finance-compat\.js"/, "expense dark-mode hotfix must purge the cached compact finance runtime");
 for (const file of ["budget-planning.js", "productivity-tools.js", "application-help.js", "desktop-ux.css"]) {
   assert.ok(updater.includes(`"/${file}"`), `${file} must be included in the Income & Planning cache refresh`);
@@ -63,7 +59,7 @@ assert.match(updater, /"\/cash-flow-summary\.js"/, "dashboard analytics runtime 
 assert.match(updater, /"\/income-expenses-compact\.css"/, "dashboard presentation stylesheet must be included in the dedicated stale-cache purge list");
 assert.match(updater, /"\/production-ui-audit\.css"/, "dashboard layout stylesheet must be included in the dedicated stale-cache purge list");
 assert.match(updater, /const deletedCounts = await Promise\.all/, "targeted cache refresh must count actual deletions");
-assert.match(updater, /return deletedCounts\.reduce\(\(sum, count\) => sum \+ count, 0\);/, "an empty cache scan must report zero deleted assets");
+assert.match(updater, /const removed = deletedCounts\.reduce\(\(sum, count\) => sum \+ count, 0\);/, "an empty cache scan must report zero deleted assets");
 assert.match(updater, /if \(!removed\) return false;/, "one-time refresh must not reload when no stale target was removed");
 assert.match(updater, /desktop-ui-phase1\.css/);
 assert.match(updater, /black-canvas\.css/);

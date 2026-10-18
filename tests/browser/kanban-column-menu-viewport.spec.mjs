@@ -71,9 +71,9 @@ async function panelState(page) {
 test("Kanban menu positioning is owned by Header Tools and receives a one-time PWA cache refresh", () => {
   const updater = fs.readFileSync("assets/js/pwa-update.js", "utf8");
   const headerTools = fs.readFileSync("assets/js/ui/header-tools-compat.js", "utf8");
-  expect(updater).toContain("refreshCachedHeaderToolsOnce");
+  expect(updater).toContain("refreshCachedRuntimeOnce");
   expect(updater).toContain('/header-tools-compat.js');
-  expect(updater).toContain('const UI_HOTFIX_REFRESH_KEY = "finance-ui-hotfix-v2-0-1-talaan17"');
+  expect(updater).toContain('const UI_HOTFIX_REFRESH_KEY = "finance-ui-hotfix-v2-0-1-talaan18"');
   expect(updater).not.toContain("installKanbanColumnMenuViewportPositioning");
   expect(headerTools).toContain("installKanbanColumnMenuViewportPositioning");
   expect(headerTools).toContain('panel.style.setProperty("position", "fixed", "important")');

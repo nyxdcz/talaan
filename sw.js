@@ -26,7 +26,7 @@ const APP_SHELL = [
   asset("./desktop-ux.css?v=2.5.0-talaan1"),
   asset("./production-ui-audit.css?v=2.5.0-talaan1"),
   asset("./summary-mascots.css?v=2.5.0-ui-37fc672009f7"),
-  asset("./phone-scale.css?v=2.5.0-phone-b9340413c27f"),
+  asset("./phone-scale.css?v=2.5.0-phone-bc47cccc9bce"),
   asset("./form-inputs.js?v=2.5.0-talaan1"),
   asset("./application-help.js?v=2.5.0-talaan1"),
   asset("./pwa-update.js?v=2.5.0-talaan1"),
@@ -131,15 +131,39 @@ self.addEventListener("activate", event => {
   })());
 });
 
-async function navigationResponse(request) {
-  try {
-    const response = await fetch(request);
-    const cache = await caches.open(RUNTIME_CACHE);
-    cache.put(request, response.clone());
+const CACHED_NETWORK_WAIT_MS = 250;
+
+function networkFirstResponse(request, event, navigation = false) {
+  const stores = Promise.all([caches.open(RUNTIME_CACHE), caches.open(SHELL_CACHE)]).catch(() => []);
+  const network = (async () => {
+    const response = await fetch(request, { cache:"no-store" });
+    if (response.ok) {
+      const [runtime] = await stores;
+      // A cache-write failure must not turn a successful download into an offline error.
+      await runtime?.put(request, response.clone()).catch(() => {});
+    }
     return response;
-  } catch {
-    return (await caches.match(request)) || (await caches.match(asset("./index.html"))) || (await caches.match(asset("./offline.html")));
-  }
+  })().catch(() => null);
+  // Keep the download alive after a cached response wins the deadline.
+  event.waitUntil(network.then(() => {}));
+  return (async () => {
+    const [runtime, shell] = await stores;
+    const match = (cache, key) => cache?.match(key).catch(() => null);
+    let cached = (await match(runtime, request)) || (await match(shell, request));
+    if (!cached && navigation) cached = (await match(runtime, asset("./index.html"))) || (await match(shell, asset("./index.html"))) || (await match(shell, asset("./offline.html")));
+    const offline = () => cached || new Response("Offline", { status:503, statusText:"Offline" });
+    if (!cached) return (await network) || offline();
+    let timer;
+    try {
+      const response = await Promise.race([
+        network,
+        new Promise(resolve => { timer = setTimeout(() => resolve(null), CACHED_NETWORK_WAIT_MS); })
+      ]);
+      return response?.ok ? response : offline();
+    } finally {
+      clearTimeout(timer);
+    }
+  })();
 }
 
 async function cacheFirst(request) {
@@ -152,16 +176,8 @@ async function cacheFirst(request) {
   return response;
 }
 
-async function networkFirstCriticalAsset(request) {
-  const shell = await caches.open(SHELL_CACHE);
-  const runtime = await caches.open(RUNTIME_CACHE);
-  try {
-    const response = await fetch(request, { cache:"no-store" });
-    if (response && response.ok) runtime.put(request, response.clone());
-    return response;
-  } catch {
-    return (await runtime.match(request)) || (await shell.match(request)) || new Response("Offline", { status:503, statusText:"Offline" });
-  }
+function networkFirstCriticalAsset(request, event) {
+  return networkFirstResponse(request, event);
 }
 
 async function staleWhileRevalidate(request) {
@@ -179,12 +195,12 @@ self.addEventListener("fetch", event => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (request.mode === "navigate") {
-    event.respondWith(navigationResponse(request));
+    event.respondWith(networkFirstResponse(request, event, true));
     return;
   }
   if (url.origin !== self.location.origin) return;
   if (url.pathname.endsWith(".css") || url.pathname.endsWith("app.css") || url.pathname.endsWith("privacy-lock.js") || url.pathname.endsWith("privacy-display.js") || url.pathname.endsWith("transaction-views.js") || url.pathname.endsWith("payees-rules.js") || url.pathname.endsWith("import-formats.js") || url.pathname.endsWith("import-center.js") || url.pathname.endsWith("net-worth.js") || url.pathname.endsWith("household-splits.js") || url.pathname.endsWith("cloud-sync-lifecycle.js") || url.pathname.endsWith("cloud-sync.js") || url.pathname.endsWith("finance-transaction-diagnostics.js") || url.pathname.endsWith("finance-integrity.js") || url.pathname.endsWith("account-ledger.js") || url.pathname.endsWith("account-submit-compat.js") || url.pathname.endsWith("interaction-patterns.js") || url.pathname.endsWith("pwa-update.js") || url.pathname.endsWith("budget-planning.js") || url.pathname.endsWith("productivity-tools.js") || url.pathname.endsWith("application-help.js") || url.pathname.endsWith("desktop-ux.css") || url.pathname.endsWith("sidebar-compact-brand.css") || url.pathname.endsWith("ui-icon-alignment.css") || url.pathname.endsWith("mobile.css") || url.pathname.endsWith("production-ui-audit.css") || url.pathname.endsWith("budget-planning.css") || url.pathname.endsWith("black-canvas.css") || url.pathname.endsWith("transaction-views.css") || url.pathname.endsWith("privacy-display.css") || url.pathname.endsWith("payees-rules.css") || url.pathname.endsWith("import-center.css") || url.pathname.endsWith("net-worth.css") || url.pathname.endsWith("household-splits.css") || url.pathname.endsWith("summary-mascots.css") || url.pathname.endsWith("summary-mascots.js") || url.pathname.endsWith("repeat-monthly-off.png") || url.pathname.endsWith("repeat-monthly-on.png")) {
-    event.respondWith(networkFirstCriticalAsset(request));
+    event.respondWith(networkFirstCriticalAsset(request, event));
     return;
   }
   if (url.pathname.endsWith("version.json") || url.pathname.endsWith("manifest.webmanifest")) {

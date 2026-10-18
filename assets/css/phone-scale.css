@@ -17,7 +17,7 @@
 
 /* The existing readable layer wins over legacy compact overrides. */
 @layer talaan-readable-ui {
-@scope (:root:has(#moneyPrioritySummary)) {
+@scope (:root[data-talaan-phone-ui]) {
 @media (max-width:700px), (pointer:coarse) and (max-width:932px) {
   /* Legacy spans and generated field prefixes must not bypass the copy scale. */
   :scope body :is(#dashboard,#money,#income,#paid-expenses,#projects,#payments,#reports,#settings,dialog) :where(div,span,strong,em,b,i,a,time,dt,dd,li,abbr,sup,sub,code,kbd,samp,th,td):where(:not([aria-hidden="true"]):not(.sr-only)) {
