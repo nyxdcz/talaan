@@ -59,7 +59,7 @@ Phone finance actions keep 44px touch targets. Planning labels use the available
 
 ### Phone expense gestures
 
-In Budget & Expenses on phones, swipe right on an unpaid expense to select or deselect it for bulk actions. Swipe left to reveal Edit expense and monthly recurrence. Swiping does not mark an expense paid or change its recurrence. Keyboard users can focus an expense row and press Space to select, or Enter to open its actions; an accessible Actions control also remains available. Monthly breakdown centers its arrow and label. Phone expense cards group the name and amount above quiet category/notes, a combined payment-status line, and the monthly or one-time schedule and account beside a centered 104 × 44px minimum Mark paid action. Neutral cards retain a warning edge and keep household shares, excluded totals, and auto-pay warnings visible. The one-time UI refresh uses `finance-ui-hotfix-v2-0-1-talaan17`; V2.5.0 and the finance cache and schemas remain unchanged.
+In Budget & Expenses on phones, swipe right on an unpaid expense to select or deselect it for bulk actions. Swipe left to reveal Edit expense and monthly recurrence. Swiping does not mark an expense paid or change its recurrence. Keyboard users can focus an expense row and press Space to select, or Enter to open its actions; an accessible Actions control also remains available. Monthly breakdown centers its arrow and label. Phone expense cards group the name and amount above quiet category/notes, a combined payment-status line, and the monthly or one-time schedule and account beside a centered 104 × 44px minimum Mark paid action. Neutral cards retain a warning edge and keep household shares, excluded totals, and auto-pay warnings visible. The one-time UI refresh uses `finance-ui-hotfix-v2-0-1-talaan18`; V2.5.0 and the finance cache and schemas remain unchanged.
 
 ## 🚀 Quick Start
 
@@ -302,3 +302,5 @@ This project is public and open source. See the repository for license details.
 </div>
 
 Balance-only account corrections update Available money and dependent totals without replacing expense rows or account cards. Account name/type/icon changes and expense lifecycle changes retain the full refresh. Phone labels are enhanced within changed subtrees, and total updates no longer force synchronous layout. Reconciliation, Undo, profile verification, and encrypted sync remain active.
+
+Cached startup tries the network first, then uses the current cached shell or exact asset revision after 250ms while the download continues in the background. Missing revisions still require a network download. Pending runtime refreshes share one cache scan and reload and are deferred while offline. Phone style scopes use a static shell marker to reduce repeated style checks without changing the approved sizes or layout.

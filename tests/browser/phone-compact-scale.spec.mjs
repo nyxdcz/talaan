@@ -144,3 +144,19 @@ test.describe("fine pointer boundary", () => {
     });
   }
 });
+
+for (const theme of ["light","dark"]) {
+  test(`phone controls retain their scale during summary replacement in ${theme}`,async ({ page }) => {
+    await open(page,"money",393,852,theme);
+    const controls = () => page.locator("#addExpenseButton").evaluate(node => {
+      const style = getComputedStyle(node),box = node.getBoundingClientRect();
+      return { font:style.fontSize,height:box.height,radius:style.borderRadius,padding:style.padding };
+    });
+    const before = await controls();
+    await page.locator("#moneyPrioritySummary").evaluate(node => node.remove());
+    expect(await controls()).toEqual(before);
+    await page.locator("#addExpenseButton").click();
+    await expect(page.locator("#expenseDialog")).toBeVisible();
+    await expect(page.locator("#expenseDialog input.input").first()).toHaveCSS("font-size","16px");
+  });
+}

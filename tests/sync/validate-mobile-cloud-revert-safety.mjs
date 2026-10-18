@@ -30,7 +30,7 @@ assert(privacy.includes('window.addEventListener("focus",()=>request("focus"))')
 assert(privacy.includes('window.addEventListener("pageshow",()=>request("pageshow"))'), "pageshow does not request a guarded cloud reconciliation");
 assert(privacy.includes('window.addEventListener("online",()=>request("online"))'), "online recovery does not request a guarded cloud reconciliation");
 assert(worker.includes('url.pathname.endsWith("privacy-lock.js")'), "privacy-lock is no longer treated as a critical service-worker asset");
-assert(worker.includes("networkFirstCriticalAsset(request)"), "critical privacy/sync guard delivery is not network-first");
+assert(worker.includes("networkFirstCriticalAsset(request, event)"), "critical privacy/sync guard delivery is not network-first");
 assert(worker.includes('fetch(request, { cache:"no-store" })'), "critical sync guard fetch can still reuse an HTTP cache entry");
 
 const syncStart = cloud.indexOf("async function syncNow");

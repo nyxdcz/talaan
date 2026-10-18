@@ -2528,7 +2528,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
 
 /* The phone summary leads with the monthly position; desktop retains its comparison rows. */
 @layer talaan-readable-ui {
-@scope (:root:has(#moneyPrioritySummary)) {
+@scope (:root[data-talaan-phone-ui]) {
 .phone-product-name, .money-priority-summary, .money-add-expense, .phone-page-add { display:none; }
 :scope body #money .money-add-expense { display:none !important; }
 .money-budget-breakdown { border:0; background:transparent; margin:0; }
@@ -2690,7 +2690,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
 /* Swipe rows keep payment visible and expose secondary actions in the row. */
 .phone-expense-swipe-hint, .phone-row-actions-label, .phone-recurrence-label, .phone-selection-action, .phone-selection-badge { display:none; }
 @layer talaan-readable-ui {
-@scope (:root:has(#moneyPrioritySummary)) {
+@scope (:root[data-talaan-phone-ui]) {
 @media (max-width:700px) {
   :scope body .phone-expense-swipe-hint { display:block; margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.4; }
   :scope body #money .phone-swipe-row { touch-action:pan-y pinch-zoom; }
@@ -2721,7 +2721,7 @@ html body #paidExpenseList .desktop-record-actions > [data-toggle-saved] .saved-
 
 .phone-expense-payment-status, .phone-expense-schedule { display:none; }
 @layer talaan-readable-ui {
-@scope (:root:has(#moneyPrioritySummary)) {
+@scope (:root[data-talaan-phone-ui]) {
 @media (max-width:700px) {
   /* Flatten only nonsemantic wrappers so the existing actions and swipe targets stay intact. */
   :scope body #money :is(#earlyExpenses,#lateExpenses,#otherExpenses) > .record-row[data-expense-row] {
